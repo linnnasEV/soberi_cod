@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СобериКод — программируй играя</title>
+<meta name="description" content="Бесплатная веб-платформа блочного программирования для детей 1–4 классов сельских и малокомплектных школ.">
+<meta name="theme-color" content="#4A7DFF">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="#home" class="logo"><span class="logo-mark" id="logoIcon"></span><span>СобериКод</span></a>
+    <nav class="nav-links" aria-label="Главное меню">
+      <a href="#home" data-page="home">Главная</a>
+      <a href="#courses" data-page="courses" data-also="course,lesson">Уроки</a>
+      <a href="#studio" data-page="studio">Мастерская</a>
+      <a href="#profs" data-page="profs">Профессии</a>
+      <a href="#profile" data-page="profile">Кабинет</a>
+      <a href="#teacher" data-page="teacher">Учителю</a>
+    </nav>
+    <div id="authArea" class="auth-area"></div>
+  </div>
+</header>
+
+<!-- ========== ГЛАВНАЯ ========== -->
+<main class="page" id="page-home">
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <span class="pill">Бесплатно · для 1–4 класса</span>
+        <h1>Учись <span class="accent">программировать</span> играя!</h1>
+        <p>Собирай программы из цветных блоков, проводи героев через лабиринты и создавай свои мультики. Прямо в браузере, даже на слабом компьютере или телефоне.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="go('lesson/steps/1')">Начать первый урок</button>
+          <button class="btn btn-ghost btn-lg" onclick="go('teacher')">Я учитель</button>
+        </div>
+        <p class="hero-note">Без регистрации. Первый урок занимает 2 минуты.</p>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hv-stage">
+          <div class="hv-cells"></div>
+          <div class="hv-hero" id="heroStageIcon"></div>
+          <div class="hv-star" id="hvStar"></div>
+        </div>
+        <div class="hv-blocks" id="hvBlocks"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Три уровня — от первых шагов до своих историй</h2><p>Каждый уровень подходит своему классу, но начать можно с любого</p></div>
+      <div class="grid-3" id="homeCourses"></div>
+    </div>
+  </section>
+
+  <section class="section-white">
+    <div class="container">
+      <div class="section-head"><h2>Как это работает</h2></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div>
+        <div class="step"><div class="step-num">2</div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div>
+        <div class="step"><div class="step-num">3</div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Сделано для сельских и малокомплектных школ</h2></div>
+      <div class="adv-grid">
+        <div class="adv"><div class="adv-ico">₽0</div><h4>Полностью бесплатно</h4><p>Без рекламы, подписок и платных уровней</p></div>
+        <div class="adv"><div class="adv-ico">⚡</div><h4>Работает на слабой технике</h4><p>Сайт весит меньше 150 КБ, открывается на старых ПК и недорогих смартфонах</p></div>
+        <div class="adv"><div class="adv-ico">📶</div><h4>Без быстрого интернета</h4><p>После первого открытия платформа работает даже офлайн</p></div>
+        <div class="adv"><div class="adv-ico">👩‍🏫</div><h4>Учителю не нужен IT-опыт</h4><p>Код класса, готовые уроки и памятка, как провести занятие за 30 минут</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cta-strip">
+        <h2>Попробуй прямо сейчас</h2>
+        <p>Первый урок — без регистрации. Просто нажми кнопку!</p>
+        <button class="btn btn-lg btn-white" onclick="go('lesson/steps/1')">Начать играть</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== КУРСЫ ========== -->
+<main class="page" id="page-courses">
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Уроки</h2><p>Все уровни бесплатные. Звёзды показывают, насколько коротким получилось решение.</p></div>
+      <div class="grid-3" id="coursesGrid"></div>
+    </div>
+  </section>
+</main>
+
+<main class="page" id="page-course">
+  <section>
+    <div class="container narrow">
+      <button class="btn btn-ghost" onclick="go('courses')">← Все уровни</button>
+      <div id="courseHead"></div>
+      <div class="lessons-list" id="lessonsList"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== УРОК ========== -->
+<main class="page" id="page-lesson">
+  <div class="container lesson">
+    <div class="lesson-top">
+      <button class="btn btn-ghost" id="lessonBack">← К урокам</button>
+      <div class="lt-title"><small id="lessonCourse"></small><h2 id="lessonTitle"></h2></div>
+      <div class="dots" id="lessonDots"></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="col-stage">
+        <div class="task">
+          <div class="task-hero" id="taskHero"></div>
+          <div><b>Задание</b><p id="lessonTask"></p></div>
+        </div>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="stage" id="lessonStage"></div>
+      </div>
+      <div class="col-code">
+        <div class="code-label">Блоки</div>
+        <div class="palette" id="lessonPalette"></div>
+        <div class="ws-head"><span class="code-label">Моя программа</span><span class="counter" id="lessonCounter"></span></div>
+        <div class="workspace" id="lessonWs"></div>
+        <div class="controls">
+          <button class="btn btn-go btn-lg" id="runBtn" onclick="runLesson()">▶ Старт</button>
+          <button class="btn btn-ghost" onclick="resetLesson()">↺ Сброс</button>
+          <button class="btn btn-ghost" onclick="clearLesson()">Очистить</button>
+          <button class="btn btn-hint" onclick="showHint()">? Подсказка</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ========== МАСТЕРСКАЯ ========== -->
+<main class="page" id="page-studio">
+  <div class="container lesson" id="studioTop">
+    <div class="section-head left"><h2>Мастерская</h2><p>Здесь нет заданий: выбирай героя и фон и придумывай свою историю.</p></div>
+    <div class="lesson-grid">
+      <div class="col-stage">
+        <div class="pickers">
+          <div><div class="code-label">Герой</div><div class="pick-row" id="heroPick"></div></div>
+          <div><div class="code-label">Фон</div><div class="pick-row" id="bgPick"></div></div>
+        </div>
+        <div class="stage" id="studioStage"></div>
+      </div>
+      <div class="col-code">
+        <div class="code-label">Блоки</div>
+        <div class="palette" id="studioPalette"></div>
+        <div class="ws-head"><span class="code-label">Моя программа</span><span class="counter" id="studioCounter"></span></div>
+        <div class="workspace" id="studioWs"></div>
+        <div class="controls">
+          <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Старт</button>
+          <button class="btn btn-ghost" onclick="S.editor.clear()">Очистить</button>
+          <button class="btn btn-primary" onclick="askSaveStudio()">Сохранить в галерею</button>
+        </div>
+      </div>
+    </div>
+    <div id="galleryArea" class="gallery-area"></div>
+  </div>
+</main>
+
+<!-- ========== ПРОФЕССИИ ========== -->
+<main class="page" id="page-profs">
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Кем можно стать?</h2><p>То, что ты делаешь в уроках, — настоящая работа взрослых специалистов</p></div>
+      <div class="quiz-cta card">
+        <div><h3>Тест «Что мне интересно?»</h3><p class="muted">5 простых вопросов, и ты узнаешь, какие IT-профессии тебе подходят.</p></div>
+        <button class="btn btn-primary btn-lg" onclick="startQuiz()">Пройти тест</button>
+      </div>
+      <div id="quizResultBox"></div>
+      <div class="prof-grid" id="profGrid"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== КАБИНЕТ УЧЕНИКА ========== -->
+<main class="page" id="page-profile">
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Мой кабинет</h2></div>
+      <div id="profileArea"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== УЧИТЕЛЮ ========== -->
+<main class="page" id="page-teacher">
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Кабинет учителя</h2><p>Создайте класс, следите за прогрессом и интересом детей</p></div>
+      <div id="teacherArea"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== О ПРОЕКТЕ ========== -->
+<main class="page" id="page-about">
+  <section>
+    <div class="container narrow about">
+      <h2>О проекте</h2>
+      <p class="lead">«СобериКод» — социальный проект: бесплатная веб-платформа, на которой дети из малокомплектных начальных школ, посёлков и сёл знакомятся с основами блочного программирования.</p>
+      <p>Наша цель — через игру разбудить в ребёнке любопытство к IT, не перегружая его сложными словами, и помочь понять, интересна ли ему эта сфера.</p>
+      <div class="about-grid">
+        <div class="card"><h4>Равный доступ</h4><p>Сокращаем цифровое неравенство между городскими и сельскими школами.</p></div>
+        <div class="card"><h4>Профориентация</h4><p>После уроков ребёнок узнаёт, какие профессии похожи на то, что ему понравилось, а учитель видит его интерес.</p></div>
+        <div class="card"><h4>Отечественный продукт</h4><p>Российская разработка без зарубежных сервисов, внешних шрифтов и библиотек.</p></div>
+        <div class="card"><h4>Минимальные требования</h4><p>Чистый HTML, CSS и JavaScript. Работает на старых ПК, недорогих смартфонах и при слабом интернете.</p></div>
+        <div class="card"><h4>Простой интерфейс</h4><p>Блоки с картинками, крупные кнопки, вход по коду и картинке. Ни детям, ни учителю не нужны технические знания.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>© 2026 СобериКод — программируй играя</div>
+    <div class="footer-links">
+      <a href="#about">О проекте</a>
+      <a href="#teacher">Учителю</a>
+      <button class="link-btn" id="liteToggle" onclick="toggleLite()">Облегчённый режим</button>
+      <span class="net" id="netStatus"></span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">×</button>
+    <div class="modal-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="printArea"></div>
+
+<script src="js/icons.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/lesson.js"></script>
+<script src="js/studio.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/teacher.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

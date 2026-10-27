@@ -1,0 +1,12 @@
+{
+  "name": "СобериКод — программируй играя",
+  "short_name": "СобериКод",
+  "lang": "ru",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F5F8FF",
+  "theme_color": "#4A7DFF",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
