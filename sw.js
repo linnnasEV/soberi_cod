@@ -1,5 +1,7 @@
-/* Сервис-воркер: кэширует все файлы платформы, чтобы она открывалась без интернета */
-const CACHE = 'sobericod-v2';
+/* Сервис-воркер: кэширует все файлы платформы, чтобы она открывалась без интернета.
+   Стратегия «сначала кэш»: страница открывается мгновенно даже при очень медленном
+   интернете, а свежие файлы догружаются в фоне и применяются при следующем открытии. */
+const CACHE = 'sobericod-v3';
 const FILES = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'css/style.css',
   'js/icons.js', 'js/data.js', 'js/store.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
@@ -15,12 +17,31 @@ self.addEventListener('activate', e => {
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
-/* Сначала сеть (чтобы обновления доходили), при её отсутствии — кэш */
+/* Скачивает свежую версию файла и кладёт её в кэш */
+function refresh(req) {
+  return fetch(req).then(res => {
+    if (res && res.ok) {
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(req, copy));
+    }
+    return res;
+  });
+}
+
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request)
-      .then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return res; })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('index.html')))
+    caches.match(req, { ignoreSearch: true }).then(hit => {
+      if (hit) {
+        // Отдаём кэш сразу; если интернета нет, фоновое обновление просто не удастся
+        e.waitUntil(refresh(req).catch(() => {}));
+        return hit;
+      }
+      return refresh(req).catch(err => {
+        if (req.mode === 'navigate') return caches.match('index.html');
+        throw err;
+      });
+    })
   );
 });

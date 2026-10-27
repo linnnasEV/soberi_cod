@@ -86,9 +86,14 @@ route('profile', () => {
     '<div class="profile-grid"><div class="profile-card">' +
       '<div class="avatar">' + (p.pic || ICONS.cat) + '</div>' +
       '<h3>' + esc(p.name) + '</h3>' +
-      '<p class="muted">' + (isStudent && cls ? esc(cls.name) : 'Ты играешь без входа — прогресс сохраняется только на этом устройстве') + '</p>' +
+      '<p class="muted">' + (isStudent && cls ? esc(cls.name) : 'Ты играешь без входа — прогресс сохраняется только на этом компьютере') + '</p>' +
       '<div class="stat-row"><div><b>' + done + '</b><span>уроков</span></div><div><b>' + totalStars(p) + '</b><span>звёзд</span></div><div><b>' + p.projects.length + '</b><span>работ</span></div></div>' +
-      (isStudent ? '<button class="btn btn-ghost" onclick="logout()">Выйти</button>' : '<button class="btn btn-primary" onclick="openLogin()">Войти в класс</button>') +
+      (isStudent
+        ? '<button class="btn btn-ghost" onclick="logout()">Выйти</button>'
+        : '<button class="btn btn-primary" onclick="openLogin()">Войти в класс</button>' +
+          '<button class="btn btn-ghost" onclick="openGuestSwitch()">Это не мой прогресс</button>' +
+          (Object.keys(DB.guests).length > 1
+            ? '<button class="btn btn-ghost" onclick="removeGuest(DB.session.gid)">Удалить этот профиль</button>' : '')) +
     '</div><div class="progress-list"><h3>Мои курсы</h3>' + bars +
       '<h3>Профессии, которые я попробовал</h3>' +
       (tried.length ? '<div class="chips">' + tried.map(id => '<span class="chip-s p-' + PROFESSIONS[id].color + '">' + PROFESSIONS[id].title + '</span>').join('') + '</div>'

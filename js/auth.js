@@ -10,6 +10,7 @@ function openLogin() {
     '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button>' +
     '<button class="btn btn-primary" onclick="loginCode()">Дальше →</button></div>' +
     '<p class="small-note">Хочешь посмотреть, как это работает? Код демо-класса: <b>1234</b><br>' +
+    '<button class="link-btn" onclick="openGuestSwitch()">За этим компьютером несколько детей →</button><br>' +
     '<a href="#teacher" onclick="closeModal()">Я учитель →</a></p>');
   const inp = document.getElementById('codeInp');
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') loginCode(); });
@@ -67,7 +68,7 @@ function loginNewPic(i) {
 }
 
 function finishLogin(code, sid) {
-  DB.session = { role: 'student', code, sid };
+  DB.session = { role: 'student', code, sid, gid: DB.session.gid };
   saveDB();
   closeModal();
   renderAuthArea();
@@ -77,7 +78,7 @@ function finishLogin(code, sid) {
 
 function logout() {
   const wasTeacher = DB.session.role === 'teacher';
-  DB.session = { role: 'guest' };
+  DB.session = { role: 'guest', gid: DB.session.gid || Object.keys(DB.guests)[0] };
   saveDB();
   renderAuthArea();
   go(wasTeacher ? 'teacher' : 'home');
@@ -93,6 +94,55 @@ function renderAuthArea() {
   } else if (s.role === 'teacher') {
     area.innerHTML = '<button class="user-badge" onclick="go(\'teacher\')"><span class="mini-ava">👩‍🏫</span><span class="ub-name">' + esc(currentClass().name) + '</span></button>';
   } else {
-    area.innerHTML = '<button class="btn btn-primary" onclick="openLogin()">Войти</button>';
+    const p = me();
+    // У гостя с прогрессом показываем, чей он: за компьютером может сидеть не один ребёнок
+    const badge = totalStars(p) || p.projects.length
+      ? '<button class="user-badge" onclick="openGuestSwitch()" title="Кто сейчас играет?"><span class="mini-ava">' + (p.pic || '🙂') + '</span>' +
+        '<span class="ub-name">' + esc(p.name) + '</span><span class="ub-stars">' + ICONS.star + totalStars(p) + '</span></button>'
+      : '';
+    area.innerHTML = badge + '<button class="btn btn-primary" onclick="openLogin()">Войти</button>';
   }
+}
+
+/* ===== Гости одного компьютера =====
+   Без входа в класс прогресс всё равно не общий: каждый ребёнок выбирает себя в списке. */
+function openGuestSwitch() {
+  const cur = DB.session.role === 'guest' ? DB.session.gid : null;
+  openModal('<h2>Кто сейчас играет?</h2>' +
+    '<p class="sub">За одним компьютером может заниматься несколько детей — у каждого свои звёзды.</p>' +
+    '<div class="name-grid">' + guestList().map(([gid, g]) =>
+      '<button class="name-btn' + (gid === cur ? ' sel' : '') + '" onclick="pickGuest(\'' + gid + '\')">' +
+      esc(g.name) + ' · ' + totalStars(g) + '★</button>').join('') + '</div>' +
+    '<p class="sub">Тебя нет в списке?</p>' +
+    '<div class="form-group"><input id="guestName" maxlength="20" placeholder="Напиши своё имя"></div>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>' +
+    '<button class="btn btn-primary" onclick="addGuestFromInput()">Начать свой прогресс</button></div>' +
+    '<p class="small-note">Это имя видно только на этом компьютере. Чтобы звёзды видел учитель, ' +
+    'войди по коду класса.</p>');
+}
+
+function pickGuest(gid) {
+  if (!DB.guests[gid]) return;
+  DB.session = { role: 'guest', gid };
+  saveDB();
+  closeModal();
+  renderAuthArea();
+  handleRoute();
+  toast('Привет, ' + me().name + '! Это твой прогресс.');
+}
+
+function addGuestFromInput() {
+  const name = document.getElementById('guestName').value.trim();
+  if (name.length < 2) { toast('Напиши имя — хотя бы 2 буквы', 'warn'); return; }
+  pickGuest(addGuest(name, null));
+}
+
+function removeGuest(gid) {
+  if (Object.keys(DB.guests).length < 2) { toast('Это единственный профиль на компьютере.', 'warn'); return; }
+  delete DB.guests[gid];
+  if (DB.session.gid === gid) DB.session.gid = Object.keys(DB.guests)[0];
+  saveDB();
+  closeModal();
+  renderAuthArea();
+  handleRoute();
 }

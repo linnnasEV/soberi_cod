@@ -19,6 +19,8 @@ function teacherEntry() {
       '<div class="form-group"><label>Код класса</label><input id="tCode" inputmode="numeric" maxlength="4" placeholder="1234"></div>' +
       '<div class="form-group"><label>ПИН учителя</label><input id="tPin2" inputmode="numeric" maxlength="4" type="password" placeholder="••••"></div>' +
       '<button class="btn btn-primary" onclick="teacherLogin()">Войти</button>' +
+      '<p class="small-note">Переносите класс с другого компьютера? ' +
+      '<button class="link-btn" onclick="pickClassFile()">Загрузить класс из файла</button></p>' +
       '<div class="demo-box"><b>Хотите посмотреть?</b><p class="muted">Откройте демо-класс с готовой статистикой.</p>' +
       '<button class="btn btn-ghost" onclick="openDemoClass()">Открыть демо-класс</button></div></div>' +
     '</div>' + teacherGuide();
@@ -40,13 +42,17 @@ function createClass() {
   if (name.length < 1) return toast('Введите название класса', 'warn');
   if (!/^\d{4}$/.test(pin)) return toast('ПИН — это 4 цифры', 'warn');
   const code = genCode();
-  DB.classes[code] = { code, name, grade: document.getElementById('tGrade').value, pin, students: {} };
-  DB.session = { role: 'teacher', code };
+  DB.classes[code] = {
+    code, name, grade: document.getElementById('tGrade').value,
+    pinHash: pinHash(pin, code), students: {}
+  };
+  DB.session = { role: 'teacher', code, gid: DB.session.gid };
   saveDB();
   renderAuthArea();
   handleRoute();
   openModal('<h2>Класс создан!</h2><p class="sub">Код для детей:</p><div class="big-code">' + code + '</div>' +
     '<p class="muted">Добавьте список учеников или пусть дети впишут имя сами при первом входе.</p>' +
+    '<p class="small-note">Запомните ПИН: восстановить его нельзя, он не хранится в открытом виде.</p>' +
     '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Понятно</button></div>');
 }
 
@@ -55,15 +61,53 @@ function teacherLogin() {
   const pin = document.getElementById('tPin2').value.trim();
   if (code === '1234') ensureDemoClass();
   const cls = DB.classes[code];
-  if (!cls || cls.pin !== pin) return toast('Неверный код класса или ПИН', 'warn');
-  DB.session = { role: 'teacher', code };
+  if (!pinOk(cls, pin)) return toast('Неверный код класса или ПИН', 'warn');
+  DB.session = { role: 'teacher', code, gid: DB.session.gid };
   saveDB(); renderAuthArea(); handleRoute();
 }
 
 function openDemoClass() {
   ensureDemoClass();
-  DB.session = { role: 'teacher', code: '1234' };
+  DB.session = { role: 'teacher', code: '1234', gid: DB.session.gid };
   saveDB(); renderAuthArea(); handleRoute();
+}
+
+/* ===== Перенос класса на другой компьютер =====
+   Данные лежат в браузере, поэтому журнал класса учитель забирает файлом. */
+function saveClassFile() {
+  const cls = currentClass();
+  const blob = new Blob([classToJSON(cls)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'soberikod-class-' + cls.code + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Файл класса сохранён. В нём имена детей — храните как журнал.');
+}
+
+function pickClassFile() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = () => {
+    const file = inp.files && inp.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = importClassJSON(String(reader.result));
+      if (!res.ok) return toast(res.msg, 'warn');
+      DB.session = { role: 'teacher', code: res.code, gid: DB.session.gid };
+      saveDB(); renderAuthArea(); closeModal(); handleRoute();
+      toast(res.merged
+        ? 'Класс «' + res.name + '» обновлён: прогресс из файла добавлен к уже сохранённому.'
+        : 'Класс «' + res.name + '» загружен. Код для детей: ' + res.code);
+    };
+    reader.onerror = () => toast('Не удалось прочитать файл', 'warn');
+    reader.readAsText(file);
+  };
+  inp.click();
 }
 
 /* Интерес к урокам по реакциям ребёнка (😀=2, 🙂=1, 😐=0) */
@@ -105,6 +149,8 @@ function teacherDashboard() {
   return '<div class="t-head card"><div><span class="lvl">' + esc(cls.grade) + (cls.demo ? ' · демо' : '') + '</span><h2>' + esc(cls.name) + '</h2>' +
       '<p class="muted">Код для входа детей</p><div class="big-code">' + cls.code + '</div></div>' +
       '<div class="t-head-actions"><button class="btn btn-ghost" onclick="printCards()">Распечатать карточки входа</button>' +
+      '<button class="btn btn-ghost" onclick="saveClassFile()">Сохранить класс в файл</button>' +
+      '<button class="btn btn-ghost" onclick="pickClassFile()">Загрузить из файла</button>' +
       '<button class="btn btn-ghost" onclick="logout()">Выйти</button></div></div>' +
 
     '<div class="stat-grid">' +
@@ -125,7 +171,9 @@ function teacherDashboard() {
       '<p class="small-note">«Интерес» считается по ответам ребёнка «Как тебе урок?» после каждого задания. ' +
       'Так видно, кому стоит предложить кружок по программированию или робототехнике.</p></div>' +
     teacherGuide() +
-    '<p class="small-note">В этой версии данные класса хранятся в браузере этого компьютера.</p>';
+    '<p class="small-note">Данные класса хранятся в браузере этого компьютера и никуда не отправляются. ' +
+    'Чтобы не потерять журнал и продолжить занятие в другом кабинете, нажмите «Сохранить класс в файл», ' +
+    'а на новом компьютере — «Загрузить из файла»: прогресс объединится, лучшие результаты сохранятся.</p>';
 }
 
 function addStudents() {
