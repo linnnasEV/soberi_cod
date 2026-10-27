@@ -145,6 +145,7 @@ function lessonSuccess() {
   const wasDone = courseDone(p, courseId) === LESSONS[courseId].length;
   p.progress[key] = Math.max(p.progress[key] || 0, stars);
   saveDB();
+  renderAuthArea();   // звёзды в шапке должны обновиться сразу после урока
 
   const list = LESSONS[courseId];
   const next = list.find(l => l.id === lesson.id + 1);
