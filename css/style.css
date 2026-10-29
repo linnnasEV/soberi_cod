@@ -407,9 +407,12 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .prof-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 860px) {
-  .hero-inner, .grid-3, .steps, .teacher-entry, .profile-grid, .about-grid { grid-template-columns: 1fr; }
+  .hero-inner, .grid-3, .steps, .teacher-entry, .profile-grid, .about-grid, .how { grid-template-columns: 1fr; }
   .hero h1 { font-size: 38px; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
+  .start-panel { flex-direction: column; text-align: center; }
+  .sp-text { align-items: center; }
+  .sp-act { margin-left: 0; }
 }
 @media (max-width: 560px) {
   .container, .nav, .footer-inner { padding-left: 16px; padding-right: 16px; }
@@ -423,6 +426,11 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .pblock .bi svg { width: 26px; height: 26px; }
   .wblock { width: 58px; height: 58px; }
   .lt-title h2 { font-size: 20px; }
+  .lc-note { min-height: 0; }
+  /* Таблица уровней должна помещаться в телефон целиком: она для взрослого,
+     который читает её стоя в коридоре, а не разглядывает с лупой. */
+  .cmp th, .cmp td { padding: 10px 10px; font-size: 13px; }
+  .cmp tbody th { width: 84px; }
   .course-head { flex-direction: column; align-items: flex-start; }
   .controls .btn { flex: 1 1 auto; }
   .ub-name { display: none; }
@@ -459,6 +467,55 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .track-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; justify-content: center;
   background: #fff; border-radius: 14px; padding: 10px 16px; margin-bottom: 22px; box-shadow: var(--shadow); font-size: 15px; }
 .track-note .link-btn { color: var(--blue); font-weight: 800; text-decoration: underline; }
+
+/* ---------- Главная: выбор уровня на первом экране ---------- */
+.hero-pick { max-width: 860px; text-align: center; }
+.hero-pick p { margin-left: auto; margin-right: auto; }
+.hero-pick .hero-note { margin-top: 18px; }
+
+.level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.level-card { background: #fff; border-radius: 22px; padding: 26px 20px; box-shadow: var(--shadow);
+  border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center; transition: .18s; }
+.level-card:hover, .level-card:focus-visible { transform: translateY(-5px); border-color: var(--accent); }
+.level-card.t-junior { --accent: #FFC531; }
+.level-card.t-senior { --accent: #4A7DFF; }
+.lc-hero { width: 96px; height: 96px; }
+.lc-hero svg { width: 100%; height: 100%; }
+.level-card b { font-size: 26px; font-weight: 900; }
+.lc-age { font-weight: 800; color: var(--accent); }
+/* Набор блоков вместо описания: что получит ребёнок, видно без чтения */
+.lc-blocks { display: flex; gap: 8px; margin: 10px 0 4px; }
+.lc-note { color: var(--muted); font-size: 14px; min-height: 40px; }
+.lc-go { font-weight: 800; color: var(--accent); }
+
+.start-panel { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center;
+  background: #fff; border-radius: 22px; padding: 18px 24px; box-shadow: var(--shadow);
+  border: 3px solid var(--accent); text-align: left; }
+.start-panel.t-junior { --accent: #FFC531; }
+.start-panel.t-senior { --accent: #4A7DFF; }
+.sp-hero { width: 64px; height: 64px; flex-shrink: 0; }
+.sp-hero svg { width: 100%; height: 100%; }
+.sp-text { display: flex; flex-direction: column; }
+.sp-text b { font-size: 22px; font-weight: 900; }
+.sp-level { font-weight: 800; color: var(--accent); font-size: 14px; }
+.sp-act { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; }
+.sp-act .link-btn { color: var(--blue); font-weight: 800; }
+
+/* ---------- Главная: «Как это работает» и сравнение уровней ---------- */
+.how { display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
+.how .steps { display: flex; flex-direction: column; gap: 18px; }
+.how .step { display: flex; gap: 16px; align-items: flex-start; text-align: left; padding: 0; }
+.how .step-num { margin: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 19px; }
+
+.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden; }
+.cmp th, .cmp td { padding: 14px 18px; text-align: left; vertical-align: top; font-size: 15px; }
+.cmp tbody tr + tr { border-top: 1px solid #EDF1F7; }
+.cmp tbody th { width: 150px; font-weight: 800; color: var(--muted); }
+.cmp-h { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 900; }
+.cmp-h.t-junior { background: #FFF4CC; color: #8A5E00; }
+.cmp-h.t-senior { background: #E8EFFF; color: var(--blue-dark); }
 
 /* ---------- Задание картинками и чтение вслух ---------- */
 .task-body { flex: 1; min-width: 0; }

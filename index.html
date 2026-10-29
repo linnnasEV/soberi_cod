@@ -29,33 +29,21 @@
 
 <!-- ========== ГЛАВНАЯ ========== -->
 <main class="page" id="page-home">
+  <!-- Первый экран занят выбором уровня: от него зависит весь остальной
+       контент, поэтому спрашиваем до того, как ребёнок куда-то пойдёт. -->
   <section class="hero">
-    <div class="container hero-inner">
-      <div>
-        <span class="pill">Бесплатно · для 1–4 класса</span>
-        <h1>Учись <span class="accent">программировать</span> играя!</h1>
-        <p>Собирай программы из цветных блоков, проводи героев через лабиринты и создавай свои мультики. Прямо в браузере, даже на слабом компьютере или телефоне.</p>
-        <div class="hero-actions">
-          <button class="btn btn-primary btn-lg" onclick="startFirst()">Начать первый урок</button>
-          <button class="btn btn-ghost btn-lg" onclick="go('teacher')">Я учитель</button>
-        </div>
-        <p class="hero-note">Без регистрации. Первый урок занимает 2 минуты.</p>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="hv-stage">
-          <div class="hv-cells"></div>
-          <div class="hv-hero" id="heroStageIcon"></div>
-          <div class="hv-star" id="hvStar"></div>
-        </div>
-        <div class="hv-blocks" id="hvBlocks"></div>
-      </div>
+    <div class="container hero-pick">
+      <span class="pill">Бесплатно · без регистрации</span>
+      <h1>Программируй <span class="accent">играя</span></h1>
+      <p>Собирай программы из цветных блоков и оживляй героев. Прямо в браузере, на любом компьютере.</p>
+      <div id="homeStart"></div>
+      <p class="hero-note">Работает без интернета · ничего не нужно устанавливать</p>
     </div>
   </section>
 
-  <section>
+  <section id="homeCoursesBox" hidden>
     <div class="container">
-      <div class="section-head"><h2>Выбери свой уровень</h2><p>Задания и блоки подобраны по возрасту. Уровень можно сменить в любой момент</p></div>
-      <div id="trackPickHome"></div>
+      <div class="section-head"><h2>Задания твоего уровня</h2></div>
       <div class="grid-3" id="homeCourses"></div>
     </div>
   </section>
@@ -63,11 +51,40 @@
   <section class="section-white">
     <div class="container">
       <div class="section-head"><h2>Как это работает</h2></div>
-      <div class="steps">
-        <div class="step"><div class="step-num">1</div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div>
-        <div class="step"><div class="step-num">2</div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div>
-        <div class="step"><div class="step-num">3</div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div>
+      <div class="how">
+        <ol class="steps">
+          <li class="step"><div class="step-num">1</div><div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div></li>
+          <li class="step"><div class="step-num">2</div><div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div></li>
+        </ol>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hv-stage">
+            <div class="hv-cells"></div>
+            <div class="hv-hero" id="heroStageIcon"></div>
+            <div class="hv-star" id="hvStar"></div>
+          </div>
+          <div class="hv-blocks" id="hvBlocks"></div>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Разбор уровней — для взрослого: учителю и родителю нужно понимать,
+       чем отличается подача, а не только возраст на карточке. -->
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Два уровня — одна платформа</h2><p>Движок один, но задания, блоки и подача подобраны по возрасту</p></div>
+      <table class="cmp">
+        <thead><tr><td></td>
+          <th><span class="cmp-h t-junior">1–2 класс</span></th>
+          <th><span class="cmp-h t-senior">3–4 класс</span></th></tr></thead>
+        <tbody>
+          <tr><th>Задание</th><td>3–5 минут, одна механика</td><td>8–10 минут, комбинации</td></tr>
+          <tr><th>Блоки</th><td>движение, прыжок, звук</td><td>+ повороты, циклы, анимация</td></tr>
+          <tr><th>Текст</th><td>почти нет: картинки и озвучка</td><td>есть объяснение алгоритма</td></tr>
+          <tr><th>Чему учится</th><td>порядок действий, поиск ошибки</td><td>алгоритм, цикл, короткое решение</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 

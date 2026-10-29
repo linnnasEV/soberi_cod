@@ -23,11 +23,81 @@ function visibleCourses() {
   return (t === 'junior' || t === 'senior') ? COURSES.filter(c => c.track === t) : COURSES;
 }
 
-/* Кнопки «Начать первый урок» на главной ведут в первый курс своего уровня,
-   иначе третьеклассник попадал бы в задания для шестилеток. */
+/* Сколько всего заданий на уровне — число на карточке выбора честное,
+   считается по содержанию, а не проставлено руками. */
+function trackLessons(t) {
+  return COURSES.filter(c => c.track === t).reduce((n, c) => n + LESSONS[c.id].length, 0);
+}
+
+/* Первое незакрытое задание своего уровня: вернувшийся ребёнок продолжает
+   одной кнопкой, а не ищет, где остановился. */
+function nextLesson() {
+  const p = me();
+  const list = visibleCourses();
+  for (const c of list) {
+    const l = LESSONS[c.id].find(x => lessonStars(p, c.id, x.id) === 0);
+    if (l) return { course: c, lesson: l };
+  }
+  const c = list[0] || COURSES[0];
+  return { course: c, lesson: LESSONS[c.id][0] };
+}
+
+/* Кнопки «Начать» ведут в первое незакрытое задание своего уровня. Пока
+   уровень не выбран, бросать ребёнка в случайное задание нельзя: третьеклассник
+   попал бы в задания для шестилеток, поэтому возвращаем к выбору. */
 function startFirst() {
-  const c = visibleCourses()[0] || COURSES[0];
-  go('lesson/' + c.id + '/1');
+  if (!activeTrack()) {
+    go('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  const { course, lesson } = nextLesson();
+  go('lesson/' + course.id + '/' + lesson.id);
+}
+
+/* ===== Выбор уровня на главной =====
+   Карточка показывает не описание, а сами блоки, которые ребёнок получит:
+   «у меня будут вот такие кнопки» понятно и тому, кто ещё не читает. */
+const TRACK_BLOCKS = {
+  junior: ['right', 'up', 'jump', 'say'],
+  senior: ['forward', 'turnRight', 'repeat', 'spin']
+};
+
+function levelCardsHTML() {
+  return '<div class="level-grid">' + Object.entries(TRACKS).map(([id, tr]) =>
+    '<button class="level-card t-' + id + '" onclick="chooseTrack(\'' + id + '\')">' +
+      '<span class="lc-hero">' + HEROES[tr.hero].icon + '</span>' +
+      '<b>' + tr.title + '</b><span class="lc-age">' + tr.age + '</span>' +
+      '<span class="lc-blocks">' + TRACK_BLOCKS[id].map(t =>
+        '<span class="hvb ' + BLOCKS[t].cls + '">' + ICONS[t] + '</span>').join('') + '</span>' +
+      '<span class="lc-note">' + tr.note + '</span>' +
+      '<span class="lc-go">' + trackLessons(id) + ' заданий →</span>' +
+    '</button>').join('') + '</div>';
+}
+
+/* Уровень уже выбран — вместо карточек одна кнопка «Продолжить» с тем самым
+   заданием, на котором остановились. */
+function startPanelHTML() {
+  const t = activeTrack();
+  const tr = TRACKS[t];
+  const { course, lesson } = nextLesson();
+  const started = totalStars(me()) > 0;
+  return '<div class="start-panel t-' + t + '">' +
+    '<span class="sp-hero">' + HEROES[tr.hero].icon + '</span>' +
+    '<span class="sp-text"><span class="sp-level">' + tr.title + ' · ' + tr.age + '</span>' +
+      '<b>' + lesson.title + '</b>' +
+      '<span class="muted">' + course.title + ' · задание ' + lesson.id + '</span></span>' +
+    '<span class="sp-act">' +
+      '<button class="btn btn-primary btn-lg" onclick="go(\'lesson/' + course.id + '/' + lesson.id + '\')">' +
+        (started ? 'Продолжить' : 'Начать') + '</button>' +
+      (lockedTrack()
+        ? '<span class="muted">уровень выбрал учитель</span>'
+        : '<button class="link-btn" onclick="chooseTrack(null)">Сменить уровень</button>') +
+    '</span></div>';
+}
+
+function homeStartHTML() {
+  return activeTrack() ? startPanelHTML() : levelCardsHTML();
 }
 
 /* Выбор уровня сложности: два больших варианта, пока ничего не выбрано,

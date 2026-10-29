@@ -1,8 +1,12 @@
 /* ===== Главная, профессии, кабинет ученика, о проекте ===== */
 
 route('home', () => {
-  renderTrackPick('trackPickHome');
-  document.getElementById('homeCourses').innerHTML = visibleCourses().map(courseCard).join('');
+  document.getElementById('homeStart').innerHTML = homeStartHTML();
+  // Список курсов имеет смысл только после выбора уровня: иначе на главной
+  // вперемешку лежали бы задания для шести- и для десятилетних.
+  const box = document.getElementById('homeCoursesBox');
+  box.hidden = !activeTrack();
+  if (!box.hidden) document.getElementById('homeCourses').innerHTML = visibleCourses().map(courseCard).join('');
   document.getElementById('heroStageIcon').innerHTML = ICONS.cat;
   document.getElementById('hvStar').innerHTML = ICONS.star;
   document.getElementById('hvBlocks').innerHTML = ['right', 'right', 'up', 'jump', 'say']
