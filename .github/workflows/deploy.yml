@@ -1,0 +1,61 @@
+# Публикация сайта в Yandex Object Storage.
+# Срабатывает на каждый пуш в main и по кнопке «Run workflow» во вкладке Actions.
+# Секреты репозитория: YC_BUCKET, YC_ACCESS_KEY_ID, YC_SECRET_ACCESS_KEY (см. DEPLOY.md).
+name: Deploy to Yandex Object Storage
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Загрузить файлы в бакет
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          set -eu
+          EP=https://storage.yandexcloud.net
+
+          # Кэш браузера отключён намеренно: офлайн-режим обеспечивает сервис-воркер,
+          # а правка урока должна доходить до детей со следующего открытия, а не через год.
+          # Сайт весит 250 КБ, поэтому перепроверка файлов ничего не стоит.
+          # ACL объектам не выставляем: публичное чтение включено на уровне бакета
+          # (этого требует сам хостинг), а менять ACL умеет только роль storage.admin —
+          # сервисному аккаунту деплоя такие права ни к чему.
+          COMMON=(--endpoint-url "$EP" --recursive --no-progress
+                  --cache-control no-cache
+                  --exclude ".git/*" --exclude ".github/*" --exclude "*.zip"
+                  --exclude "soberikod-class-*.json"
+                  --exclude "README.md" --exclude "DEPLOY.md" --exclude "LICENSE")
+
+          # Текстовые файлы заливаем отдельно, чтобы явно указать UTF-8:
+          # без этого старые браузеры могут показать русский текст кракозябрами.
+          aws s3 cp . "s3://$BUCKET" "${COMMON[@]}" \
+            --exclude "*.html" --exclude "*.css" --exclude "*.js"
+
+          aws s3 cp . "s3://$BUCKET" "${COMMON[@]}" \
+            --exclude "*" --include "*.html" --content-type "text/html; charset=utf-8"
+
+          aws s3 cp . "s3://$BUCKET" "${COMMON[@]}" \
+            --exclude "*" --include "*.css" --content-type "text/css; charset=utf-8"
+
+          aws s3 cp . "s3://$BUCKET" "${COMMON[@]}" \
+            --exclude "*" --include "*.js" --content-type "text/javascript; charset=utf-8"
+
+      - name: Проверить, что сайт открывается
+        env:
+          BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          set -eu
+          URL="https://$BUCKET.website.yandexcloud.net/"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' "$URL")
+          echo "$URL → HTTP $code"
+          test "$code" = "200"
