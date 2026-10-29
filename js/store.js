@@ -11,7 +11,7 @@ function newProfile(name, pic) {
 }
 
 function defaultDB() {
-  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { lite: false } };
+  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { lite: false, track: null } };
 }
 
 let DB = loadDB();
@@ -92,6 +92,27 @@ function me() {
 function currentClass() {
   const s = DB.session;
   return (s.role === 'student' || s.role === 'teacher') ? DB.classes[s.code] : null;
+}
+
+/* ===== Уровень сложности =====
+   Классу он достаётся сам: учитель уже выбрал класс, когда создавал его,
+   спрашивать отдельно незачем. Разновозрастной группе показываем оба уровня,
+   а ребёнку без класса — тот, что он выбрал сам на главной. */
+const GRADE_TRACK = { '1 класс': 'junior', '2 класс': 'junior', '3 класс': 'senior', '4 класс': 'senior' };
+
+/* Уровень, навязанный классом: сменить его ребёнок не может */
+function lockedTrack() {
+  const cls = currentClass();
+  return (cls && GRADE_TRACK[cls.grade]) || null;
+}
+
+function activeTrack() {
+  return lockedTrack() || DB.settings.track || null;
+}
+
+function setTrack(t) {
+  DB.settings.track = t;
+  saveDB();
 }
 
 function lessonKey(courseId, lessonId) { return courseId + '-' + lessonId; }

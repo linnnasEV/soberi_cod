@@ -1,7 +1,8 @@
 /* ===== Главная, профессии, кабинет ученика, о проекте ===== */
 
 route('home', () => {
-  document.getElementById('homeCourses').innerHTML = COURSES.map(courseCard).join('');
+  renderTrackPick('trackPickHome');
+  document.getElementById('homeCourses').innerHTML = visibleCourses().map(courseCard).join('');
   document.getElementById('heroStageIcon').innerHTML = ICONS.cat;
   document.getElementById('hvStar').innerHTML = ICONS.star;
   document.getElementById('hvBlocks').innerHTML = ['right', 'right', 'up', 'jump', 'say']
@@ -15,8 +16,8 @@ function profTried(id, p) {
   const any = Object.keys(p.progress).length > 0;
   return ({
     programmer: any,
-    tester: lessonStars(p, 'steps', 6) > 0 || lessonStars(p, 'loops', 5) > 0,
-    robot: courseDone(p, 'steps') > 0,
+    tester: lessonStars(p, 'steps', 6) > 0 || lessonStars(p, 'loops', 5) > 0 || lessonStars(p, 'moves', 5) > 0,
+    robot: courseDone(p, 'steps') > 0 || courseDone(p, 'moves') > 0,
     gamedev: courseDone(p, 'loops') > 0,
     animator: courseDone(p, 'stories') > 0,
     designer: p.projects.length > 0
@@ -75,7 +76,7 @@ route('profile', () => {
   const isStudent = DB.session.role === 'student';
   const cls = currentClass();
   const done = Object.keys(p.progress).length;
-  const bars = COURSES.map(c => {
+  const bars = visibleCourses().map(c => {
     const d = courseDone(p, c.id), t = LESSONS[c.id].length;
     return '<div class="course-progress"><div class="row"><span>' + c.title + '</span><span>' + d + ' из ' + t + '</span></div>' +
       '<div class="bar c-' + c.color + '"><span style="width:' + Math.max(d / t * 100, 2) + '%"></span></div></div>';

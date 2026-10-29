@@ -16,8 +16,56 @@ function courseCard(c) {
     '</article>';
 }
 
+/* Курсы того уровня сложности, который сейчас выбран.
+   Пока уровень не выбран (и у разновозрастной группы) показываем все. */
+function visibleCourses() {
+  const t = activeTrack();
+  return (t === 'junior' || t === 'senior') ? COURSES.filter(c => c.track === t) : COURSES;
+}
+
+/* Кнопки «Начать первый урок» на главной ведут в первый курс своего уровня,
+   иначе третьеклассник попадал бы в задания для шестилеток. */
+function startFirst() {
+  const c = visibleCourses()[0] || COURSES[0];
+  go('lesson/' + c.id + '/1');
+}
+
+/* Выбор уровня сложности: два больших варианта, пока ничего не выбрано,
+   и одна строка потом. Подписи — по классу, а не «лёгкий» и «сложный»:
+   ребёнок не должен выбирать себе ярлык. */
+function trackPickHTML() {
+  const t = activeTrack();
+  const fixed = lockedTrack();
+
+  if (fixed) {
+    return '<div class="track-note"><span>Уровень: <b>' + TRACKS[fixed].title + '</b></span>' +
+      '<span class="muted">его выбрал учитель при создании класса</span></div>';
+  }
+  if (t === 'junior' || t === 'senior') {
+    return '<div class="track-note"><span>Уровень: <b>' + TRACKS[t].title + '</b> · ' + TRACKS[t].age + '</span>' +
+      '<button class="link-btn" onclick="chooseTrack(null)">Выбрать другой</button></div>';
+  }
+  return '<div class="track-pick">' + Object.entries(TRACKS).map(([id, tr]) =>
+    '<button class="track-card t-' + id + '" onclick="chooseTrack(\'' + id + '\')">' +
+      '<span class="tc-hero">' + HEROES[tr.hero].icon + '</span>' +
+      '<b>' + tr.title + '</b><span class="tc-age">' + tr.age + '</span>' +
+      '<span class="tc-note">' + tr.note + '</span></button>').join('') +
+    '</div>';
+}
+
+function renderTrackPick(id) {
+  const box = document.getElementById(id);
+  if (box) box.innerHTML = trackPickHTML();
+}
+
+function chooseTrack(t) {
+  setTrack(t);
+  handleRoute();
+}
+
 route('courses', () => {
-  document.getElementById('coursesGrid').innerHTML = COURSES.map(courseCard).join('');
+  renderTrackPick('trackPickCourses');
+  document.getElementById('coursesGrid').innerHTML = visibleCourses().map(courseCard).join('');
 });
 
 function lessonUnlocked(courseId, l) {
@@ -44,13 +92,21 @@ route('course', courseId => {
 /* ---------- Экран урока ---------- */
 const L = { courseId: null, lesson: null, hero: 'cat', running: false };
 
+/* Задание цепочкой картинок: герой → что собрать → куда прийти.
+   Для шестилетки это читается мгновенно и без букв. */
+function picFormula(hero, pic) {
+  const cell = ic => '<span class="pf-i">' + ic + '</span>';
+  return cell(HEROES[hero].icon) +
+    pic.map(name => '<span class="pf-a">→</span>' + cell(ICONS[name] || '')).join('');
+}
+
 route('lesson', (courseId, lessonId) => {
   const c = COURSES.find(x => x.id === courseId);
   const lesson = c && LESSONS[courseId].find(l => l.id === +lessonId);
   if (!lesson) return go('courses');
   if (!lessonUnlocked(courseId, lesson)) { toast('Этот урок пока закрыт. Пройди предыдущий!', 'warn'); return go('course/' + courseId); }
 
-  Object.assign(L, { courseId, lesson, hero: c.hero, running: false });
+  Object.assign(L, { courseId, lesson, course: c, hero: c.hero, running: false });
   document.getElementById('lessonBack').onclick = () => go('course/' + courseId);
   document.getElementById('lessonTitle').textContent = 'Урок ' + lesson.id + '. ' + lesson.title;
   document.getElementById('lessonCourse').textContent = c.title;
@@ -58,19 +114,37 @@ route('lesson', (courseId, lessonId) => {
     '<span class="dot' + (l.id === lesson.id ? ' cur' : '') + (lessonStars(me(), courseId, l.id) ? ' ok' : '') + '"></span>').join('');
   document.getElementById('taskHero').innerHTML = HEROES[c.hero].icon;
   document.getElementById('lessonTask').textContent = lesson.task;
+
+  // Младший трек: крупная короткая подпись и цепочка картинок вместо абзаца
+  document.getElementById('lessonTaskBox').classList.toggle('junior', c.track === 'junior');
+  const pic = document.getElementById('taskPic');
+  pic.innerHTML = lesson.pic ? picFormula(c.hero, lesson.pic) : '';
+  pic.classList.toggle('show', !!lesson.pic);
+
+  const speak = document.getElementById('speakBtn');
+  speak.style.display = Speech.available() ? '' : 'none';
+  speak.innerHTML = ICONS.speaker;
+
   document.getElementById('hintBox').classList.remove('show');
   setRunBtn(false);
 
   window.currentStage = L.stage = L.stage || new Stage(document.getElementById('lessonStage'));
-  L.stage.mount(lesson, { hero: c.hero });
+  L.stage.mount(lesson, { hero: c.hero, rel: !!c.rel });
   L.editor = L.editor || new Editor({
     palette: document.getElementById('lessonPalette'),
     workspace: document.getElementById('lessonWs'),
     counter: document.getElementById('lessonCounter'),
     onChange: () => { L.stage.reset(); document.getElementById('hintBox').classList.remove('show'); }
   });
-  L.editor.setup({ blocks: lesson.blocks, maxBlocks: lesson.maxBlocks, program: lesson.preset || [] });
+  L.editor.setup({ blocks: lesson.blocks, maxBlocks: lesson.maxBlocks, program: lesson.preset || [], nested: !!c.nested });
 });
+
+/* Задание вслух: в `say` лежит та же мысль полным предложением,
+   потому что подпись на экране намеренно короткая. */
+function speakTask() {
+  if (!L.lesson) return;
+  Speech.say(L.lesson.say || L.lesson.task);
+}
 
 function setRunBtn(running) {
   const b = document.getElementById('runBtn');
@@ -86,6 +160,7 @@ async function runLesson() {
   }
   const prog = L.editor.program;
   if (!prog.length) return toast('Сначала добавь блоки в программу!', 'warn');
+  Speech.stop();
   L.running = true; setRunBtn(true);
   L.editor.setLocked(true);
   const res = await L.stage.run(prog, (n, p) => L.editor.highlight(n, p));
@@ -135,6 +210,8 @@ function showHint() {
   }
   box.innerHTML = '<b>Подсказка:</b> ' + esc(lesson.hint) + (extra ? '<br>' + extra : '');
   box.classList.add('show');
+  // младшим подсказку тоже проговариваем: её текст длиннее задания
+  if (L.course && L.course.track === 'junior') Speech.say(lesson.hint);
 }
 
 function lessonSuccess() {

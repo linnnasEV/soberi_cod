@@ -19,6 +19,7 @@ function handleRoute() {
   const [page, ...args] = (location.hash.slice(1) || 'home').split('/');
   const name = ROUTES[page] ? page : 'home';
   if (window.currentStage) window.currentStage.stop();
+  Speech.stop();   // голос не должен договаривать задание на другой странице
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('.nav-links a').forEach(a =>
     a.classList.toggle('active', a.dataset.page === name || (a.dataset.also || '').split(',').includes(name)));
@@ -68,3 +69,41 @@ function toggleLite() {
   applyLite();
   toast(DB.settings.lite ? 'Анимации выключены: так быстрее на слабых компьютерах' : 'Анимации включены');
 }
+
+/* ===== Чтение задания вслух =====
+   Первоклассник часто ещё читает по слогам, поэтому задание можно послушать.
+   Речь синтезирует сам браузер — ни одного скачанного байта, ровно как звук
+   в уроках синтезируется через Web Audio. Если голоса в системе нет,
+   ничего не произносится и ничего не ломается. */
+const Speech = {
+  available() {
+    return typeof window.speechSynthesis !== 'undefined' &&
+           typeof window.SpeechSynthesisUtterance !== 'undefined';
+  },
+
+  /* Русский голос, если он есть в системе. Список голосов браузер отдаёт
+     не сразу, поэтому отсутствие голоса здесь не повод молчать: без явного
+     выбора браузер сам подберёт подходящий по lang. */
+  ruVoice() {
+    try { return (speechSynthesis.getVoices() || []).find(v => /^ru/i.test(v.lang)) || null; }
+    catch (e) { return null; }
+  },
+
+  say(text) {
+    if (!this.available() || !text) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ru-RU';
+      u.rate = 0.9;     // младшим школьникам нужно помедленнее
+      const v = this.ruVoice();
+      if (v) u.voice = v;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  },
+
+  stop() {
+    if (!this.available()) return;
+    try { speechSynthesis.cancel(); } catch (e) {}
+  }
+};

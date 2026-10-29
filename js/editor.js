@@ -29,9 +29,10 @@ class Editor {
     });
   }
 
-  setup({ blocks, maxBlocks = null, program = [] }) {
+  setup({ blocks, maxBlocks = null, program = [], nested = false }) {
     this.blocks = blocks;
     this.maxBlocks = maxBlocks;
+    this.nested = nested;
     this.program = JSON.parse(JSON.stringify(program));
     this.cursorToEnd(false);
     this.renderPalette();
@@ -73,8 +74,9 @@ class Editor {
     if (type === 'repeat') { node.n = 2; node.body = []; }
 
     let { list, idx, rep } = this.cursor;
-    if (type === 'repeat' && rep) {
-      // повтор внутри повтора не нужен детям младшей школы — ставим следом
+    if (type === 'repeat' && rep && !this.nested) {
+      // повтор внутри повтора не нужен детям младшей школы — ставим следом.
+      // В курсах старшего трека вложение разрешено флагом nested.
       list = this.program;
       idx = this.program.indexOf(rep) + 1;
     }

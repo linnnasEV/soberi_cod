@@ -91,11 +91,13 @@ section { padding: 48px 0; }
 .hvb { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
 .hvb svg { width: 28px; height: 28px; }
 
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
 .course-card { background: #fff; border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; border-top: 6px solid var(--accent, var(--blue)); }
 .c-yellow { --accent: #FFC531; --soft: #FFF6D6; --ink: #8A5E00; }
 .c-blue { --accent: #4A7DFF; --soft: #E4EDFF; --ink: #2E5BD9; }
 .c-pink { --accent: #FF6FA8; --soft: #FFE6F0; --ink: #C2306D; }
+.c-green { --accent: #2FBF7F; --soft: #DFF6EA; --ink: #1B8558; }
+.c-purple { --accent: #8B5CF6; --soft: #EEE7FE; --ink: #6333D6; }
 .course-top { display: flex; justify-content: space-between; align-items: center; }
 .lvl { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; background: var(--soft, #E4EDFF); color: var(--ink, var(--blue-dark)); }
 .grade { font-size: 14px; font-weight: 700; color: var(--muted); }
@@ -163,8 +165,8 @@ section { padding: 48px 0; }
 .cell { border-right: 2px solid var(--grid-line); border-bottom: 2px solid var(--grid-line); display: flex; align-items: center; justify-content: center; }
 .item { width: 76%; height: 76%; transition: transform .25s, opacity .25s; }
 .item svg { width: 100%; height: 100%; }
-.item.apple { width: 62%; height: 62%; }
-.item.apple.gone { transform: scale(0) translateY(-40%); opacity: 0; }
+.item.pick { width: 62%; height: 62%; }
+.item.pick.gone { transform: scale(0) translateY(-40%); opacity: 0; }
 .item.goal { animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 .stage.won .item.goal { animation: spin .8s ease; }
@@ -175,8 +177,8 @@ section { padding: 48px 0; }
 .actor { position: absolute; width: calc(100% / var(--cols)); height: calc(100% / var(--rows));
   left: calc(100% * var(--c) / var(--cols)); top: calc(100% * var(--r) / var(--rows)); transition: left .4s ease, top .4s ease; z-index: 2; }
 .actor.no-anim { transition: none; }
-.sprite { width: 100%; height: 100%; padding: 6%; }
-.sprite svg { width: 100%; height: 100%; transition: transform .2s; }
+.sprite { width: 100%; height: 100%; padding: 6%; transition: opacity .25s; }
+.sprite svg { width: 100%; height: 100%; transform: scaleX(var(--flip, 1)) scale(var(--sc, 1)) rotate(var(--rot, 0deg)); transition: transform .4s; }
 .sprite.hop { animation: hop .5s ease; }
 @keyframes hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-55%); } }
 .sprite.bump { animation: bump .4s ease; }
@@ -441,3 +443,45 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 }
 
 #studioTop { scroll-margin-top: 80px; }
+
+/* ---------- Уровень сложности ---------- */
+.track-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 28px; }
+.track-card { background: #fff; border-radius: var(--radius); padding: 22px 18px; box-shadow: var(--shadow);
+  border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; transition: .18s; }
+.track-card:hover { transform: translateY(-4px); border-color: var(--accent, var(--blue)); }
+.track-card.t-junior { --accent: #FFC531; }
+.track-card.t-senior { --accent: #4A7DFF; }
+.tc-hero { width: 86px; height: 86px; }
+.tc-hero svg { width: 100%; height: 100%; }
+.track-card b { font-size: 24px; font-weight: 900; }
+.tc-age { font-weight: 800; color: var(--accent); }
+.tc-note { color: var(--muted); font-size: 14px; }
+.track-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; justify-content: center;
+  background: #fff; border-radius: 14px; padding: 10px 16px; margin-bottom: 22px; box-shadow: var(--shadow); font-size: 15px; }
+.track-note .link-btn { color: var(--blue); font-weight: 800; text-decoration: underline; }
+
+/* ---------- Задание картинками и чтение вслух ---------- */
+.task-body { flex: 1; min-width: 0; }
+.btn-speak { flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: var(--blue);
+  box-shadow: 0 3px 10px rgba(74, 125, 255, .25); display: flex; align-items: center; justify-content: center; transition: .15s; }
+.btn-speak svg { width: 24px; height: 24px; }
+.btn-speak:hover { transform: scale(1.08); }
+.btn-speak:active { transform: scale(.92); }
+
+/* Цепочка «герой → что собрать → куда прийти»: читается без букв */
+.task-pic { display: none; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.task-pic.show { display: flex; }
+.pf-i { width: 46px; height: 46px; background: #fff; border-radius: 12px; padding: 4px; box-shadow: 0 2px 6px rgba(31, 37, 68, .12); }
+.pf-i svg { width: 100%; height: 100%; }
+.pf-a { font-size: 22px; font-weight: 900; color: var(--blue); }
+
+/* Младший трек: подпись короткая, поэтому крупная */
+.task.junior .task-body b { display: none; }
+.task.junior #lessonTask { font-size: 22px; font-weight: 900; line-height: 1.25; }
+.task.junior .pf-i { width: 54px; height: 54px; }
+
+/* ---------- Куда смотрит герой (относительные команды) ---------- */
+.facing { display: none; position: absolute; inset: 0; z-index: 1; transform: rotate(calc(var(--deg, 0) * 1deg)); transition: transform .25s; }
+.stage.rel .facing { display: block; }
+.facing svg { width: 42%; height: 42%; margin: 0 0 0 auto; transform: translate(10%, 118%); }
+

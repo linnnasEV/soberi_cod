@@ -36,7 +36,7 @@
         <h1>Учись <span class="accent">программировать</span> играя!</h1>
         <p>Собирай программы из цветных блоков, проводи героев через лабиринты и создавай свои мультики. Прямо в браузере, даже на слабом компьютере или телефоне.</p>
         <div class="hero-actions">
-          <button class="btn btn-primary btn-lg" onclick="go('lesson/steps/1')">Начать первый урок</button>
+          <button class="btn btn-primary btn-lg" onclick="startFirst()">Начать первый урок</button>
           <button class="btn btn-ghost btn-lg" onclick="go('teacher')">Я учитель</button>
         </div>
         <p class="hero-note">Без регистрации. Первый урок занимает 2 минуты.</p>
@@ -54,7 +54,8 @@
 
   <section>
     <div class="container">
-      <div class="section-head"><h2>Три уровня — от первых шагов до своих историй</h2><p>Каждый уровень подходит своему классу, но начать можно с любого</p></div>
+      <div class="section-head"><h2>Выбери свой уровень</h2><p>Задания и блоки подобраны по возрасту. Уровень можно сменить в любой момент</p></div>
+      <div id="trackPickHome"></div>
       <div class="grid-3" id="homeCourses"></div>
     </div>
   </section>
@@ -87,7 +88,7 @@
       <div class="cta-strip">
         <h2>Попробуй прямо сейчас</h2>
         <p>Первый урок — без регистрации. Просто нажми кнопку!</p>
-        <button class="btn btn-lg btn-white" onclick="go('lesson/steps/1')">Начать играть</button>
+        <button class="btn btn-lg btn-white" onclick="startFirst()">Начать играть</button>
       </div>
     </div>
   </section>
@@ -98,6 +99,7 @@
   <section>
     <div class="container">
       <div class="section-head"><h2>Уроки</h2><p>Все уровни бесплатные. Звёзды показывают, насколько коротким получилось решение.</p></div>
+      <div id="trackPickCourses"></div>
       <div class="grid-3" id="coursesGrid"></div>
     </div>
   </section>
@@ -123,9 +125,14 @@
     </div>
     <div class="lesson-grid">
       <div class="col-stage">
-        <div class="task">
+        <div class="task" id="lessonTaskBox">
           <div class="task-hero" id="taskHero"></div>
-          <div><b>Задание</b><p id="lessonTask"></p></div>
+          <div class="task-body">
+            <b>Задание</b>
+            <p id="lessonTask"></p>
+            <div class="task-pic" id="taskPic"></div>
+          </div>
+          <button class="btn-speak" id="speakBtn" onclick="speakTask()" title="Прочитать вслух" aria-label="Прочитать задание вслух"></button>
         </div>
         <div class="hint-box" id="hintBox"></div>
         <div class="stage" id="lessonStage"></div>
