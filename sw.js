@@ -1,10 +1,10 @@
 /* Сервис-воркер: кэширует все файлы платформы, чтобы она открывалась без интернета.
    Стратегия «сначала кэш»: страница открывается мгновенно даже при очень медленном
    интернете, а свежие файлы догружаются в фоне и применяются при следующем открытии. */
-const CACHE = 'sobericod-v5';
+const CACHE = 'sobericod-v6';
 const FILES = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'css/style.css',
-  'js/icons.js', 'js/data.js', 'js/store.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
+  'js/icons.js', 'js/data.js', 'js/store.js', 'js/sync.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
   'js/lesson.js', 'js/studio.js', 'js/auth.js', 'js/teacher.js', 'js/pages.js', 'js/main.js'
 ];
 
@@ -30,7 +30,9 @@ function refresh(req) {
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const url = new URL(req.url);
+  // Синхронизацию класса не кэшируем: учителю нужен свежий журнал, а не вчерашний
+  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.includes('/api/')) return;
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(hit => {
       if (hit) {

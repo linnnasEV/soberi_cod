@@ -292,6 +292,7 @@ function lessonSuccess() {
   const wasDone = courseDone(p, courseId) === LESSONS[courseId].length;
   p.progress[key] = Math.max(p.progress[key] || 0, stars);
   saveDB();
+  syncPushSoon();     // если класс синхронизируется, звёзды уйдут учителю сами
   renderAuthArea();   // звёзды в шапке должны обновиться сразу после урока
 
   const list = LESSONS[courseId];
@@ -330,6 +331,7 @@ function lessonSuccess() {
 function setReaction(v, btn) {
   me().reactions[lessonKey(L.courseId, L.lesson.id)] = v;
   saveDB();
+  syncPushSoon();
   btn.parentElement.querySelectorAll('.react').forEach(b => b.classList.toggle('sel', b === btn));
 }
 

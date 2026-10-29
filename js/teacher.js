@@ -20,7 +20,8 @@ function teacherEntry() {
       '<div class="form-group"><label>ПИН учителя</label><input id="tPin2" inputmode="numeric" maxlength="4" type="password" placeholder="••••"></div>' +
       '<button class="btn btn-primary" onclick="teacherLogin()">Войти</button>' +
       '<p class="small-note">Переносите класс с другого компьютера? ' +
-      '<button class="link-btn" onclick="pickClassFile()">Загрузить класс из файла</button></p>' +
+      '<button class="link-btn" onclick="pickClassFile()">Загрузить класс из файла</button>' +
+      ' или <button class="link-btn" onclick="syncJoinModal()">Подключить устройство к классу</button></p>' +
       '<div class="demo-box"><b>Хотите посмотреть?</b><p class="muted">Откройте демо-класс с готовой статистикой.</p>' +
       '<button class="btn btn-ghost" onclick="openDemoClass()">Открыть демо-класс</button></div></div>' +
     '</div>' + teacherGuide();
@@ -148,7 +149,9 @@ function teacherDashboard() {
 
   return '<div class="t-head card"><div><span class="lvl">' + esc(cls.grade) + (cls.demo ? ' · демо' : '') + '</span><h2>' + esc(cls.name) + '</h2>' +
       '<p class="muted">Код для входа детей</p><div class="big-code">' + cls.code + '</div></div>' +
-      '<div class="t-head-actions"><button class="btn btn-ghost" onclick="printCards()">Распечатать карточки входа</button>' +
+      '<div class="t-head-actions">' +
+      (syncOn(cls) ? '<button class="btn btn-ghost" onclick="syncNow()">Синхронизировать</button>' : '') +
+      '<button class="btn btn-ghost" onclick="printCards()">Распечатать карточки входа</button>' +
       '<button class="btn btn-ghost" onclick="saveClassFile()">Сохранить класс в файл</button>' +
       '<button class="btn btn-ghost" onclick="pickClassFile()">Загрузить из файла</button>' +
       '<button class="btn btn-ghost" onclick="logout()">Выйти</button></div></div>' +
@@ -170,10 +173,14 @@ function teacherDashboard() {
       '<button class="btn btn-primary" onclick="addStudents()">Добавить</button></div>' +
       '<p class="small-note">«Интерес» считается по ответам ребёнка «Как тебе урок?» после каждого задания. ' +
       'Так видно, кому стоит предложить кружок по программированию или робототехнике.</p></div>' +
+    syncCard(cls) +
     teacherGuide() +
-    '<p class="small-note">Данные класса хранятся в браузере этого компьютера и никуда не отправляются. ' +
-    'Чтобы не потерять журнал и продолжить занятие в другом кабинете, нажмите «Сохранить класс в файл», ' +
-    'а на новом компьютере — «Загрузить из файла»: прогресс объединится, лучшие результаты сохранятся.</p>';
+    (syncOn(cls)
+      ? '<p class="small-note">Класс синхронизируется: журнал лежит и в браузере этого компьютера, и на сервере, ' +
+        'адрес которого вы указали. Выключить обмен можно в карточке «Синхронизация между устройствами».</p>'
+      : '<p class="small-note">Данные класса хранятся в браузере этого компьютера и никуда не отправляются. ' +
+        'Чтобы не потерять журнал и продолжить занятие в другом кабинете, нажмите «Сохранить класс в файл», ' +
+        'а на новом компьютере — «Загрузить из файла»: прогресс объединится, лучшие результаты сохранятся.</p>');
 }
 
 function addStudents() {
