@@ -59,7 +59,10 @@ jobs:
                   --cache-control no-cache
                   --exclude ".git/*" --exclude ".github/*" --exclude ".gitignore"
                   --exclude "*.zip" --exclude "soberikod-class-*.json"
-                  --exclude "README.md" --exclude "DEPLOY.md" --exclude "LICENSE")
+                  --exclude "README.md" --exclude "DEPLOY.md" --exclude "LICENSE"
+                  # Сервер синхронизации ставится отдельно: на статическом хостинге
+                  # он не запустится, а его исходники сайту не нужны.
+                  --exclude "server/*")
 
           # Текстовые файлы заливаем отдельно, чтобы явно указать UTF-8:
           # без этого старые браузеры могут показать русский текст кракозябрами.
