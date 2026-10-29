@@ -1,6 +1,6 @@
 # Публикация сайта в Yandex Object Storage.
 # Срабатывает на каждый пуш в main и по кнопке «Run workflow» во вкладке Actions.
-# Секреты репозитория: YC_BUCKET, YC_ACCESS_KEY_ID, YC_SECRET_ACCESS_KEY (см. DEPLOY.md).
+# Нужны секреты репозитория: YC_BUCKET, YC_ACCESS_KEY_ID, YC_SECRET_ACCESS_KEY (см. DEPLOY.md).
 name: Deploy to Yandex Object Storage
 
 on:
@@ -11,29 +11,54 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Имя бакета не секрет — оно видно в адресе сайта, поэтому берём его
+      # хоть из Secrets, хоть из Variables: на этой странице GitHub две вкладки,
+      # и значение легко сохранить не на той.
+      BUCKET: ${{ secrets.YC_BUCKET || vars.YC_BUCKET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ru-central1
+      EP: https://storage.yandexcloud.net
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Проверить настройки
+        run: |
+          set -u
+          fail=0
+          # Без этой проверки aws выдаёт простыню регулярных выражений вместо
+          # понятного «вы забыли секрет».
+          if [ -z "${BUCKET}" ]; then
+            echo "::error::Пусто YC_BUCKET. Settings → Secrets and variables → Actions, вкладка Secrets (не Variables), имя ровно YC_BUCKET."
+            fail=1
+          fi
+          if [ -z "${AWS_ACCESS_KEY_ID}" ]; then
+            echo "::error::Пусто YC_ACCESS_KEY_ID — идентификатор статического ключа сервисного аккаунта."
+            fail=1
+          fi
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "::error::Пусто YC_SECRET_ACCESS_KEY — секретный ключ (показывается один раз при создании)."
+            fail=1
+          fi
+          exit $fail
+
       - name: Загрузить файлы в бакет
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ru-central1
-          BUCKET: ${{ secrets.YC_BUCKET }}
         run: |
           set -eu
-          EP=https://storage.yandexcloud.net
 
           # Кэш браузера отключён намеренно: офлайн-режим обеспечивает сервис-воркер,
           # а правка урока должна доходить до детей со следующего открытия, а не через год.
           # Сайт весит 250 КБ, поэтому перепроверка файлов ничего не стоит.
+          #
           # ACL объектам не выставляем: публичное чтение включено на уровне бакета
           # (этого требует сам хостинг), а менять ACL умеет только роль storage.admin —
           # сервисному аккаунту деплоя такие права ни к чему.
           COMMON=(--endpoint-url "$EP" --recursive --no-progress
                   --cache-control no-cache
-                  --exclude ".git/*" --exclude ".github/*" --exclude "*.zip"
-                  --exclude "soberikod-class-*.json"
+                  --exclude ".git/*" --exclude ".github/*" --exclude ".gitignore"
+                  --exclude "*.zip" --exclude "soberikod-class-*.json"
                   --exclude "README.md" --exclude "DEPLOY.md" --exclude "LICENSE")
 
           # Текстовые файлы заливаем отдельно, чтобы явно указать UTF-8:
@@ -51,11 +76,12 @@ jobs:
             --exclude "*" --include "*.js" --content-type "text/javascript; charset=utf-8"
 
       - name: Проверить, что сайт открывается
-        env:
-          BUCKET: ${{ secrets.YC_BUCKET }}
         run: |
           set -eu
           URL="https://$BUCKET.website.yandexcloud.net/"
           code=$(curl -sS -o /dev/null -w '%{http_code}' "$URL")
           echo "$URL → HTTP $code"
-          test "$code" = "200"
+          if [ "$code" != "200" ]; then
+            echo "::error::Файлы залились, но сайт отвечает $code. Проверьте в бакете: публичное чтение объектов и списка объектов, и Настройки → Веб-сайт → режим «Хостинг» с index.html в обоих полях."
+            exit 1
+          fi
