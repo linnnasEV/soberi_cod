@@ -16,15 +16,16 @@
   <div class="nav">
     <!-- Логотип ведёт на главную, то есть сразу в Мастерскую -->
     <a href="#home" class="logo"><span class="logo-mark" id="logoIcon"></span><span>СобериКод</span></a>
-    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="navLinks" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
-    </button>
     <nav class="nav-links" id="navLinks" aria-label="Главное меню">
+      <a href="#home" data-page="home" data-also="studio">Главная</a>
       <a href="#courses" data-page="courses" data-also="course,lesson">Уроки</a>
       <a href="#test" data-page="test">Тест</a>
       <a href="#about" data-page="about">О проекте</a>
     </nav>
     <div id="authArea" class="auth-area"></div>
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="navLinks" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -40,14 +41,35 @@
     </div>
   </div>
 
-  <div class="container studio" id="studioTop">
+  <!-- Три колонки читаются слева направо как сама игра: что выбрать →
+       куда поставить → чем программировать и как запустить. -->
+  <div class="studio" id="studioTop">
     <div class="studio-grid">
-      <div class="col-stage">
-        <div class="pickers">
-          <div><div class="code-label">Герой</div><div class="pick-row" id="heroPick"></div></div>
-          <div><div class="code-label">Фон</div><div class="pick-row" id="bgPick"></div></div>
-          <div><div class="code-label">Поставь на сцену — потом нажми на клетку</div><div class="pick-row" id="decorPick"></div></div>
+
+      <!-- 1. ЧТО ВЫБРАТЬ -->
+      <div class="col-pick">
+        <div class="pk">
+          <div class="code-label">Герой</div>
+          <div class="pick-row" id="heroPick"></div>
         </div>
+        <div class="pk">
+          <div class="code-label">Фон</div>
+          <div class="pick-row" id="bgPick"></div>
+        </div>
+        <div class="pk pk-dec">
+          <button class="btn btn-ghost pk-toggle" id="decBtn" onclick="toggleDecor()">+ Поставь на сцену</button>
+          <div class="code-label">Поставь на сцену</div>
+          <div class="pick-row" id="decorPick"></div>
+        </div>
+        <!-- Переключатели для взрослого: на главной подвала нет, его место заняла сцена -->
+        <div class="pk-sys">
+          <button class="link-btn js-sound" onclick="toggleSound()">Звук</button>
+          <button class="link-btn js-lite" onclick="toggleLite()">Облегчённый режим</button>
+        </div>
+      </div>
+
+      <!-- 2. КУДА ПОСТАВИТЬ -->
+      <div class="col-stage">
         <div class="stage-wrap">
           <div class="stage" id="studioStage"></div>
           <div id="tourLayer" class="tour-layer" hidden></div>
@@ -56,8 +78,11 @@
           <button class="btn btn-ghost btn-sm" onclick="showExample()">▶ Показать пример</button>
           <button class="btn btn-ghost btn-sm" onclick="speakStudioHelp()">🔊 Прослушать</button>
           <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleGallery()">🖼 Галерея</button>
         </div>
       </div>
+
+      <!-- 3. ЧЕМ ПРОГРАММИРОВАТЬ И КАК ЗАПУСТИТЬ -->
       <div class="col-code">
         <div class="code-label">Блоки</div>
         <div class="palette" id="studioPalette"></div>
@@ -66,11 +91,13 @@
         <div class="controls">
           <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Запустить</button>
           <button class="btn btn-reset btn-lg" onclick="resetScene()">↺ Сбросить</button>
-          <button class="btn btn-primary" onclick="askSaveStudio()">Сохранить в галерею</button>
+          <button class="btn btn-primary btn-sm btn-save" onclick="askSaveStudio()">Сохранить в галерею</button>
         </div>
       </div>
+
+      <!-- На телефоне «в галерею» стоит последним, уже после выбора героя и фона -->
+      <button class="btn btn-primary mob-save" onclick="askSaveStudio()">Сохранить в галерею</button>
     </div>
-    <div id="galleryArea" class="gallery-area"></div>
   </div>
 
   <!-- Панель для телефона: сцена занимает экран, а блоки и программа
@@ -79,6 +106,18 @@
     <button class="btn btn-go" onclick="runStudio()">▶ Запустить</button>
     <button class="btn btn-reset" onclick="resetScene()">↺ Сбросить</button>
     <button class="btn btn-primary" onclick="toggleSheet()" id="sheetBtn">🧩 Блоки</button>
+  </div>
+
+  <!-- Галерея работ. В экран вместе с мастерской она не влезает, а нужна не
+       постоянно, поэтому открывается панелью поверх. -->
+  <div class="gal-sheet" id="galSheet">
+    <div class="gal-card">
+      <div class="gal-head">
+        <h3>Галерея работ</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeGallery()">✕ Закрыть</button>
+      </div>
+      <div id="galleryArea" class="gallery-area"></div>
+    </div>
   </div>
 </main>
 
@@ -255,9 +294,8 @@
     <div>© 2026 СобериКод — программируй играя</div>
     <div class="footer-links">
       <a href="#about">О проекте</a>
-      <a href="#teacher">Учителю</a>
-      <button class="link-btn" id="soundToggle" onclick="toggleSound()">Звук</button>
-      <button class="link-btn" id="liteToggle" onclick="toggleLite()">Облегчённый режим</button>
+      <button class="link-btn js-sound" id="soundToggle" onclick="toggleSound()">Звук</button>
+      <button class="link-btn js-lite" id="liteToggle" onclick="toggleLite()">Облегчённый режим</button>
       <span class="net" id="netStatus"></span>
     </div>
   </div>

@@ -263,20 +263,10 @@ section { padding: 56px 0; }
 .controls .btn-go { min-width: 140px; }
 
 /* Мастерская */
-.pickers { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 12px; }
-.pick-row { display: flex; gap: 8px; flex-wrap: wrap; }
 /* Сцену ребёнок собирает кликом по клетке, поэтому клетка должна выглядеть
    нажимаемой — но только в Мастерской, в уроке по карте не рисуют. */
 #studioStage .cell { cursor: pointer; }
 #studioStage .cell:hover { background: rgba(255, 255, 255, .35); }
-.stage-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.pick { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 14px; border: 3px solid transparent; background: #F4F6FC; min-width: 64px; }
-.pick.sel { border-color: var(--blue); background: #EEF3FF; }
-.pick small { font-size: 12px; font-weight: 700; }
-.pick-ico { width: 42px; height: 42px; }
-.pick-bg { width: 42px; height: 42px; border-radius: 10px; }
-.gallery-area { margin-top: 28px; }
-.gal-title { font-size: 20px; margin: 22px 0 12px; }
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
 .proj-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
 .proj-preview { height: 110px; display: flex; align-items: center; justify-content: center; }
@@ -487,10 +477,6 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 
 /* ---------- Адаптивность ---------- */
 @media (max-width: 1060px) {
-  .nav { flex-wrap: wrap; row-gap: 6px; }
-  .nav-links { order: 3; width: 100%; margin-left: 0; overflow-x: auto; scrollbar-width: none; }
-  .nav-links::-webkit-scrollbar { display: none; }
-  .auth-area { margin-left: auto; }
   .lesson-grid { grid-template-columns: 1fr; }
   .prof-grid { grid-template-columns: 1fr 1fr; }
 }
@@ -667,32 +653,141 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 }
 
 /* ================= ГЛАВНАЯ = МАСТЕРСКАЯ =================
-   Ребёнок открыл сайт и сразу видит сцену и блоки. Всё, что написано
-   для взрослого, уместилось в одну строку под шапкой. */
+   Мастерская помещается в один экран: ни ребёнок, ни учитель не листают
+   страницу, чтобы найти «Запустить». Высота считается не числами, а флексом —
+   body ровно в окно, шапка и строка под ней берут своё, остаток достаётся
+   мастерской. Поэтому раскладка не ломается ни на школьном ноутбуке
+   1366×768, ни на большом мониторе, ни на проекторе. */
 
-.topline { background: #fff; border-bottom: 1px solid var(--line); font-size: 14.5px; color: var(--muted); }
-.topline .container { min-height: 46px; display: flex; align-items: center; justify-content: center;
-  flex-wrap: wrap; gap: 6px; padding-top: 6px; padding-bottom: 6px; text-align: center; }
+body.home-fit { height: 100vh; height: 100svh; }
+body.home-fit #page-home.active { display: flex; flex-direction: column; min-height: 0; }
+/* Прятать прокрутку можно только там, где содержимое гарантированно влезает:
+   на совсем низком окне лучше дать листать, чем спрятать кнопки. */
+@media (min-width: 768px) and (min-height: 560px) {
+  body.home-fit { overflow: hidden; }
+}
+/* Подвал на главной спрятан: его место занимает сцена. Переключатели звука и
+   облегчённого режима не потерялись — они внизу рейки выбора. */
+@media (min-width: 768px) {
+  body.home-fit footer { display: none; }
+}
+
+/* ----- Строка-описание под шапкой: тонкая, она для взрослого ----- */
+.topline { background: #fff; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); flex: 0 0 auto; }
+.topline .container { min-height: 42px; display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 6px; padding-top: 5px; padding-bottom: 5px; text-align: center; }
 .topline b { color: var(--text); font-weight: 800; }
 .topline span { color: #B9C0D6; }
 
-.studio { padding-top: 16px; padding-bottom: 28px; }
-.studio-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 18px; align-items: start; }
-.studio-grid .col-stage, .studio-grid .col-code { background: #fff; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
-.stage-wrap { position: relative; }
+/* ----- Три колонки: что выбрать · куда поставить · чем программировать ----- */
+.studio { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 18px; }
+.studio-grid { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr) minmax(300px, 380px);
+  /* Ряд ровно в высоту остатка, а не по содержимому: иначе самая высокая
+     колонка растягивает страницу и возвращает прокрутку. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px; width: 100%; max-width: 1560px; margin: 0 auto; min-height: 0; }
+.col-pick, .studio-grid .col-stage, .studio-grid .col-code {
+  background: #fff; border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 
-/* Кнопка сброса: приглушённо-красная, чтобы читалась как «очистить»,
-   а не как «удалить навсегда» */
+/* Сцена забирает весь остаток высоты, ширину берёт из пропорции 7:5.
+   Если колонка шире, чем нужно по пропорции, max-width не даёт вылезти. */
+.studio-grid .col-stage { gap: 10px; }
+.stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.stage-wrap .stage { width: auto; height: 100%; max-width: 100%; max-height: 100%; flex: 0 0 auto; }
+.stage-tools { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; margin-top: 0; }
+
+/* Рейка выбора: иконки крупные, подписи в одну строку по 11 px */
+.col-pick { gap: 8px; overflow-y: auto; scrollbar-width: thin; }
+.col-pick .pk { min-width: 0; flex: 0 0 auto; }
+.col-pick .code-label { font-size: 11px; margin-bottom: 5px; }
+/* Три иконки в ряд: при двух рейка не влезает в экран, при четырёх подпись
+   обрезается на «Лисёнок». */
+.col-pick .pick-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 6px; }
+.pick { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px; border-radius: 12px;
+  border: 3px solid transparent; background: #F4F6FC; min-width: 0; }
+.pick.sel { border-color: var(--blue); background: #EEF3FF; }
+.pick small { font-size: 11px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pick-ico, .pick-bg { width: 34px; height: 34px; flex: 0 0 auto; }
+.pick-bg { border-radius: 9px; }
+.pk-toggle { display: none; }
+/* Переключатели для взрослого — внизу рейки, подальше от детских кнопок */
+.pk-sys { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 0 0 auto; }
+.pk-sys .link-btn { font-size: 12px; color: var(--muted); text-align: left; }
+.pk-sys .link-btn:hover { color: var(--blue); }
+
+/* Колонка кода: палитра и кнопки держат размер, программа забирает остаток */
+.studio-grid .col-code .palette { flex: 0 0 auto; margin-bottom: 8px; }
+.studio-grid .col-code .ws-head { flex: 0 0 auto; }
+.studio-grid .col-code .workspace { flex: 1 1 auto; min-height: 84px; overflow-y: auto; margin-bottom: 10px; }
+.studio-grid .col-code .ws-main { min-height: 0; }
+.studio-grid .col-code .controls { flex: 0 0 auto; }
+.studio-grid .col-code .controls .btn-go { flex: 1 1 130px; min-width: 130px; }
+.studio-grid .col-code .controls .btn-save { flex: 1 1 100%; }
+/* Четырнадцать блоков должны лечь в три ряда, а не в пять: в тесной колонке
+   важнее видеть всю палитру сразу, чем крупную иконку. */
+.studio-grid .pblock, .studio-grid .wblock { width: 58px; height: 58px; }
+.studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 26px; height: 26px; }
+
+/* Низкое окно (ноутбук 1366×650, проектор): всё сжимается ещё на шаг */
+@media (min-width: 768px) and (max-height: 720px) {
+  .studio { padding: 8px 14px; }
+  .studio-grid { gap: 10px; }
+  .col-pick, .studio-grid .col-stage, .studio-grid .col-code { padding: 10px; }
+  .col-pick { gap: 6px; }
+  .pick { padding: 3px 2px; }
+  .pick-ico, .pick-bg { width: 28px; height: 28px; }
+  /* Предметы в четыре колонки: названия у них короткие, а ряд экономит
+     полсотни пикселей, которые нужнее сцене. */
+  .pk-dec .pick-row { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); }
+  .pk-dec .pick small { font-size: 10px; }   /* «Яблоко» в узкой плитке не должно обрезаться */
+  .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
+  .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
+  .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
+  .studio-grid .col-code .workspace { min-height: 64px; }
+  .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 18px; }
+}
+
+/* Планшет и узкий ноутбук: выбор переезжает лентой над сценой, колонок две */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .studio-grid { grid-template-columns: minmax(0, 1fr) minmax(290px, 340px); grid-template-rows: auto minmax(0, 1fr); }
+  .col-pick { grid-column: 1 / -1; grid-row: 1; flex-direction: row; gap: 14px; overflow: visible; }
+  .col-pick .pk { flex: 1 1 0; }
+  .pk-sys { margin-top: 0; padding-top: 0; padding-left: 12px; border-top: none; border-left: 1px solid var(--line); }
+  .studio-grid .col-stage { grid-column: 1; grid-row: 2; }
+  .studio-grid .col-code { grid-column: 2; grid-row: 2; }
+  .studio { padding: 8px 14px; }
+  /* Кнопки чуть ниже: на планшете лента выбора уже съела верх экрана */
+  .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 16px; }
+  .pk-dec .pick small { font-size: 10px; }
+}
+
+/* ----- Кнопки мастерской ----- */
+/* Сброс: приглушённо-красная — читается как «очистить», а не «удалить навсегда» */
 .btn-reset { background: rgba(231, 76, 60, .1); color: #B3291B; box-shadow: inset 0 0 0 2px #E74C3C; }
 .btn-reset:hover { background: rgba(231, 76, 60, .18); }
 .toast-act { margin-left: 10px; padding: 6px 12px; border-radius: 10px; background: #fff;
   color: var(--blue-dark); font-weight: 800; font-size: 14px; flex-shrink: 0; }
-
-/* Пульсация кнопки «Запустить» во время показа примера */
 #studioRun.pulse { animation: runPulse 1s ease-in-out infinite; }
 @keyframes runPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(47, 191, 127, .25); } }
 
-/* ===== Показ примера ===== */
+/* Кнопка входа: заметная, но в цвете сайта — взрослый находит её сразу */
+.btn-login { background: var(--blue); color: #fff; box-shadow: 0 4px 12px rgba(74, 125, 255, .3); }
+.btn-login:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+/* ----- Галерея работ: панель поверх мастерской -----
+   В потоке она не поместилась бы в экран, а ребёнку нужна не постоянно. */
+.gal-sheet { display: none; position: fixed; inset: 0; z-index: 80; background: rgba(31, 37, 68, .55);
+  padding: 24px 16px; overflow-y: auto; }
+body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
+.gal-card { max-width: 1100px; margin: 0 auto; background: var(--bg); border-radius: var(--radius); padding: 18px 20px 24px; }
+.gal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gal-head h3 { font-size: 22px; }
+.gallery-area { margin-top: 4px; }
+.gal-title { font-size: 19px; margin: 18px 0 10px; }
+
+/* ----- Показ примера ----- */
 .tour-layer { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center;
   padding: 12px; pointer-events: none; z-index: 20; }
 .tour-box { display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 10px 14px;
@@ -701,9 +796,8 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .tour-skip { padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, .18); color: #fff; font-weight: 800; font-size: 14px; }
 .tour-skip:hover { background: rgba(255, 255, 255, .3); }
 
-/* ===== Ghost-подсказки =====
-   Привязаны к самому элементу, а не к координатам: подсказка едет вместе
-   с кнопкой при любой ширине экрана. */
+/* ----- Ghost-подсказки -----
+   Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */
 .ghost-tip { position: relative; }
 .ghost-tip::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 10px);
   transform: translateX(-50%); white-space: nowrap; padding: 7px 12px; border-radius: 12px;
@@ -716,8 +810,8 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 
 .placeholder { text-align: center; padding: 40px 24px; }
 
-/* ===== Шапка: бургер и меню ===== */
-.burger { display: none; width: 44px; height: 44px; border-radius: 12px; margin-left: auto;
+/* ----- Шапка: бургер и меню ----- */
+.burger { display: none; width: 44px; height: 44px; border-radius: 12px;
   flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .burger span { display: block; width: 22px; height: 3px; border-radius: 2px; background: var(--blue-dark); transition: .2s; }
 .burger:hover { background: #EEF3FF; }
@@ -726,67 +820,73 @@ body.menu-open .burger span:nth-child(2) { opacity: 0; }
 body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
 /* Панель с кнопками для телефона — на широком экране не нужна */
-.mbar { display: none; }
+.mbar, .mob-save { display: none; }
 
-@media (max-width: 980px) {
-  .studio-grid { grid-template-columns: 1fr; }
-}
+/* ================= ТЕЛЕФОН (< 768px) =================
+   Здесь вертикальный скролл разрешён. Порядок: сцена → запуск → «поставь на
+   сцену» → герой и фон → блоки шторкой → «в галерею». */
+@media (max-width: 767px) {
+  body.home-fit { height: auto; overflow: visible; }
+  body.home-fit footer { display: block; }
 
-@media (max-width: 860px) {
-  /* Меню прячется под бургер: рядом с логотипом и кнопкой входа
-     три пункта не помещаются, а дробить логотип нельзя. */
-  .burger { display: flex; }
-  .nav-links { display: none; order: 3; width: 100%; flex-direction: column; gap: 2px; padding-bottom: 8px; }
+  /* Шапка в одну строку: логотип, «Войти», бургер. Пункты меню — под бургер. */
+  .nav { flex-wrap: nowrap; row-gap: 0; position: relative; gap: 8px; }
+  .burger { display: flex; margin-left: 4px; order: 4; }
+  .auth-area { margin-left: auto; order: 3; }
+  .nav-links { display: none; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column;
+    background: #fff; padding: 6px 16px 12px; box-shadow: 0 10px 20px rgba(31, 37, 68, .12); gap: 2px; }
   body.menu-open .nav-links { display: flex; }
   .nav-links a { padding: 12px 14px; font-size: 17px; }
-  .auth-area { margin-left: 8px; }
+  .logo span:last-child { font-size: 19px; }
 
-  /* Сцена занимает экран, блоки и программа выезжают шторкой снизу */
-  .studio { padding-bottom: 92px; }
+  .studio { display: block; padding: 10px 14px 96px; }
+  .studio-grid { display: flex; flex-direction: column; gap: 10px; }
+  .studio-grid .col-stage { order: 1; gap: 8px; }
+  .col-pick { order: 2; overflow: visible; background: none; box-shadow: none; padding: 0; gap: 10px; }
+  .col-pick .pk { background: #fff; border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); }
+  .mob-save { order: 3; display: flex; width: 100%; min-height: 52px; font-size: 17px; }
+  .studio-grid .col-code { order: 4; }
+
+  /* Сцена во всю ширину, высота из пропорции — это 200–250 px на телефоне */
+  .stage-wrap { display: block; flex: 0 0 auto; }
+  .stage-wrap .stage { width: 100%; height: auto; max-width: none; }
+
+  /* «Поставь на сцену» — крупная кнопка на всю ширину, список предметов
+     раскрывается по ней: иначе выбор занимает первый экран вместо сцены. */
+  .col-pick .pk-dec { order: -1; }
+  .pk-dec .pk-toggle { display: flex; width: 100%; min-height: 52px; font-size: 16px; }
+  .col-pick .pk-dec .code-label, .col-pick .pk-dec .pick-row { display: none; }
+  body.dec-open .col-pick .pk-dec .pick-row { display: flex; margin-top: 10px; }
+
+  /* Герой и фон — лента: видно четыре иконки, остальные листаются вбок */
+  .col-pick .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; scrollbar-width: none; padding-bottom: 2px; }
+  .col-pick .pick-row::-webkit-scrollbar { display: none; }
+  .pick { flex: 0 0 auto; min-width: 74px; padding: 6px; }
+  .pick-ico, .pick-bg { width: 44px; height: 44px; }
+  .pk-sys { flex-direction: row; gap: 16px; margin-top: 0; padding: 10px 12px; border-top: none;
+    background: #fff; border-radius: 16px; box-shadow: var(--shadow); }
+
+  /* Блоки и программа — шторка снизу по кнопке «Блоки» */
   .studio-grid .col-code { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
     max-height: 72vh; overflow-y: auto; border-radius: 22px 22px 0 0; box-shadow: 0 -10px 30px rgba(31, 37, 68, .18);
     transform: translateY(102%); transition: transform .25s ease; }
   body.sheet-open .studio-grid .col-code { transform: none; }
   .studio-grid .col-code .controls { display: none; }
+  .studio-grid .col-code .workspace { overflow: visible; min-height: 110px; }
+  .studio-grid .pblock, .studio-grid .wblock { width: 62px; height: 62px; }
+  .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 28px; height: 28px; }
 
   .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; gap: 8px;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -4px 16px rgba(31, 37, 68, .12); }
   .mbar .btn { flex: 1; min-height: 52px; font-size: 16px; }
   .mbar .btn-primary { flex: 0 0 auto; }
+
+  .gal-sheet { padding: 12px 10px 90px; }
+  .gal-card { padding: 14px 14px 20px; }
 }
 
-/* На телефоне сцена должна быть первой: шесть героев, шесть фонов и восемь
-   предметов занимали весь первый экран, и ребёнок не видел, что собирать.
-   Поэтому выбор переезжает под сцену и листается вбок, а не вниз. */
-@media (max-width: 860px) {
-  .studio-grid .col-stage { display: flex; flex-direction: column; }
-  .stage-wrap { order: 1; }
-  .stage-tools { order: 2; margin-bottom: 12px; }
-  /* nowrap обязателен: колонка с переносом раскладывает строки выбора
-     в несколько колонок по ширине содержимого, и страница разъезжается. */
-  .pickers { order: 3; margin-bottom: 0; gap: 12px; flex-direction: column; flex-wrap: nowrap; }
-  /* Без min-width: 0 строка выбора не даёт колонке сузиться, и страница
-     разъезжается вбок шире экрана. */
-  .pickers > div, .col-stage, .col-code { min-width: 0; }
-  .pick-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-  .pick-row::-webkit-scrollbar { display: none; }
-  .pick { flex: 0 0 auto; }
-  /* Шапка в одну строку: логотип, вход, бургер */
-  .nav { flex-wrap: nowrap; row-gap: 0; }
-  .nav-links { position: absolute; left: 0; right: 0; top: 100%; background: #fff; padding: 6px 16px 12px;
-    box-shadow: 0 10px 20px rgba(31, 37, 68, .12); }
-  header { position: sticky; }
-  .nav { position: relative; }
-  .auth-area { margin-left: auto; }
-  .burger { margin-left: 4px; }
-  .logo span:last-child { font-size: 19px; }
-}
 @media (max-width: 560px) {
   .topline { font-size: 13px; }
   .topline .container { min-height: 0; }
   .ub-stars { display: none; }
 }
-
-/* Тихая кнопка входа: ребёнку она не нужна, взрослый её найдёт */
-.btn-quiet { background: none; color: var(--muted); box-shadow: inset 0 0 0 2px var(--line); font-weight: 700; }
-.btn-quiet:hover { background: #F4F6FC; color: var(--blue-dark); }

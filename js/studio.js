@@ -27,8 +27,7 @@ route('home', () => {
   }
   renderStudioPickers();
   mountStudioStage();
-  renderGallery();
-  Tour.start();
+  Tour.start();   // галерея рисуется при открытии панели, а не на первом экране
 });
 
 /* Старые ссылки на #studio и кнопки «Открыть Мастерскую» ведут на главную */
@@ -80,7 +79,28 @@ function studioMap() {
 
 function mountStudioStage() {
   S.stage.mount(studioMap(), { hero: S.hero, bg: S.bg, sandbox: true });
+  fitStage();
 }
+
+/* ===== Сцена по размеру окна =====
+   На главной мастерская занимает ровно экран, поэтому сцена берёт тот
+   остаток, который ей достался, и сохраняет пропорцию 7:5: если по высоте
+   влезает больше, чем по ширине, уменьшается высота, а не растягиваются
+   клетки. Одной строкой CSS это не выражается — считаем сами. */
+function fitStage() {
+  const wrap = document.querySelector('#page-home .stage-wrap');
+  const st = document.getElementById('studioStage');
+  if (!wrap || !st) return;
+  if (window.innerWidth < 768) {    // на телефоне ширину задаёт CSS
+    st.style.width = ''; st.style.height = '';
+    return;
+  }
+  const w = Math.min(wrap.clientWidth, wrap.clientHeight * STUDIO_COLS / STUDIO_ROWS);
+  st.style.width = Math.floor(w) + 'px';
+  st.style.height = Math.floor(w * STUDIO_ROWS / STUDIO_COLS) + 'px';
+}
+
+window.addEventListener('resize', fitStage);
 
 function studioCellClick(e) {
   if (S.running) return;
@@ -154,12 +174,55 @@ function renderStudioPickers() {
   // «Герой» показывает того героя, который выбран сейчас: так понятнее, что
   // этим инструментом переносят именно его.
   document.getElementById('decorPick').innerHTML = DECOR.map(d =>
-    '<button class="pick' + (S.tool === d.ch ? ' sel' : '') + '" onclick="S.tool=\'' + d.ch + '\';renderStudioPickers()" title="' + d.name + '">' +
+    '<button class="pick' + (S.tool === d.ch ? ' sel' : '') + '" onclick="pickTool(\'' + d.ch + '\')" title="' + d.name + '">' +
     '<span class="pick-ico">' + (d.ch === 'S' ? HEROES[S.hero].icon : d.icon) + '</span><small>' + d.name + '</small></button>').join('');
 }
 
-function pickHero(id) { S.hero = id; renderStudioPickers(); mountStudioStage(); saveStudioSession(); }
-function pickBg(id) { S.bg = id; renderStudioPickers(); mountStudioStage(); saveStudioSession(); }
+/* Выбор проговаривается вслух: подпись под иконкой читают не все, а услышать
+   «Лисёнок» может каждый. Молчим, если звук в классе выключен. */
+function sayPick(name) {
+  if (DB.settings.sound === false) return;
+  Speech.say(name);
+}
+
+function pickHero(id) {
+  S.hero = id; renderStudioPickers(); mountStudioStage(); saveStudioSession();
+  sayPick(HEROES[id].name);
+}
+
+function pickBg(id) {
+  S.bg = id; renderStudioPickers(); mountStudioStage(); saveStudioSession();
+  sayPick(BACKGROUNDS[id].name);
+}
+
+/* Выбран предмет — дальше нужно нажать на клетку. Это единственный
+   неочевидный шаг в Мастерской, поэтому о нём говорим вслух. */
+function pickTool(ch) {
+  S.tool = ch;
+  renderStudioPickers();
+  const d = DECOR.find(x => x.ch === ch);
+  if (d) sayPick(d.ch === 'S' ? 'Герой. Нажми на клетку' : d.name + '. Нажми на клетку');
+}
+
+/* Список предметов на телефоне раскрывается кнопкой «Поставь на сцену»:
+   восемь иконок заняли бы первый экран вместо сцены. */
+function toggleDecor() {
+  const open = document.body.classList.toggle('dec-open');
+  const btn = document.getElementById('decBtn');
+  if (btn) btn.textContent = open ? '✕ Убрать список' : '+ Поставь на сцену';
+}
+
+/* Галерея работ — панель поверх мастерской: вместе со сценой в один экран
+   она не влезает, а нужна не постоянно. */
+function toggleGallery() {
+  if (document.body.classList.contains('gal-open')) return closeGallery();
+  renderGallery();
+  document.body.classList.add('gal-open');
+}
+
+function closeGallery() {
+  document.body.classList.remove('gal-open');
+}
 
 /* ===== Пример и озвучка =====
    Первоклассник часто ещё читает по слогам, поэтому объяснение можно
@@ -300,6 +363,7 @@ function findProject(id) {
 function openProject(id) {
   const p = findProject(id);
   if (!p) return;
+  closeGallery();
   S.hero = p.hero; S.bg = p.bg;
   // Работы, сохранённые до появления декораций, открываются на пустой сцене
   S.decor = Object.assign({}, p.decor);

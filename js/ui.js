@@ -21,7 +21,12 @@ function handleRoute() {
   if (window.currentStage) window.currentStage.stop();
   Speech.stop();   // голос не должен договаривать задание на другой странице
   closeMenu();
-  document.body.classList.remove('sheet-open');
+  // Шторка блоков, список предметов и галерея закрываются вместе с уходом
+  // со страницы: иначе они встретят ребёнка открытыми при возврате.
+  document.body.classList.remove('sheet-open', 'dec-open', 'gal-open');
+  // Главная — это Мастерская, и она занимает ровно экран: без прокрутки,
+  // с подвалом, спрятанным ради места для сцены.
+  document.body.classList.toggle('home-fit', name === 'home');
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('.nav-links a').forEach(a =>
     a.classList.toggle('active', a.dataset.page === name || (a.dataset.also || '').split(',').includes(name)));
@@ -84,10 +89,12 @@ function starsHTML(n, max = 3) {
 }
 
 /* Облегчённый режим: без анимаций и теней — для очень слабых компьютеров */
+/* Переключателей по два: один в подвале, другой в рейке Мастерской (на главной
+   подвала нет). Обновляем оба — иначе один показывает устаревшее состояние. */
 function applyLite() {
   document.body.classList.toggle('lite', !!DB.settings.lite);
-  const t = document.getElementById('liteToggle');
-  if (t) t.textContent = DB.settings.lite ? 'Облегчённый режим: вкл' : 'Облегчённый режим: выкл';
+  const txt = DB.settings.lite ? 'Облегчённый режим: вкл' : 'Облегчённый режим: выкл';
+  document.querySelectorAll('.js-lite').forEach(t => { t.textContent = txt; });
 }
 
 function toggleLite() {
@@ -101,8 +108,8 @@ function toggleLite() {
    Сигнал успеха радует одного ребёнка и мешает классу из двадцати,
    поэтому звук выключается одной кнопкой в подвале. */
 function applySound() {
-  const t = document.getElementById('soundToggle');
-  if (t) t.textContent = DB.settings.sound === false ? 'Звук: выкл' : 'Звук: вкл';
+  const txt = DB.settings.sound === false ? 'Звук: выкл' : 'Звук: вкл';
+  document.querySelectorAll('.js-sound').forEach(t => { t.textContent = txt; });
 }
 
 function toggleSound() {
