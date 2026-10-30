@@ -30,12 +30,13 @@
 <!-- ========== ГЛАВНАЯ ========== -->
 <main class="page" id="page-home">
   <!-- Первый экран занят выбором уровня: от него зависит весь остальной
-       контент, поэтому спрашиваем до того, как ребёнок куда-то пойдёт. -->
+       контент, поэтому спрашиваем до того, как ребёнок куда-то пойдёт.
+       Это же и первая кнопка «играть» — из портала задание открывается сразу. -->
   <section class="hero">
     <div class="container hero-pick">
       <span class="pill">Бесплатно · без регистрации</span>
       <h1>Программируй <span class="accent">играя</span></h1>
-      <p>Собирай программы из цветных блоков и оживляй героев. Прямо в браузере, на любом компьютере.</p>
+      <p>Собирай программы из цветных блоков и оживляй героев. Выбирай свой портал — первое задание откроется сразу.</p>
       <div id="homeStart"></div>
       <p class="hero-note">Работает без интернета · ничего не нужно устанавливать</p>
     </div>
@@ -48,7 +49,7 @@
     </div>
   </section>
 
-  <section class="section-white">
+  <section class="section-white section-curve">
     <div class="container">
       <div class="section-head"><h2>Как это работает</h2></div>
       <div class="how">
@@ -69,40 +70,21 @@
     </div>
   </section>
 
-  <!-- Разбор уровней — для взрослого: учителю и родителю нужно понимать,
-       чем отличается подача, а не только возраст на карточке. -->
-  <section>
+  <!-- Профориентация вынесена на главную: это цель проекта, а не раздел
+       в меню, до которого ребёнок может и не дойти. -->
+  <section class="section-tint">
     <div class="container">
-      <div class="section-head"><h2>Два уровня — одна платформа</h2><p>Движок один, но задания, блоки и подача подобраны по возрасту</p></div>
-      <table class="cmp">
-        <thead><tr><td></td>
-          <th><span class="cmp-h t-junior">1–2 класс</span></th>
-          <th><span class="cmp-h t-senior">3–4 класс</span></th></tr></thead>
-        <tbody>
-          <tr><th>Задание</th><td>3–5 минут, одна механика</td><td>8–10 минут, комбинации</td></tr>
-          <tr><th>Блоки</th><td>движение, прыжок, звук</td><td>+ повороты, циклы, анимация</td></tr>
-          <tr><th>Текст</th><td>почти нет: картинки и озвучка</td><td>есть объяснение алгоритма</td></tr>
-          <tr><th>Чему учится</th><td>порядок действий, поиск ошибки</td><td>алгоритм, цикл, короткое решение</td></tr>
-        </tbody>
-      </table>
+      <div class="section-head"><h2>Кем ты можешь стать</h2><p>То, что ты делаешь в уроках, — настоящая работа взрослых</p></div>
+      <div class="prof-teaser" id="homeProfs"></div>
+      <p class="center-row"><button class="btn btn-ghost btn-lg" onclick="go('profs')">Все профессии и тест →</button></p>
     </div>
   </section>
 
-  <section>
-    <div class="container">
-      <div class="section-head"><h2>Сделано для сельских и малокомплектных школ</h2></div>
-      <div class="adv-grid">
-        <div class="adv"><div class="adv-ico">₽0</div><h4>Полностью бесплатно</h4><p>Без рекламы, подписок и платных уровней</p></div>
-        <div class="adv"><div class="adv-ico">⚡</div><h4>Работает на слабой технике</h4><p>Сайт весит меньше 150 КБ, открывается на старых ПК и недорогих смартфонах</p></div>
-        <div class="adv"><div class="adv-ico">📶</div><h4>Без быстрого интернета</h4><p>После первого открытия платформа работает даже офлайн</p></div>
-        <div class="adv"><div class="adv-ico">👩‍🏫</div><h4>Учителю не нужен IT-опыт</h4><p>Код класса, готовые уроки и памятка, как провести занятие за 30 минут</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
+  <section class="section-curve">
     <div class="container">
       <div class="cta-strip">
+        <span class="cta-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="cta-hero" id="ctaHero" aria-hidden="true"></span>
         <h2>Попробуй прямо сейчас</h2>
         <p>Первый урок — без регистрации. Просто нажми кнопку!</p>
         <button class="btn btn-lg btn-white" onclick="startFirst()">Начать играть</button>
@@ -257,6 +239,7 @@
     <div class="footer-links">
       <a href="#about">О проекте</a>
       <a href="#teacher">Учителю</a>
+      <button class="link-btn" id="soundToggle" onclick="toggleSound()">Звук</button>
       <button class="link-btn" id="liteToggle" onclick="toggleLite()">Облегчённый режим</button>
       <span class="net" id="netStatus"></span>
     </div>

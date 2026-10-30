@@ -1,5 +1,6 @@
 (function init() {
   applyLite();
+  applySound();
   renderAuthArea();
   document.getElementById('logoIcon').innerHTML = ICONS.logo;
 

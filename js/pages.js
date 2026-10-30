@@ -1,5 +1,9 @@
 /* ===== Главная, профессии, кабинет ученика, о проекте ===== */
 
+/* Три профессии на главной — приманка, а не справочник: иконка, название
+   и одна забавная строчка. Весь список и тест живут в разделе «Профессии». */
+const HOME_PROFS = ['robot', 'gamedev', 'animator'];
+
 route('home', () => {
   document.getElementById('homeStart').innerHTML = homeStartHTML();
   // Список курсов имеет смысл только после выбора уровня: иначе на главной
@@ -11,6 +15,13 @@ route('home', () => {
   document.getElementById('hvStar').innerHTML = ICONS.star;
   document.getElementById('hvBlocks').innerHTML = ['right', 'right', 'up', 'jump', 'say']
     .map(t => '<span class="hvb ' + BLOCKS[t].cls + '">' + ICONS[t] + '</span>').join('');
+  document.getElementById('homeProfs').innerHTML = HOME_PROFS.map(id => {
+    const pr = PROFESSIONS[id];
+    return '<button class="pt-card p-' + pr.color + '" onclick="go(\'profs\')">' +
+      '<span class="pt-ico">' + ICONS[pr.ico] + '</span><b>' + pr.title + '</b>' +
+      '<span>' + pr.fun + '</span></button>';
+  }).join('');
+  document.getElementById('ctaHero').innerHTML = ICONS.cat;
 });
 
 route('about', () => {});
@@ -28,12 +39,47 @@ function profTried(id, p) {
   })[id];
 }
 
-function profCard(id, p) {
+/* Карточка профессии: сначала картинка и забавный пример, а длинное описание
+   раскрывается по кнопке. Абзац текста ребёнок пролистывает, одну строчку —
+   читает. В окне теста карточки показываются без кнопки, компактно. */
+function profCard(id, p, compact) {
   const pr = PROFESSIONS[id];
   const tried = p && profTried(id, p);
-  return '<article class="prof-card p-' + pr.color + (tried ? ' tried' : '') + '">' +
+  return '<article class="prof-card p-' + pr.color + (tried ? ' tried' : '') + (compact ? ' compact' : '') + '">' +
+    '<span class="pc-ico" aria-hidden="true">' + (ICONS[pr.ico] || '') + '</span>' +
     (tried ? '<span class="tried-badge">Ты уже пробовал!</span>' : '') +
-    '<h4>' + pr.title + '</h4><p>' + pr.text + '</p><small>' + pr.lesson + '</small></article>';
+    '<h4>' + pr.title + '</h4>' +
+    '<p class="pc-fun">' + pr.fun + '</p>' +
+    (compact ? '' :
+      '<div class="pc-more"><div><p>' + pr.text + '</p><small>' + pr.lesson + '</small></div></div>' +
+      '<button class="link-btn pc-toggle" aria-expanded="false" onclick="toggleProf(this)">Подробнее</button>') +
+    '</article>';
+}
+
+function toggleProf(btn) {
+  const open = btn.closest('.prof-card').classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.textContent = open ? 'Свернуть' : 'Подробнее';
+}
+
+/* ===== Достижения =====
+   Значок выдаётся один раз и запоминается в профиле: так его можно показать
+   сразу после урока, а не ждать, пока ребёнок зайдёт в кабинет. */
+function newAwards(p) {
+  p.awards = p.awards || [];
+  const fresh = AWARDS.filter(a => !p.awards.includes(a.id) && a.has(p));
+  if (fresh.length) {
+    fresh.forEach(a => p.awards.push(a.id));
+    saveDB();
+    syncPushSoon();
+  }
+  return fresh;
+}
+
+function awardBadgeHTML(a, locked) {
+  return '<span class="award' + (locked ? ' locked' : '') + '">' +
+    '<span class="aw-ico">' + (locked ? '🔒' : a.ico) + '</span>' +
+    '<b>' + a.title + '</b><small>' + a.note + '</small></span>';
 }
 
 route('profs', () => {
@@ -69,7 +115,7 @@ function quizAnswer(dir) {
   saveDB();
   const r = QUIZ_RESULTS[top];
   openModal('<div class="success"><h2>' + r.title + '</h2><p>' + r.text + '</p>' +
-    '<div class="prof-mini">' + r.profs.map(id => profCard(id, null)).join('') + '</div>' +
+    '<div class="prof-mini">' + r.profs.map(id => profCard(id, null, true)).join('') + '</div>' +
     '<p class="small-note">Это не экзамен, а подсказка. Пробуй всё — интересы могут меняться!</p>' +
     '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();handleRoute()">Готово</button></div></div>', { wide: true });
 }
@@ -86,6 +132,8 @@ route('profile', () => {
       '<div class="bar c-' + c.color + '"><span style="width:' + Math.max(d / t * 100, 2) + '%"></span></div></div>';
   }).join('');
   const tried = Object.keys(PROFESSIONS).filter(id => profTried(id, p));
+  newAwards(p);   // значки могли появиться за мастерскую или тест, а не за урок
+  const got = new Set(p.awards || []);
 
   document.getElementById('profileArea').innerHTML =
     '<div class="profile-grid"><div class="profile-card">' +
@@ -99,7 +147,10 @@ route('profile', () => {
           '<button class="btn btn-ghost" onclick="openGuestSwitch()">Это не мой прогресс</button>' +
           (Object.keys(DB.guests).length > 1
             ? '<button class="btn btn-ghost" onclick="removeGuest(DB.session.gid)">Удалить этот профиль</button>' : '')) +
-    '</div><div class="progress-list"><h3>Мои курсы</h3>' + bars +
+    '</div><div class="progress-list">' +
+      '<h3>Мои достижения</h3>' +
+      '<div class="award-grid">' + AWARDS.map(a => awardBadgeHTML(a, !got.has(a.id))).join('') + '</div>' +
+      '<h3>Мои курсы</h3>' + bars +
       '<h3>Профессии, которые я попробовал</h3>' +
       (tried.length ? '<div class="chips">' + tried.map(id => '<span class="chip-s p-' + PROFESSIONS[id].color + '">' + PROFESSIONS[id].title + '</span>').join('') + '</div>'
                     : '<p class="muted">Пройди первый урок — и здесь появится первая профессия!</p>') +

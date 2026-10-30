@@ -70,6 +70,41 @@ function toggleLite() {
   toast(DB.settings.lite ? 'Анимации выключены: так быстрее на слабых компьютерах' : 'Анимации включены');
 }
 
+/* ===== Звук =====
+   Сигнал успеха радует одного ребёнка и мешает классу из двадцати,
+   поэтому звук выключается одной кнопкой в подвале. */
+function applySound() {
+  const t = document.getElementById('soundToggle');
+  if (t) t.textContent = DB.settings.sound === false ? 'Звук: выкл' : 'Звук: вкл';
+}
+
+function toggleSound() {
+  DB.settings.sound = DB.settings.sound === false;
+  saveDB();
+  applySound();
+  if (DB.settings.sound) Sound.note();
+  toast(DB.settings.sound ? 'Звук включён' : 'Звук выключен — в классе так тише');
+}
+
+/* Короткий салют после решённого урока: полтора десятка бумажек на CSS,
+   ни одной картинки и ни одного килобайта. В облегчённом режиме не нужен:
+   там анимации выключены намеренно. */
+function confetti(host) {
+  if (DB.settings.lite || !host) return;
+  const box = document.createElement('div');
+  box.className = 'confetti';
+  box.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('i');
+    s.style.left = (5 + Math.random() * 90).toFixed(1) + '%';
+    s.style.animationDelay = (Math.random() * 0.4).toFixed(2) + 's';
+    s.style.setProperty('--tilt', (Math.random() * 80 - 40).toFixed(0) + 'px');
+    box.appendChild(s);
+  }
+  host.appendChild(box);
+  setTimeout(() => box.remove(), 2600);
+}
+
 /* ===== Чтение задания вслух =====
    Первоклассник часто ещё читает по слогам, поэтому задание можно послушать.
    Речь синтезирует сам браузер — ни одного скачанного байта, ровно как звук

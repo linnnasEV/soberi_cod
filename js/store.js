@@ -7,11 +7,11 @@
 const STORE_KEY = 'sobericod_v2';
 
 function newProfile(name, pic) {
-  return { name: name || 'Гость', pic: pic || null, progress: {}, reactions: {}, projects: [], quiz: null };
+  return { name: name || 'Гость', pic: pic || null, progress: {}, reactions: {}, projects: [], quiz: null, awards: [] };
 }
 
 function defaultDB() {
-  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { lite: false, track: null } };
+  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { lite: false, track: null, sound: true } };
 }
 
 let DB = loadDB();
@@ -52,7 +52,8 @@ function normalizeProfile(p) {
     progress: p.progress || {},
     reactions: p.reactions || {},
     projects: p.projects || [],
-    quiz: p.quiz || null
+    quiz: p.quiz || null,
+    awards: p.awards || []
   });
 }
 
@@ -169,6 +170,7 @@ function mergeProfile(into, from) {
   Object.assign(into.reactions, from.reactions || {});
   const have = new Set(into.projects.map(p => p.id));
   (from.projects || []).forEach(p => { if (!have.has(p.id)) into.projects.push(p); });
+  (from.awards || []).forEach(a => { if (!into.awards.includes(a)) into.awards.push(a); });
   if (!into.pic) into.pic = from.pic || null;
   if (!into.quiz) into.quiz = from.quiz || null;
 }

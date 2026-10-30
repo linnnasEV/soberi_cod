@@ -63,16 +63,31 @@ const TRACK_BLOCKS = {
   senior: ['forward', 'turnRight', 'repeat', 'spin']
 };
 
+/* Два портала вместо таблицы сравнения: герой, его блоки и большая кнопка.
+   Подробности («сколько минут задание», «какие блоки») раскрываются по
+   наведению, а на телефоне — кнопкой «Что внутри?»: взрослому они нужны,
+   ребёнку мешают. */
 function levelCardsHTML() {
   return '<div class="level-grid">' + Object.entries(TRACKS).map(([id, tr]) =>
-    '<button class="level-card t-' + id + '" onclick="chooseTrack(\'' + id + '\')">' +
-      '<span class="lc-hero">' + HEROES[tr.hero].icon + '</span>' +
-      '<b>' + tr.title + '</b><span class="lc-age">' + tr.age + '</span>' +
-      '<span class="lc-blocks">' + TRACK_BLOCKS[id].map(t =>
+    '<div class="portal t-' + id + '">' +
+      '<span class="p-glow" aria-hidden="true"></span>' +
+      '<span class="p-hero">' + HEROES[tr.hero].icon + '</span>' +
+      '<b>' + tr.title + '</b><span class="p-age">' + tr.age + '</span>' +
+      '<span class="p-blocks" aria-hidden="true">' + TRACK_BLOCKS[id].map(t =>
         '<span class="hvb ' + BLOCKS[t].cls + '">' + ICONS[t] + '</span>').join('') + '</span>' +
-      '<span class="lc-note">' + tr.note + '</span>' +
-      '<span class="lc-go">' + trackLessons(id) + ' заданий →</span>' +
-    '</button>').join('') + '</div>';
+      '<span class="p-note">' + tr.note + '</span>' +
+      '<button class="btn btn-lg p-start" onclick="chooseTrack(\'' + id + '\')">Играть · ' +
+        trackLessons(id) + ' заданий</button>' +
+      '<div class="p-details"><div class="p-det-in">' + tr.details.map(([k, v]) =>
+        '<span class="p-row"><i>' + k + '</i>' + v + '</span>').join('') + '</div></div>' +
+      '<button class="link-btn p-more" aria-expanded="false" onclick="togglePortal(this)">Что внутри?</button>' +
+    '</div>').join('') + '</div>';
+}
+
+function togglePortal(btn) {
+  const open = btn.closest('.portal').classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.textContent = open ? 'Свернуть' : 'Что внутри?';
 }
 
 /* Уровень уже выбран — вместо карточек одна кнопка «Продолжить» с тем самым
@@ -305,7 +320,16 @@ function lessonSuccess() {
 
   let html = '<div class="success">' + starsHTML(stars) +
     '<h2>' + (stars === 3 ? 'Отлично!' : 'Получилось!') + '</h2>' +
-    '<p>' + (stars < 3 && best ? 'А можно ещё короче: хватит ' + best + ' блоков. Попробуешь?' : 'Ты справился с уроком «' + esc(lesson.title) + '».') + '</p>';
+    '<p>' + (stars < 3 && best ? 'А можно ещё короче: хватит ' + best + ' блоков. Попробуешь?' : 'Ты справился с уроком «' + esc(lesson.title) + '».') + '</p>' +
+    coursePathHTML(courseId, p, lesson.id);
+
+  // Новые значки показываем сразу: иначе ребёнок увидит их, только если
+  // случайно заглянет в кабинет.
+  const fresh = newAwards(p);
+  if (fresh.length) {
+    html += '<div class="award-flash"><small>Новое достижение!</small>' +
+      '<div class="award-row">' + fresh.map(awardBadgeHTML).join('') + '</div></div>';
+  }
 
   if (prof) {
     html += '<div class="prof-flash p-' + prof.color + '"><small>' + (finished ? 'Курс пройден! Ты попробовал себя как…' : 'Сейчас ты работал как…') + '</small>' +
@@ -326,6 +350,21 @@ function lessonSuccess() {
                 : '<button class="btn btn-primary" onclick="closeModal();go(\'courses\')">К курсам</button>');
   html += '</div></div>';
   openModal(html);
+  confetti(document.querySelector('#modal .modal'));
+}
+
+/* «Путь» по курсу прямо в окне успеха: ребёнок видит не только звёзды за урок,
+   но и сколько осталось до конца. Без этого прогресс ощущается списком галочек. */
+function coursePathHTML(courseId, p, currentId) {
+  const list = LESSONS[courseId];
+  const done = courseDone(p, courseId);
+  return '<div class="path"><div class="path-row">' + list.map(l => {
+    const st = lessonStars(p, courseId, l.id);
+    return '<span class="pt' + (st ? ' ok' : '') + (l.id === currentId ? ' cur' : '') + '">' +
+      (st ? ICONS.star : l.id) + '</span>';
+  }).join('') + '</div>' +
+    '<div class="path-bar"><span style="width:' + Math.round(done / list.length * 100) + '%"></span></div>' +
+    '<small>Пройдено ' + done + ' из ' + list.length + ' в этом курсе</small></div>';
 }
 
 function setReaction(v, btn) {

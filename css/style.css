@@ -4,18 +4,25 @@
 :root {
   --blue: #4A7DFF; --blue-dark: #2E5BD9; --yellow: #FFD34E; --orange: #FFA53A;
   --pink: #FF6FA8; --green: #2FBF7F; --green-dark: #22A56A; --purple: #8B5CF6; --red: #F0453A;
-  --bg: #F5F8FF; --card: #fff; --text: #1F2544; --muted: #6B7395; --line: #E3E8F6;
+  /* --muted затемнён до контраста 6:1 на белом: серый текст читают и дети
+     с плохим зрением, и учитель с проектора. Требование WCAG AA — 4.5:1. */
+  --bg: #F5F8FF; --card: #fff; --text: #1F2544; --muted: #565E80; --line: #E3E8F6;
   --shadow: 0 8px 24px rgba(74, 125, 255, .12); --radius: 18px;
   --c-motion: #4A7DFF; --c-looks: #8B5CF6; --c-sound: #2FBF7F; --c-control: #FF9A2E;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
+/* Шрифт системный — ни одного скачанного байта. Размер и межстрочный интервал
+   подняты под младшего школьника: он читает по слогам, и мелкий плотный текст
+   для него не «компактный», а нечитаемый. */
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh;
+  background: var(--bg); color: var(--text); font-size: 17px; line-height: 1.6; min-height: 100vh;
   display: flex; flex-direction: column;
 }
+/* Длинная строка сбивает ребёнка со строки при переносе взгляда */
+p { max-width: 68ch; }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; font-size: inherit; }
 input, select, textarea { font-family: inherit; font-size: 16px; }
@@ -63,12 +70,20 @@ header { position: sticky; top: 0; z-index: 50; background: #fff; box-shadow: 0 
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .container { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
 .container.narrow { max-width: 860px; }
-section { padding: 48px 0; }
+/* Ритм страницы: белая секция — цветная — белая. Длинный ровный документ
+   глазу не за что зацепить, а скруглённый край показывает, что начался
+   новый блок, без лишней линии-разделителя. */
+section { padding: 56px 0; }
 .section-white { background: #fff; }
+.section-tint { background: linear-gradient(180deg, #EEF3FF, #F7EDFF); }
+.section-curve { border-radius: 42px 42px 0 0; margin-top: -42px; position: relative; z-index: 1; background: var(--bg); }
+.section-white.section-curve { background: #fff; }
 .section-head { text-align: center; margin-bottom: 30px; }
 .section-head.left { text-align: left; margin: 0 0 18px; padding-top: 24px; }
-.section-head h2 { font-size: 32px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
-.section-head p { color: var(--muted); font-size: 16px; }
+.section-head h2 { font-size: 34px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+.section-head p { color: var(--muted); font-size: 17px; max-width: 62ch; margin: 0 auto; }
+.section-head.left p { margin-left: 0; }
+.center-row { display: flex; justify-content: center; margin-top: 26px; }
 .card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 20px; margin-bottom: 8px; }
 
@@ -78,7 +93,7 @@ section { padding: 48px 0; }
 .pill { display: inline-block; padding: 6px 14px; border-radius: 999px; background: #FFF4CC; color: #8A5E00; font-weight: 800; font-size: 14px; margin-bottom: 14px; }
 .hero h1 { font-size: 50px; line-height: 1.1; font-weight: 900; letter-spacing: -1px; }
 .hero h1 .accent { color: var(--blue); }
-.hero p { margin: 18px 0 26px; font-size: 18px; color: var(--muted); max-width: 540px; }
+.hero p { margin: 18px 0 30px; font-size: 19px; color: var(--muted); max-width: 560px; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .hero .hero-note { font-size: 14px; margin: 12px 0 0; }
 .hero-visual { background: #fff; border-radius: 26px; padding: 18px; box-shadow: var(--shadow); }
@@ -104,7 +119,7 @@ section { padding: 48px 0; }
 .course-hero { width: 76px; height: 76px; padding: 8px; border-radius: 20px; background: var(--soft); }
 .course-hero.big { width: 96px; height: 96px; flex-shrink: 0; }
 .course-card h3 { font-size: 22px; font-weight: 900; }
-.course-card p { color: var(--muted); font-size: 15px; flex: 1; }
+.course-card p { color: var(--muted); font-size: 16px; flex: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip-s { padding: 3px 10px; border-radius: 999px; background: #F0F3FB; font-size: 13px; font-weight: 700; color: var(--muted); }
 .mini-progress { height: 8px; border-radius: 99px; background: #EEF1F8; overflow: hidden; }
@@ -114,16 +129,28 @@ section { padding: 48px 0; }
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .step { text-align: center; padding: 18px; }
 .step-num { width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-.step h4 { font-size: 18px; margin-bottom: 6px; }
-.step p { color: var(--muted); }
-.adv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.adv { background: #fff; border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-.adv-ico { width: 52px; height: 52px; border-radius: 14px; background: #EEF3FF; color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; margin-bottom: 12px; }
-.adv h4 { font-size: 17px; margin-bottom: 4px; }
-.adv p { color: var(--muted); font-size: 14px; }
-.cta-strip { background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; border-radius: 26px; padding: 42px 24px; text-align: center; }
-.cta-strip h2 { font-size: 30px; font-weight: 900; }
-.cta-strip p { opacity: .9; margin: 8px 0 20px; }
+.step h4 { font-size: 19px; margin-bottom: 6px; }
+.step p { color: var(--muted); font-size: 16px; }
+/* Последний экран — приглашение, а не баннер: много воздуха, крупная кнопка,
+   герой выглядывает из-за угла и вокруг летят искры. */
+.cta-strip { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: #fff; border-radius: 30px; padding: 56px 24px 60px; text-align: center; }
+.cta-strip h2 { font-size: 34px; font-weight: 900; }
+.cta-strip p { margin: 10px auto 24px; font-size: 18px; }
+.cta-strip .btn-white { box-shadow: 0 10px 24px rgba(0, 0, 0, .18); }
+.cta-strip .btn-white:hover { transform: translateY(-3px) scale(1.03); }
+.cta-hero { position: absolute; left: 50%; top: 14px; width: 62px; transform: translateX(-50%); opacity: .95; animation: ctaBob 3.4s ease-in-out infinite; }
+.cta-hero svg { width: 100%; height: auto; }
+@keyframes ctaBob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -8px); } }
+.cta-strip > h2 { margin-top: 56px; }
+.cta-sparks i { position: absolute; width: 10px; height: 10px; border-radius: 3px; background: rgba(255, 255, 255, .55); animation: sparkle 4s ease-in-out infinite; }
+.cta-sparks i:nth-child(1) { left: 8%; top: 24%; animation-delay: 0s; }
+.cta-sparks i:nth-child(2) { left: 18%; top: 68%; animation-delay: .6s; }
+.cta-sparks i:nth-child(3) { left: 32%; top: 18%; animation-delay: 1.2s; }
+.cta-sparks i:nth-child(4) { right: 12%; top: 30%; animation-delay: .3s; }
+.cta-sparks i:nth-child(5) { right: 24%; top: 72%; animation-delay: 1.5s; }
+.cta-sparks i:nth-child(6) { right: 6%; top: 56%; animation-delay: .9s; }
+@keyframes sparkle { 0%, 100% { opacity: .2; transform: scale(.7) rotate(0); } 50% { opacity: .9; transform: scale(1.25) rotate(45deg); } }
 
 /* ---------- Список уроков ---------- */
 .course-head { display: flex; gap: 20px; align-items: center; margin: 20px 0 24px; padding: 22px; border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); border-left: 6px solid var(--accent); }
@@ -262,9 +289,21 @@ section { padding: 48px 0; }
 .quiz-res p { margin: 6px 0 12px; }
 .prof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .prof-card { position: relative; background: #fff; border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); border-top: 6px solid var(--pc); }
-.prof-card h4 { font-size: 19px; margin-bottom: 6px; }
-.prof-card p { color: var(--muted); font-size: 15px; margin-bottom: 10px; }
-.prof-card small { font-weight: 700; color: var(--pc-ink); font-size: 13px; }
+.prof-card h4 { font-size: 20px; margin-bottom: 6px; }
+.prof-card p { color: var(--muted); font-size: 16px; margin-bottom: 10px; }
+.prof-card small { font-weight: 700; color: var(--pc-ink); font-size: 14px; }
+/* Карточка профессии: картинка и одна строчка сразу, абзац — по кнопке */
+/* Иконки нарисованы белым штрихом (они живут на цветных блоках), поэтому
+   плитка под ними — тёмная: на бледной подложке белая линия не видна. */
+.pc-ico { display: block; width: 58px; height: 58px; padding: 11px; border-radius: 18px; background: var(--pc-ink); margin-bottom: 12px; }
+.pc-ico svg { width: 100%; height: 100%; }
+.prof-card .pc-fun { color: var(--text); font-size: 16px; }
+.pc-more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.pc-more > div { overflow: hidden; }
+.prof-card.open .pc-more { grid-template-rows: 1fr; }
+.pc-more p { margin-top: 10px; }
+.pc-toggle { color: var(--pc-ink); font-weight: 800; font-size: 14px; margin-top: 8px; }
+.prof-card.compact { padding: 18px; }
 .prof-card.tried { background: linear-gradient(#fff, var(--pc-soft)); }
 .tried-badge { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--pc); color: #fff; }
 .p-blue { --pc: #4A7DFF; --pc-soft: #EEF3FF; --pc-ink: #2E5BD9; }
@@ -388,10 +427,54 @@ footer { background: #fff; border-top: 1px solid var(--line); margin-top: 32px; 
 .net { padding: 2px 10px; border-radius: 999px; background: #E5F8EF; color: #1D8A57; font-weight: 700; }
 #printArea { display: none; }
 
+/* ---------- Путь по курсу, достижения, салют ----------
+   Звёзды отвечают на вопрос «хорошо ли я решил», а эти блоки — на вопрос
+   «далеко ли я продвинулся». Для семилетки второй вопрос важнее. */
+.path { margin: 16px 0 18px; }
+.path-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.pt { width: 30px; height: 30px; border-radius: 50%; background: #EEF1F8; color: var(--muted);
+  font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.pt svg { width: 20px; height: 20px; }
+.pt.ok { background: #FFF1C4; }
+.pt.cur { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--blue); }
+.path-bar { height: 10px; border-radius: 99px; background: #EEF1F8; overflow: hidden; }
+.path-bar span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), #7BE0B0); transition: width .5s ease; }
+.path small { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+
+.award-flash { background: #FFF6D6; border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+.award-flash small { font-weight: 800; color: #8A5E00; }
+.award-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+.award-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 22px; }
+.award { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;
+  background: #fff; border: 2px solid var(--yellow); border-radius: 16px; padding: 12px 10px; }
+.award b { font-size: 15px; }
+.award small { color: var(--muted); font-size: 13px; }
+.aw-ico { font-size: 30px; line-height: 1.1; }
+.award.locked { border-color: var(--line); background: #F7F9FE; }
+.award.locked .aw-ico { opacity: .45; }
+.award.locked b, .award.locked small { color: var(--muted); }
+
+/* Салют: четырнадцать бумажек, ни одной картинки */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.confetti i { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px;
+  background: var(--blue); animation: fall 2.2s ease-in forwards; }
+.confetti i:nth-child(3n) { background: var(--yellow); }
+.confetti i:nth-child(3n+1) { background: var(--pink); }
+.confetti i:nth-child(4n) { background: var(--green); }
+@keyframes fall {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  10% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--tilt, 0), 320px) rotate(540deg); }
+}
+
 /* ---------- Облегчённый режим и доступность ---------- */
 body.lite *, body.lite *::before, body.lite *::after { animation: none !important; box-shadow: none !important; }
 body.lite .actor { transition: left .2s linear, top .2s linear; }
-body.lite .card, body.lite .course-card, body.lite .col-stage, body.lite .col-code, body.lite .adv, body.lite .lesson-item, body.lite .proj-card, body.lite .prof-card, body.lite .stat, body.lite .progress-list, body.lite .profile-card, body.lite .guide { border: 1px solid var(--line); }
+body.lite .card, body.lite .course-card, body.lite .col-stage, body.lite .col-code, body.lite .pt-card, body.lite .lesson-item, body.lite .proj-card, body.lite .prof-card, body.lite .stat, body.lite .progress-list, body.lite .profile-card, body.lite .guide { border: 1px solid var(--line); }
+/* В облегчённом режиме порталы остаются порталами, но без свечения и прыжков */
+body.lite .portal { border-color: var(--line); }
+body.lite .p-glow, body.lite .cta-sparks, body.lite .cta-hero { display: none; }
+body.lite .section-curve { margin-top: 0; border-radius: 0; }
 body.lite .wblock.running { outline: 4px solid var(--yellow); }
 body.lite .wblock.wrong { outline: 4px solid var(--red); }
 body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
@@ -406,8 +489,7 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .nav-links::-webkit-scrollbar { display: none; }
   .auth-area { margin-left: auto; }
   .lesson-grid { grid-template-columns: 1fr; }
-  .adv-grid { grid-template-columns: 1fr 1fr; }
-  .prof-grid { grid-template-columns: 1fr 1fr; }
+  .prof-grid, .prof-teaser { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 860px) {
   .hero-inner, .grid-3, .steps, .teacher-entry, .profile-grid, .about-grid, .how { grid-template-columns: 1fr; }
@@ -423,17 +505,18 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .hero { padding: 28px 0 40px; }
   .hero h1 { font-size: 32px; }
   .section-head h2 { font-size: 26px; }
-  .adv-grid, .prof-grid, .prof-mini { grid-template-columns: 1fr; }
+  .prof-grid, .prof-mini, .prof-teaser { grid-template-columns: 1fr; }
   .col-stage, .col-code { padding: 12px; }
   .pblock { width: 60px; height: 60px; }
   .pblock .bi svg { width: 26px; height: 26px; }
   .wblock { width: 58px; height: 58px; }
   .lt-title h2 { font-size: 20px; }
-  .lc-note { min-height: 0; }
-  /* Таблица уровней должна помещаться в телефон целиком: она для взрослого,
-     который читает её стоя в коридоре, а не разглядывает с лупой. */
-  .cmp th, .cmp td { padding: 10px 10px; font-size: 13px; }
-  .cmp tbody th { width: 84px; }
+  /* На телефоне порталы идут друг под другом, подпись больше не держит высоту */
+  .p-note { min-height: 0; }
+  .portal { padding: 24px 18px 20px; }
+  .p-hero { width: 96px; height: 96px; }
+  .cta-strip { padding: 44px 18px 48px; }
+  .cta-strip h2 { font-size: 27px; }
   .course-head { flex-direction: column; align-items: flex-start; }
   .controls .btn { flex: 1 1 auto; }
   .ub-name { display: none; }
@@ -476,21 +559,43 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .hero-pick p { margin-left: auto; margin-right: auto; }
 .hero-pick .hero-note { margin-top: 18px; }
 
-.level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.level-card { background: #fff; border-radius: 22px; padding: 26px 20px; box-shadow: var(--shadow);
-  border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  text-align: center; transition: .18s; }
-.level-card:hover, .level-card:focus-visible { transform: translateY(-5px); border-color: var(--accent); }
-.level-card.t-junior { --accent: #FFC531; }
-.level-card.t-senior { --accent: #4A7DFF; }
-.lc-hero { width: 96px; height: 96px; }
-.lc-hero svg { width: 100%; height: 100%; }
-.level-card b { font-size: 26px; font-weight: 900; }
-.lc-age { font-weight: 800; color: var(--accent); }
+/* ===== Порталы выбора уровня =====
+   Две большие карточки с героем вместо таблицы сравнения. Подробности лежат
+   внутри и раскрываются по наведению (мышь) или кнопке «Что внутри?» (палец):
+   ребёнку они не нужны, взрослому нужны, и обоим не нужен выбор между ними. */
+.level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.portal { position: relative; overflow: hidden; background: #fff; border-radius: 26px; padding: 30px 22px 24px;
+  box-shadow: var(--shadow); border: 3px solid transparent; display: flex; flex-direction: column;
+  align-items: center; gap: 8px; text-align: center; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.portal:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 18px 40px rgba(74, 125, 255, .22); }
+.portal.t-junior { --accent: #E8A200; --glow: #FFF1C4; }
+.portal.t-senior { --accent: #4A7DFF; --glow: #DDE8FF; }
+/* Свечение «портала» за героем: радиальный градиент, никаких картинок */
+.p-glow { position: absolute; top: -70px; left: 50%; width: 260px; height: 260px; transform: translateX(-50%);
+  border-radius: 50%; background: radial-gradient(circle, var(--glow) 0, transparent 70%); }
+.p-hero { position: relative; width: 112px; height: 112px; animation: pBob 3.6s ease-in-out infinite; }
+.p-hero svg { width: 100%; height: 100%; }
+@keyframes pBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.portal:hover .p-hero { animation-duration: 1.4s; }
+.portal b { position: relative; font-size: 28px; font-weight: 900; }
+.p-age { font-weight: 800; color: var(--accent); }
 /* Набор блоков вместо описания: что получит ребёнок, видно без чтения */
-.lc-blocks { display: flex; gap: 8px; margin: 10px 0 4px; }
-.lc-note { color: var(--muted); font-size: 14px; min-height: 40px; }
-.lc-go { font-weight: 800; color: var(--accent); }
+.p-blocks { display: flex; gap: 8px; margin: 10px 0 2px; }
+.p-note { color: var(--muted); font-size: 15px; min-height: 46px; }
+.p-start { width: 100%; margin-top: 6px; background: var(--accent); color: #fff; font-size: 18px; }
+.portal.t-junior .p-start { color: #3A2A00; }
+.p-start:hover { filter: brightness(1.06); transform: scale(1.02); }
+/* Детали раскрываются плавно: grid-rows от 0 к 1fr работает без фиксированной высоты */
+.p-details { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; width: 100%; }
+.p-det-in { overflow: hidden; }
+.portal:hover .p-details, .portal.open .p-details, .portal:focus-within .p-details { grid-template-rows: 1fr; }
+.p-row { display: flex; gap: 10px; justify-content: space-between; text-align: left; font-size: 14.5px;
+  padding: 7px 2px; border-top: 1px solid var(--line); }
+.p-row:first-child { margin-top: 12px; }
+.p-row i { font-style: normal; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+.p-more { color: var(--muted); font-size: 14px; font-weight: 700; margin-top: 4px; }
+/* Мышь раскрывает детали сама, поэтому кнопка нужна только там, где нет наведения */
+@media (hover: hover) { .p-more { display: none; } }
 
 .start-panel { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center;
   background: #fff; border-radius: 22px; padding: 18px 24px; box-shadow: var(--shadow);
@@ -511,14 +616,16 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .how .step { display: flex; gap: 16px; align-items: flex-start; text-align: left; padding: 0; }
 .how .step-num { margin: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 19px; }
 
-.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius);
-  box-shadow: var(--shadow); overflow: hidden; }
-.cmp th, .cmp td { padding: 14px 18px; text-align: left; vertical-align: top; font-size: 15px; }
-.cmp tbody tr + tr { border-top: 1px solid #EDF1F7; }
-.cmp tbody th { width: 150px; font-weight: 800; color: var(--muted); }
-.cmp-h { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 900; }
-.cmp-h.t-junior { background: #FFF4CC; color: #8A5E00; }
-.cmp-h.t-senior { background: #E8EFFF; color: var(--blue-dark); }
+/* ===== Профессии на главной ===== */
+.prof-teaser { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.pt-card { background: #fff; border-radius: 22px; padding: 24px 20px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  border-bottom: 6px solid var(--pc); transition: .2s; }
+.pt-card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(74, 125, 255, .2); }
+.pt-ico { width: 64px; height: 64px; padding: 12px; border-radius: 20px; background: var(--pc-ink); }
+.pt-ico svg { width: 100%; height: 100%; }
+.pt-card b { font-size: 20px; font-weight: 900; }
+.pt-card span:last-child { color: var(--muted); font-size: 15px; }
 
 /* ---------- Задание картинками и чтение вслух ---------- */
 .task-body { flex: 1; min-width: 0; }

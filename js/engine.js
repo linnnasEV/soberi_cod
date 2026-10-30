@@ -122,7 +122,11 @@ function starsFor(lesson, prog) {
 /* ===== Звук без файлов: синтез через Web Audio ===== */
 const Sound = {
   ctx: null,
+  /* Звук можно выключить в подвале: в классе за двадцатью компьютерами
+     двадцать «та-да» одновременно — это не радость, а шум. */
+  off() { return DB.settings.sound === false; },
   tone(freqs, dur = 0.14) {
+    if (this.off()) return;
     try {
       this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
       const t0 = this.ctx.currentTime;
