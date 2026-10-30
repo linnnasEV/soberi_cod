@@ -26,7 +26,10 @@ function handleRoute() {
   document.body.classList.remove('sheet-open', 'dec-open', 'gal-open');
   // Главная — это Мастерская, и она занимает ровно экран: без прокрутки,
   // с подвалом, спрятанным ради места для сцены.
+  // Класс нужен и на <html>: прокруткой окна управляет корневой элемент,
+  // одного body для этого мало.
   document.body.classList.toggle('home-fit', name === 'home');
+  document.documentElement.classList.toggle('home-fit', name === 'home');
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('.nav-links a').forEach(a =>
     a.classList.toggle('active', a.dataset.page === name || (a.dataset.also || '').split(',').includes(name)));

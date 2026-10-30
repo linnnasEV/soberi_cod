@@ -659,12 +659,13 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
    мастерской. Поэтому раскладка не ломается ни на школьном ноутбуке
    1366×768, ни на большом мониторе, ни на проекторе. */
 
+html.home-fit { height: 100%; }
 body.home-fit { height: 100vh; height: 100svh; }
 body.home-fit #page-home.active { display: flex; flex-direction: column; min-height: 0; }
 /* Прятать прокрутку можно только там, где содержимое гарантированно влезает:
    на совсем низком окне лучше дать листать, чем спрятать кнопки. */
 @media (min-width: 768px) and (min-height: 560px) {
-  body.home-fit { overflow: hidden; }
+  html.home-fit, body.home-fit { overflow: hidden; }
 }
 /* Подвал на главной спрятан: его место занимает сцена. Переключатели звука и
    облегчённого режима не потерялись — они внизу рейки выбора. */
@@ -745,7 +746,9 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
   .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
-  .studio-grid .col-code .workspace { min-height: 64px; }
+  /* На низком окне программа ужимается первой: палитра и кнопки должны
+     остаться целиком видны, а в программе обычно два-три блока. */
+  .studio-grid .col-code .workspace { min-height: 56px; }
   .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 18px; }
 }
 
@@ -760,6 +763,11 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .studio { padding: 8px 14px; }
   /* Кнопки чуть ниже: на планшете лента выбора уже съела верх экрана */
   .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 16px; }
+  /* Колонка кода здесь узкая: при блоках в 58 px палитра ложится в четыре
+     ряда и выталкивает «Запустить» за экран. Пять в ряд — три ряда. */
+  .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
+  .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
+  .studio-grid .col-code .workspace { min-height: 56px; }
   .pk-dec .pick small { font-size: 10px; }
 }
 
@@ -826,7 +834,7 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-4
    Здесь вертикальный скролл разрешён. Порядок: сцена → запуск → «поставь на
    сцену» → герой и фон → блоки шторкой → «в галерею». */
 @media (max-width: 767px) {
-  body.home-fit { height: auto; overflow: visible; }
+  html.home-fit, body.home-fit { height: auto; overflow: visible; }
   body.home-fit footer { display: block; }
 
   /* Шапка в одну строку: логотип, «Войти», бургер. Пункты меню — под бургер. */
