@@ -20,6 +20,8 @@ function handleRoute() {
   const name = ROUTES[page] ? page : 'home';
   if (window.currentStage) window.currentStage.stop();
   Speech.stop();   // голос не должен договаривать задание на другой странице
+  closeMenu();
+  document.body.classList.remove('sheet-open');
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('.nav-links a').forEach(a =>
     a.classList.toggle('active', a.dataset.page === name || (a.dataset.also || '').split(',').includes(name)));
@@ -27,14 +29,39 @@ function handleRoute() {
   ROUTES[name](...args.map(decodeURIComponent));
 }
 
-/* Всплывающая подсказка вместо alert() */
+/* Всплывающая подсказка вместо alert().
+   action = { label, fn } добавляет кнопку: так «Сбросить» обходится без
+   блокирующего «вы уверены?» — ребёнок просто жмёт «Отменить», если промахнулся. */
 let toastTimer;
-function toast(msg, kind = 'info') {
+function toast(msg, kind = 'info', action = null, ms = 3800) {
   const el = document.getElementById('toast');
   el.className = 'toast show ' + kind;
-  el.innerHTML = '<span class="toast-hero">' + ICONS.cat + '</span><span>' + esc(msg) + '</span>';
+  el.innerHTML = '<span class="toast-hero">' + ICONS.cat + '</span><span>' + esc(msg) + '</span>' +
+    (action ? '<button class="toast-act">' + esc(action.label) + '</button>' : '');
+  if (action) {
+    el.querySelector('.toast-act').onclick = () => {
+      el.classList.remove('show');
+      clearTimeout(toastTimer);
+      action.fn();
+    };
+  }
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3800);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+/* ===== Меню на телефоне =====
+   Три пункта в строку не помещаются рядом с логотипом и кнопкой входа,
+   поэтому на узком экране они прячутся под бургер. */
+function toggleMenu() {
+  const open = document.body.classList.toggle('menu-open');
+  const b = document.getElementById('burger');
+  if (b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function closeMenu() {
+  document.body.classList.remove('menu-open');
+  const b = document.getElementById('burger');
+  if (b) b.setAttribute('aria-expanded', 'false');
 }
 
 function openModal(html, { wide = false } = {}) {

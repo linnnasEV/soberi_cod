@@ -1,11 +1,11 @@
 /* Сервис-воркер: кэширует все файлы платформы, чтобы она открывалась без интернета.
    Стратегия «сначала кэш»: страница открывается мгновенно даже при очень медленном
    интернете, а свежие файлы догружаются в фоне и применяются при следующем открытии. */
-const CACHE = 'sobericod-v8';
+const CACHE = 'sobericod-v9';
 const FILES = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'css/style.css',
   'js/icons.js', 'js/data.js', 'js/store.js', 'js/sync.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
-  'js/lesson.js', 'js/studio.js', 'js/auth.js', 'js/teacher.js', 'js/pages.js', 'js/main.js'
+  'js/lesson.js', 'js/studio.js', 'js/auth.js', 'js/teacher.js', 'js/pages.js', 'js/tour.js', 'js/main.js'
 ];
 
 self.addEventListener('install', e => {

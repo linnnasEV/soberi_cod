@@ -100,7 +100,9 @@ function renderAuthArea() {
       ? '<button class="user-badge" onclick="openGuestSwitch()" title="Кто сейчас играет?"><span class="mini-ava">' + (p.pic || '🙂') + '</span>' +
         '<span class="ub-name">' + esc(p.name) + '</span><span class="ub-stars">' + ICONS.star + totalStars(p) + '</span></button>'
       : '';
-    area.innerHTML = badge + '<button class="btn btn-primary" onclick="openLogin()">Войти</button>';
+    // Кнопка входа намеренно тихая: ребёнок пришёл играть, а не регистрироваться,
+    // и яркая кнопка в углу перетягивала бы его со сцены.
+    area.innerHTML = badge + '<button class="btn btn-ghost btn-quiet" onclick="openLogin()">Войти</button>';
   }
 }
 

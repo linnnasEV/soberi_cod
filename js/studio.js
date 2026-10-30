@@ -8,15 +8,18 @@ const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shri
                     'color', 'vanish', 'say', 'sound', 'wait', 'repeat'];
 const S = { hero: 'cat', bg: 'meadow', decor: {}, start: { r: 3, c: 1 }, tool: 'a', program: [], running: false };
 
-route('studio', () => {
+/* Мастерская — это и есть главная страница: ребёнок открыл сайт и сразу
+   собирает программу, без промежуточных экранов. */
+route('home', () => {
   window.currentStage = S.stage = S.stage || new Stage(document.getElementById('studioStage'));
   if (!S.editor) {
     S.editor = new Editor({
       palette: document.getElementById('studioPalette'),
       workspace: document.getElementById('studioWs'),
       counter: document.getElementById('studioCounter'),
-      onChange: () => S.stage.reset()
+      onChange: () => { S.stage.reset(); saveStudioSession(); Tour.onProgram(); }
     });
+    restoreStudioSession();
     S.editor.setup({ blocks: ALL_BLOCKS, program: S.program });
     // Клик по клетке ставит выбранный предмет. Слушатель один на всю сцену:
     // mount() каждый раз перерисовывает её содержимое.
@@ -25,9 +28,42 @@ route('studio', () => {
   renderStudioPickers();
   mountStudioStage();
   renderGallery();
-  // Работу открыли с главной, когда Мастерская ещё не была проинициализирована
-  if (S.pending) { const id = S.pending; S.pending = null; openProject(id); }
+  Tour.start();
 });
+
+/* Старые ссылки на #studio и кнопки «Открыть Мастерскую» ведут на главную */
+route('studio', () => go('home'));
+
+/* ===== Сцена живёт, пока открыта вкладка =====
+   Ребёнок ушёл в «Уроки» и вернулся — сборка на месте. Закрыл вкладку —
+   сцена чистая: это песочница, а не сохранённый профиль. */
+const SESSION_KEY = 'sobericod_studio';
+
+function saveStudioSession() {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      hero: S.hero, bg: S.bg, decor: S.decor, start: S.start,
+      program: S.editor ? S.editor.program : S.program
+    }));
+  } catch (e) { /* приватный режим — просто не сохраняем */ }
+}
+
+function restoreStudioSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (HEROES[s.hero]) S.hero = s.hero;
+    if (BACKGROUNDS[s.bg]) S.bg = s.bg;
+    if (s.decor) S.decor = s.decor;
+    if (s.start) S.start = s.start;
+    if (Array.isArray(s.program)) S.program = s.program;
+  } catch (e) {}
+}
+
+function dropStudioSession() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
 
 /* Сцена Мастерской — такая же карта, как в уроках, только её рисует ребёнок */
 function studioMap() {
@@ -70,21 +106,50 @@ function placeDecor(r, c) {
   }
   Sound.tone([720], 0.05);
   mountStudioStage();
+  saveStudioSession();
 }
 
-function clearStudioScene() {
+/* ===== Сброс сцены =====
+   Без диалога «вы уверены?»: для семилетки лишний вопрос — помеха, а собрать
+   заново — часть игры. Но если программа была не из двух блоков, пять секунд
+   висит «Отменить»: это защита от случайного нажатия без блокирующего окна. */
+function resetScene() {
+  const had = S.editor ? countBlocks(S.editor.program) : 0;
+  const snapshot = {
+    program: JSON.parse(JSON.stringify(S.editor ? S.editor.program : [])),
+    decor: Object.assign({}, S.decor),
+    start: Object.assign({}, S.start)
+  };
+  if (S.running) runStudio();            // идущую программу сначала останавливаем
   S.decor = {};
   S.start = { r: 3, c: 1 };
+  S.editor.setup({ blocks: ALL_BLOCKS, program: [] });
   mountStudioStage();
-  toast('Сцена пустая — ставь что хочешь.');
+  dropStudioSession();
+  Sound.tone([440, 330], 0.08);
+
+  if (had > 3) {
+    toast('Сцена очищена.', 'info', { label: 'Отменить', fn: () => undoReset(snapshot) }, 5000);
+  } else {
+    toast('Сцена очищена — собирай заново!');
+  }
+}
+
+function undoReset(snapshot) {
+  S.decor = snapshot.decor;
+  S.start = snapshot.start;
+  S.editor.setup({ blocks: ALL_BLOCKS, program: snapshot.program });
+  mountStudioStage();
+  saveStudioSession();
+  toast('Вернули как было.');
 }
 
 function renderStudioPickers() {
   document.getElementById('heroPick').innerHTML = Object.entries(HEROES).map(([id, h]) =>
-    '<button class="pick' + (S.hero === id ? ' sel' : '') + '" onclick="S.hero=\'' + id + '\';renderStudioPickers();mountStudioStage()" title="' + h.name + '">' +
+    '<button class="pick' + (S.hero === id ? ' sel' : '') + '" onclick="pickHero(\'' + id + '\')" title="' + h.name + '">' +
     '<span class="pick-ico">' + h.icon + '</span><small>' + h.name + '</small></button>').join('');
   document.getElementById('bgPick').innerHTML = Object.entries(BACKGROUNDS).map(([id, b]) =>
-    '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="S.bg=\'' + id + '\';renderStudioPickers();mountStudioStage()">' +
+    '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="pickBg(\'' + id + '\')">' +
     '<span class="pick-bg bg-' + id + '"></span><small>' + b.name + '</small></button>').join('');
   // «Герой» показывает того героя, который выбран сейчас: так понятнее, что
   // этим инструментом переносят именно его.
@@ -93,7 +158,32 @@ function renderStudioPickers() {
     '<span class="pick-ico">' + (d.ch === 'S' ? HEROES[S.hero].icon : d.icon) + '</span><small>' + d.name + '</small></button>').join('');
 }
 
+function pickHero(id) { S.hero = id; renderStudioPickers(); mountStudioStage(); saveStudioSession(); }
+function pickBg(id) { S.bg = id; renderStudioPickers(); mountStudioStage(); saveStudioSession(); }
+
+/* ===== Пример и озвучка =====
+   Первоклассник часто ещё читает по слогам, поэтому объяснение можно
+   послушать, а пример — посмотреть в деле: три блока, запуск, герой пошёл. */
+function showExample() {
+  Tour.example();
+}
+
+function speakStudioHelp() {
+  Speech.say('Нажимай на цветные блоки — они появятся в твоей программе. ' +
+    'Потом нажми зелёную кнопку Запустить, и герой оживёт. ' +
+    'Кнопка Сбросить убирает всё со сцены.');
+  toast('Слушай подсказку. Звук можно выключить в самом низу страницы.');
+}
+
+/* Шторка с блоками на телефоне */
+function toggleSheet() {
+  const open = document.body.classList.toggle('sheet-open');
+  const b = document.getElementById('sheetBtn');
+  if (b) b.textContent = open ? '✕ Закрыть' : '🧩 Блоки';
+}
+
 async function runStudio() {
+  Tour.onRun();
   const btn = document.getElementById('studioRun');
   if (S.running) {
     S.stage.stop(); S.stage.reset(); S.editor.setLocked(false); S.editor.clearHighlight();
@@ -137,6 +227,7 @@ function surpriseStudio() {
   S.editor.setup({ blocks: ALL_BLOCKS, program: pickRandom(IDEAS) });
   renderStudioPickers();
   mountStudioStage();
+  saveStudioSession();
   toast('Вот идея! Меняй блоки и сцену как хочешь.');
 }
 
@@ -209,8 +300,6 @@ function findProject(id) {
 function openProject(id) {
   const p = findProject(id);
   if (!p) return;
-  // С главной Мастерская ещё не открывалась: сначала раздел, потом работа
-  if (!S.editor) { S.pending = id; return go('studio'); }
   S.hero = p.hero; S.bg = p.bg;
   // Работы, сохранённые до появления декораций, открываются на пустой сцене
   S.decor = Object.assign({}, p.decor);
@@ -218,6 +307,7 @@ function openProject(id) {
   S.editor.setup({ blocks: ALL_BLOCKS, program: p.program });
   renderStudioPickers();
   mountStudioStage();
+  saveStudioSession();
   document.getElementById('studioTop').scrollIntoView({ behavior: 'smooth' });
   setTimeout(runStudio, 500);
 }
@@ -229,9 +319,9 @@ function deleteProject(id) {
   renderGallery();
 }
 
-/* Вход в Мастерскую с главной: герой или фон выбран ещё до открытия раздела */
+/* Ссылки «Открыть Мастерскую» из других разделов ведут на главную */
 function openStudioWith(hero, bg) {
   if (hero) S.hero = hero;
   if (bg) S.bg = bg;
-  go('studio');
+  go('home');
 }

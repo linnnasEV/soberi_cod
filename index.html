@@ -14,104 +14,81 @@
 
 <header>
   <div class="nav">
+    <!-- Логотип ведёт на главную, то есть сразу в Мастерскую -->
     <a href="#home" class="logo"><span class="logo-mark" id="logoIcon"></span><span>СобериКод</span></a>
-    <nav class="nav-links" aria-label="Главное меню">
-      <a href="#home" data-page="home">Главная</a>
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="navLinks" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="navLinks" aria-label="Главное меню">
       <a href="#courses" data-page="courses" data-also="course,lesson">Уроки</a>
-      <a href="#studio" data-page="studio">Мастерская</a>
-      <a href="#profs" data-page="profs">Профессии</a>
-      <a href="#profile" data-page="profile">Кабинет</a>
-      <a href="#teacher" data-page="teacher">Учителю</a>
+      <a href="#test" data-page="test">Тест</a>
+      <a href="#about" data-page="about">О проекте</a>
     </nav>
     <div id="authArea" class="auth-area"></div>
   </div>
 </header>
 
-<!-- ========== ГЛАВНАЯ ========== -->
+<!-- ========== ГЛАВНАЯ = МАСТЕРСКАЯ ==========
+     Ребёнок пришёл играть, а не читать о платформе: сцена и блоки — первое,
+     что он видит. Всё, что нужно взрослому, живёт в строке под шапкой и
+     в разделе «О проекте». -->
 <main class="page" id="page-home">
-  <!-- Первый экран занят выбором уровня: от него зависит весь остальной
-       контент, поэтому спрашиваем до того, как ребёнок куда-то пойдёт.
-       Это же и первая кнопка «играть» — из портала задание открывается сразу. -->
-  <section class="hero">
-    <div class="container hero-pick">
-      <span class="pill">Бесплатно · без регистрации</span>
-      <h1>Программируй <span class="accent">играя</span></h1>
-      <p>Собирай программы из цветных блоков и оживляй героев. Выбирай свой портал — первое задание откроется сразу.</p>
-      <div id="homeStart"></div>
-      <p class="hero-note">Работает без интернета · ничего не нужно устанавливать</p>
-    </div>
-  </section>
-
-  <section id="homeCoursesBox" hidden>
+  <div class="topline">
     <div class="container">
-      <div class="section-head"><h2>Задания твоего уровня</h2></div>
-      <div class="grid-3" id="homeCourses"></div>
+      <b>СобериКод</b> — собери программу из блоков и оживи героя
+      <span>·</span> Бесплатно <span>·</span> Для детей 6–10 лет <span>·</span> Без регистрации
     </div>
-  </section>
+  </div>
 
-  <section class="section-white section-curve">
-    <div class="container">
-      <div class="section-head"><h2>Как это работает</h2></div>
-      <div class="how">
-        <ol class="steps">
-          <li class="step"><div class="step-num">1</div><div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div></li>
-          <li class="step"><div class="step-num">2</div><div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div></li>
-          <li class="step"><div class="step-num">3</div><div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div></li>
-        </ol>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hv-stage">
-            <div class="hv-cells"></div>
-            <div class="hv-hero" id="heroStageIcon"></div>
-            <div class="hv-star" id="hvStar"></div>
-          </div>
-          <div class="hv-blocks" id="hvBlocks"></div>
+  <div class="container studio" id="studioTop">
+    <div class="studio-grid">
+      <div class="col-stage">
+        <div class="pickers">
+          <div><div class="code-label">Герой</div><div class="pick-row" id="heroPick"></div></div>
+          <div><div class="code-label">Фон</div><div class="pick-row" id="bgPick"></div></div>
+          <div><div class="code-label">Поставь на сцену — потом нажми на клетку</div><div class="pick-row" id="decorPick"></div></div>
+        </div>
+        <div class="stage-wrap">
+          <div class="stage" id="studioStage"></div>
+          <div id="tourLayer" class="tour-layer" hidden></div>
+        </div>
+        <div class="stage-tools">
+          <button class="btn btn-ghost btn-sm" onclick="showExample()">▶ Показать пример</button>
+          <button class="btn btn-ghost btn-sm" onclick="speakStudioHelp()">🔊 Прослушать</button>
+          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
+        </div>
+      </div>
+      <div class="col-code">
+        <div class="code-label">Блоки</div>
+        <div class="palette" id="studioPalette"></div>
+        <div class="ws-head"><span class="code-label">Моя программа</span><span class="counter" id="studioCounter"></span></div>
+        <div class="workspace" id="studioWs"></div>
+        <div class="controls">
+          <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Запустить</button>
+          <button class="btn btn-reset btn-lg" onclick="resetScene()">↺ Сбросить</button>
+          <button class="btn btn-primary" onclick="askSaveStudio()">Сохранить в галерею</button>
         </div>
       </div>
     </div>
-  </section>
+    <div id="galleryArea" class="gallery-area"></div>
+  </div>
 
-  <!-- Мастерская на главной: в уроках герой и цель заданы автором, и ребёнку
-       важно сразу увидеть, что есть место, где он решает сам. Выбор героя или
-       фона прямо здесь — это уже вход внутрь, а не рассказ о разделе. -->
-  <section class="section-tint">
-    <div class="container">
-      <div class="section-head"><h2>Мастерская</h2><p>Место без заданий и правильных ответов: выбирай героя, фон и предметы — и собирай свой мультик</p></div>
-      <div class="studio-promo">
-        <div class="sp-card">
-          <h4>Выбери героя</h4>
-          <div class="sp-row" id="homeHeroes"></div>
-          <h4>Выбери фон</h4>
-          <div class="sp-row sp-bgs" id="homeBgs"></div>
-          <p class="sp-hint">А ещё на сцену можно поставить яблоки, цветы, камни и домик — и провести героя между ними.</p>
-          <button class="btn btn-primary btn-lg" onclick="openStudioWith()">Открыть Мастерскую →</button>
-        </div>
-        <div class="sp-card">
-          <h4>Что собирают другие</h4>
-          <div class="sp-demos" id="homeDemos"></div>
-          <p class="sp-hint">Любую работу можно открыть, запустить и переделать по-своему — это не испортит чужую.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Панель для телефона: сцена занимает экран, а блоки и программа
+       выезжают шторкой снизу — иначе до кнопки «Запустить» нужно листать. -->
+  <div class="mbar" id="mbar">
+    <button class="btn btn-go" onclick="runStudio()">▶ Запустить</button>
+    <button class="btn btn-reset" onclick="resetScene()">↺ Сбросить</button>
+    <button class="btn btn-primary" onclick="toggleSheet()" id="sheetBtn">🧩 Блоки</button>
+  </div>
+</main>
 
-  <!-- Профориентация вынесена на главную: это цель проекта, а не раздел
-       в меню, до которого ребёнок может и не дойти. -->
-  <section class="section-white section-curve">
-    <div class="container">
-      <div class="section-head"><h2>Кем ты можешь стать</h2><p>То, что ты делаешь в уроках, — настоящая работа взрослых</p></div>
-      <div class="prof-teaser" id="homeProfs"></div>
-      <p class="center-row"><button class="btn btn-ghost btn-lg" onclick="go('profs')">Все профессии и тест →</button></p>
-    </div>
-  </section>
-
-  <section class="section-curve">
-    <div class="container">
-      <div class="cta-strip">
-        <span class="cta-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-        <span class="cta-hero" id="ctaHero" aria-hidden="true"></span>
-        <h2>Попробуй прямо сейчас</h2>
-        <p>Первый урок — без регистрации. Просто нажми кнопку!</p>
-        <button class="btn btn-lg btn-white" onclick="startFirst()">Начать играть</button>
+<!-- ========== ТЕСТ (пока пустой раздел) ========== -->
+<main class="page" id="page-test">
+  <section>
+    <div class="container narrow">
+      <div class="section-head"><h2>Тест</h2><p>Раздел готовится</p></div>
+      <div class="card placeholder">
+        <p class="muted">Здесь появится тест. Содержание добавим позже.</p>
       </div>
     </div>
   </section>
@@ -176,39 +153,6 @@
   </div>
 </main>
 
-<!-- ========== МАСТЕРСКАЯ ========== -->
-<main class="page" id="page-studio">
-  <div class="container lesson" id="studioTop">
-    <div class="section-head left"><h2>Мастерская</h2><p>Здесь нет заданий: выбирай героя, фон и предметы — и придумывай свою историю.</p></div>
-    <div class="lesson-grid">
-      <div class="col-stage">
-        <div class="pickers">
-          <div><div class="code-label">Герой</div><div class="pick-row" id="heroPick"></div></div>
-          <div><div class="code-label">Фон</div><div class="pick-row" id="bgPick"></div></div>
-          <div><div class="code-label">Поставь на сцену — потом нажми на клетку</div><div class="pick-row" id="decorPick"></div></div>
-        </div>
-        <div class="stage" id="studioStage"></div>
-        <div class="stage-tools">
-          <button class="btn btn-ghost btn-sm" onclick="clearStudioScene()">Убрать всё со сцены</button>
-          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
-        </div>
-      </div>
-      <div class="col-code">
-        <div class="code-label">Блоки</div>
-        <div class="palette" id="studioPalette"></div>
-        <div class="ws-head"><span class="code-label">Моя программа</span><span class="counter" id="studioCounter"></span></div>
-        <div class="workspace" id="studioWs"></div>
-        <div class="controls">
-          <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Старт</button>
-          <button class="btn btn-ghost" onclick="S.editor.clear()">Очистить</button>
-          <button class="btn btn-primary" onclick="askSaveStudio()">Сохранить в галерею</button>
-        </div>
-      </div>
-    </div>
-    <div id="galleryArea" class="gallery-area"></div>
-  </div>
-</main>
-
 <!-- ========== ПРОФЕССИИ ========== -->
 <main class="page" id="page-profs">
   <section>
@@ -260,6 +204,50 @@
       </div>
     </div>
   </section>
+
+  <!-- Эти блоки раньше жили на главной. Они написаны для взрослого — родителя,
+       учителя, комиссии, — поэтому переехали сюда: ребёнку на первом экране
+       нужна сцена, а не рассказ о платформе. -->
+  <section class="section-white">
+    <div class="container">
+      <div class="section-head"><h2>Как это работает</h2></div>
+      <div class="how">
+        <ol class="steps">
+          <li class="step"><div class="step-num">1</div><div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div></li>
+          <li class="step"><div class="step-num">2</div><div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div></li>
+        </ol>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hv-stage">
+            <div class="hv-cells"></div>
+            <div class="hv-hero" id="heroStageIcon"></div>
+            <div class="hv-star" id="hvStar"></div>
+          </div>
+          <div class="hv-blocks" id="hvBlocks"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tint">
+    <div class="container">
+      <div class="section-head"><h2>Кем ребёнок может стать</h2><p>То, что он делает в уроках, — настоящая работа взрослых</p></div>
+      <div class="prof-teaser" id="homeProfs"></div>
+      <p class="center-row"><button class="btn btn-ghost btn-lg" onclick="go('profs')">Все профессии и тест →</button></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cta-strip">
+        <span class="cta-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="cta-hero" id="ctaHero" aria-hidden="true"></span>
+        <h2>Попробовать прямо сейчас</h2>
+        <p>Первый урок — без регистрации. Просто нажмите кнопку!</p>
+        <button class="btn btn-lg btn-white" onclick="startFirst()">Открыть уроки</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -296,6 +284,7 @@
 <script src="js/auth.js"></script>
 <script src="js/teacher.js"></script>
 <script src="js/pages.js"></script>
+<script src="js/tour.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

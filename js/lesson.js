@@ -130,12 +130,9 @@ function trackPickHTML() {
     return '<div class="track-note"><span>Уровень: <b>' + TRACKS[t].title + '</b> · ' + TRACKS[t].age + '</span>' +
       '<button class="link-btn" onclick="chooseTrack(null)">Выбрать другой</button></div>';
   }
-  return '<div class="track-pick">' + Object.entries(TRACKS).map(([id, tr]) =>
-    '<button class="track-card t-' + id + '" onclick="chooseTrack(\'' + id + '\')">' +
-      '<span class="tc-hero">' + HEROES[tr.hero].icon + '</span>' +
-      '<b>' + tr.title + '</b><span class="tc-age">' + tr.age + '</span>' +
-      '<span class="tc-note">' + tr.note + '</span></button>').join('') +
-    '</div>';
+  // Уровень выбирается здесь: главную занимает Мастерская, а порталы
+  // с героем и подробностями показываются там, где начинаются уроки.
+  return levelCardsHTML();
 }
 
 function renderTrackPick(id) {
