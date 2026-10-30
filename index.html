@@ -70,9 +70,33 @@
     </div>
   </section>
 
+  <!-- Мастерская на главной: в уроках герой и цель заданы автором, и ребёнку
+       важно сразу увидеть, что есть место, где он решает сам. Выбор героя или
+       фона прямо здесь — это уже вход внутрь, а не рассказ о разделе. -->
+  <section class="section-tint">
+    <div class="container">
+      <div class="section-head"><h2>Мастерская</h2><p>Место без заданий и правильных ответов: выбирай героя, фон и предметы — и собирай свой мультик</p></div>
+      <div class="studio-promo">
+        <div class="sp-card">
+          <h4>Выбери героя</h4>
+          <div class="sp-row" id="homeHeroes"></div>
+          <h4>Выбери фон</h4>
+          <div class="sp-row sp-bgs" id="homeBgs"></div>
+          <p class="sp-hint">А ещё на сцену можно поставить яблоки, цветы, камни и домик — и провести героя между ними.</p>
+          <button class="btn btn-primary btn-lg" onclick="openStudioWith()">Открыть Мастерскую →</button>
+        </div>
+        <div class="sp-card">
+          <h4>Что собирают другие</h4>
+          <div class="sp-demos" id="homeDemos"></div>
+          <p class="sp-hint">Любую работу можно открыть, запустить и переделать по-своему — это не испортит чужую.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Профориентация вынесена на главную: это цель проекта, а не раздел
        в меню, до которого ребёнок может и не дойти. -->
-  <section class="section-tint">
+  <section class="section-white section-curve">
     <div class="container">
       <div class="section-head"><h2>Кем ты можешь стать</h2><p>То, что ты делаешь в уроках, — настоящая работа взрослых</p></div>
       <div class="prof-teaser" id="homeProfs"></div>
@@ -155,14 +179,19 @@
 <!-- ========== МАСТЕРСКАЯ ========== -->
 <main class="page" id="page-studio">
   <div class="container lesson" id="studioTop">
-    <div class="section-head left"><h2>Мастерская</h2><p>Здесь нет заданий: выбирай героя и фон и придумывай свою историю.</p></div>
+    <div class="section-head left"><h2>Мастерская</h2><p>Здесь нет заданий: выбирай героя, фон и предметы — и придумывай свою историю.</p></div>
     <div class="lesson-grid">
       <div class="col-stage">
         <div class="pickers">
           <div><div class="code-label">Герой</div><div class="pick-row" id="heroPick"></div></div>
           <div><div class="code-label">Фон</div><div class="pick-row" id="bgPick"></div></div>
+          <div><div class="code-label">Поставь на сцену — потом нажми на клетку</div><div class="pick-row" id="decorPick"></div></div>
         </div>
         <div class="stage" id="studioStage"></div>
+        <div class="stage-tools">
+          <button class="btn btn-ghost btn-sm" onclick="clearStudioScene()">Убрать всё со сцены</button>
+          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
+        </div>
       </div>
       <div class="col-code">
         <div class="code-label">Блоки</div>

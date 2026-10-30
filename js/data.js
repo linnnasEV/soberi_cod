@@ -370,6 +370,12 @@ const PICS = ['☀️', '🐟', '🏠', '🌸', '🚗', '🍎', '🐶', '⭐', '
 
 /* Примеры работ для галереи — их можно открыть и запустить */
 const DEMO_PROJECTS = [
+  { id: 'demo5', title: 'Лисёнок и яблоки', author: 'Пример', hero: 'fox', bg: 'sunset',
+    start: { r: 2, c: 0 }, decor: { '2:2': 'a', '2:4': 'a', '2:6': 'h', '0:3': 'c', '4:5': 'c' },
+    program: [{ t: 'say', text: 'Соберу яблоки' }, { t: 'repeat', n: 6, body: [{ t: 'right' }] }, { t: 'jump' }, { t: 'say', text: 'Я дома!' }] },
+  { id: 'demo6', title: 'Дракоша в снегу', author: 'Пример', hero: 'dino', bg: 'snow',
+    start: { r: 4, c: 3 }, decor: { '1:3': '*', '2:1': '#', '2:5': '#' },
+    program: [{ t: 'say', text: 'Где звезда?' }, { t: 'repeat', n: 3, body: [{ t: 'up' }, { t: 'grow' }] }, { t: 'spin' }, { t: 'sound' }] },
   { id: 'demo1', title: 'Космический робот', author: 'Пример', hero: 'robot', bg: 'space',
     program: [{ t: 'say', text: 'Взлетаю!' }, { t: 'repeat', n: 3, body: [{ t: 'up' }, { t: 'sound' }] }, { t: 'jump' }, { t: 'say', text: 'Я на орбите!' }] },
   { id: 'demo2', title: 'Котик на прогулке', author: 'Пример', hero: 'cat', bg: 'meadow',

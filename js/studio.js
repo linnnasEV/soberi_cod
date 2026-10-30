@@ -1,8 +1,12 @@
-/* ===== Мастерская: свободное творчество + галерея работ ===== */
+/* ===== Мастерская: свободное творчество + галерея работ =====
+   Урок проверяет решение, Мастерская не проверяет ничего. Поэтому здесь
+   открыты все блоки, все герои и все фоны, а сцену ребёнок собирает сам:
+   ставит яблоки, камни и домики и переносит героя куда хочет. */
 
-const STUDIO_MAP = { map: ['.......', '.......', '.......', '.S.....', '.......'] };
-const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'say', 'sound', 'wait', 'repeat'];
-const S = { hero: 'cat', bg: 'meadow', program: [], running: false };
+const STUDIO_ROWS = 5, STUDIO_COLS = 7;
+const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
+                    'color', 'vanish', 'say', 'sound', 'wait', 'repeat'];
+const S = { hero: 'cat', bg: 'meadow', decor: {}, start: { r: 3, c: 1 }, tool: 'a', program: [], running: false };
 
 route('studio', () => {
   window.currentStage = S.stage = S.stage || new Stage(document.getElementById('studioStage'));
@@ -14,14 +18,65 @@ route('studio', () => {
       onChange: () => S.stage.reset()
     });
     S.editor.setup({ blocks: ALL_BLOCKS, program: S.program });
+    // Клик по клетке ставит выбранный предмет. Слушатель один на всю сцену:
+    // mount() каждый раз перерисовывает её содержимое.
+    S.stage.el.addEventListener('click', studioCellClick);
   }
   renderStudioPickers();
   mountStudioStage();
   renderGallery();
+  // Работу открыли с главной, когда Мастерская ещё не была проинициализирована
+  if (S.pending) { const id = S.pending; S.pending = null; openProject(id); }
 });
 
+/* Сцена Мастерской — такая же карта, как в уроках, только её рисует ребёнок */
+function studioMap() {
+  const rows = [];
+  for (let r = 0; r < STUDIO_ROWS; r++) {
+    let row = '';
+    for (let c = 0; c < STUDIO_COLS; c++) {
+      row += (r === S.start.r && c === S.start.c) ? 'S' : (S.decor[r + ':' + c] || '.');
+    }
+    rows.push(row);
+  }
+  return { map: rows };
+}
+
 function mountStudioStage() {
-  S.stage.mount(STUDIO_MAP, { hero: S.hero, bg: S.bg, sandbox: true });
+  S.stage.mount(studioMap(), { hero: S.hero, bg: S.bg, sandbox: true });
+}
+
+function studioCellClick(e) {
+  if (S.running) return;
+  const cell = e.target.closest('.cell');
+  if (!cell) return;
+  const i = [...S.stage.el.querySelectorAll('.cells .cell')].indexOf(cell);
+  if (i < 0) return;
+  placeDecor(Math.floor(i / STUDIO_COLS), i % STUDIO_COLS);
+}
+
+function placeDecor(r, c) {
+  const k = r + ':' + c;
+  if (S.tool === 'S') {
+    delete S.decor[k];
+    S.start = { r, c };
+  } else if (r === S.start.r && c === S.start.c) {
+    return toast('Здесь стоит герой. Выбери «Герой» и перенеси его в другую клетку.', 'warn');
+  } else if (S.tool === '.') {
+    if (!S.decor[k]) return;
+    delete S.decor[k];
+  } else {
+    S.decor[k] = S.tool;
+  }
+  Sound.tone([720], 0.05);
+  mountStudioStage();
+}
+
+function clearStudioScene() {
+  S.decor = {};
+  S.start = { r: 3, c: 1 };
+  mountStudioStage();
+  toast('Сцена пустая — ставь что хочешь.');
 }
 
 function renderStudioPickers() {
@@ -31,6 +86,11 @@ function renderStudioPickers() {
   document.getElementById('bgPick').innerHTML = Object.entries(BACKGROUNDS).map(([id, b]) =>
     '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="S.bg=\'' + id + '\';renderStudioPickers();mountStudioStage()">' +
     '<span class="pick-bg bg-' + id + '"></span><small>' + b.name + '</small></button>').join('');
+  // «Герой» показывает того героя, который выбран сейчас: так понятнее, что
+  // этим инструментом переносят именно его.
+  document.getElementById('decorPick').innerHTML = DECOR.map(d =>
+    '<button class="pick' + (S.tool === d.ch ? ' sel' : '') + '" onclick="S.tool=\'' + d.ch + '\';renderStudioPickers()" title="' + d.name + '">' +
+    '<span class="pick-ico">' + (d.ch === 'S' ? HEROES[S.hero].icon : d.icon) + '</span><small>' + d.name + '</small></button>').join('');
 }
 
 async function runStudio() {
@@ -49,9 +109,48 @@ async function runStudio() {
   setTimeout(() => S.editor.clearHighlight(), 600);
 }
 
-function saveProject(title, hero, bg, program) {
-  me().projects.unshift({ id: uid(), title, hero, bg, program: JSON.parse(JSON.stringify(program)), date: Date.now() });
+/* ===== «Удиви меня» =====
+   Перед пустой сценой ребёнок иногда застывает: придумать с нуля труднее,
+   чем переделать готовое. Кнопка собирает случайную сценку, которую дальше
+   можно менять — это не ответ, а первая строчка истории. */
+const IDEAS = [
+  [{ t: 'say', text: 'Полетели!' }, { t: 'repeat', n: 3, body: [{ t: 'up' }, { t: 'sound' }] }, { t: 'spin' }, { t: 'say', text: 'Я лечу!' }],
+  [{ t: 'repeat', n: 4, body: [{ t: 'right' }, { t: 'jump' }] }, { t: 'color' }, { t: 'say', text: 'Догоняй!' }],
+  [{ t: 'say', text: 'Фокус!' }, { t: 'repeat', n: 2, body: [{ t: 'color' }, { t: 'spin' }] }, { t: 'grow' }, { t: 'vanish' }],
+  [{ t: 'repeat', n: 3, body: [{ t: 'down' }, { t: 'right' }] }, { t: 'shrink' }, { t: 'sound' }, { t: 'say', text: 'Я спрятался' }],
+  [{ t: 'say', text: 'Ой!' }, { t: 'jump' }, { t: 'repeat', n: 2, body: [{ t: 'left' }, { t: 'spin' }] }, { t: 'grow' }]
+];
+
+function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function surpriseStudio() {
+  S.hero = pickRandom(Object.keys(HEROES));
+  S.bg = pickRandom(Object.keys(BACKGROUNDS));
+  S.start = { r: Math.floor(Math.random() * STUDIO_ROWS), c: Math.floor(Math.random() * 3) };
+  S.decor = {};
+  const things = DECOR.filter(d => d.ch !== 'S' && d.ch !== '.').map(d => d.ch);
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 3); i++) {
+    const r = Math.floor(Math.random() * STUDIO_ROWS), c = Math.floor(Math.random() * STUDIO_COLS);
+    if (r === S.start.r && c === S.start.c) continue;
+    S.decor[r + ':' + c] = pickRandom(things);
+  }
+  S.editor.setup({ blocks: ALL_BLOCKS, program: pickRandom(IDEAS) });
+  renderStudioPickers();
+  mountStudioStage();
+  toast('Вот идея! Меняй блоки и сцену как хочешь.');
+}
+
+function saveProject(title, hero, bg, program, decor, start) {
+  me().projects.unshift({
+    id: uid(), title, hero, bg,
+    program: JSON.parse(JSON.stringify(program)),
+    decor: Object.assign({}, decor),
+    start: Object.assign({ r: 3, c: 1 }, start),
+    date: Date.now()
+  });
   saveDB();
+  newAwards(me());
+  syncPushSoon();
 }
 
 function askSaveStudio() {
@@ -64,7 +163,7 @@ function askSaveStudio() {
 
 function doSaveStudio() {
   const t = document.getElementById('projTitle').value.trim() || 'Без названия';
-  saveProject(t, S.hero, S.bg, S.editor.program);
+  saveProject(t, S.hero, S.bg, S.editor.program, S.decor, S.start);
   closeModal();
   toast('Готово! Работа в галерее.');
   renderGallery();
@@ -110,7 +209,12 @@ function findProject(id) {
 function openProject(id) {
   const p = findProject(id);
   if (!p) return;
+  // С главной Мастерская ещё не открывалась: сначала раздел, потом работа
+  if (!S.editor) { S.pending = id; return go('studio'); }
   S.hero = p.hero; S.bg = p.bg;
+  // Работы, сохранённые до появления декораций, открываются на пустой сцене
+  S.decor = Object.assign({}, p.decor);
+  S.start = Object.assign({ r: 3, c: 1 }, p.start);
   S.editor.setup({ blocks: ALL_BLOCKS, program: p.program });
   renderStudioPickers();
   mountStudioStage();
@@ -123,4 +227,11 @@ function deleteProject(id) {
   p.projects = p.projects.filter(x => x.id !== id);
   saveDB();
   renderGallery();
+}
+
+/* Вход в Мастерскую с главной: герой или фон выбран ещё до открытия раздела */
+function openStudioWith(hero, bg) {
+  if (hero) S.hero = hero;
+  if (bg) S.bg = bg;
+  go('studio');
 }

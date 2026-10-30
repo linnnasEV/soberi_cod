@@ -21,6 +21,12 @@ const ICONS = {
   robot: '<svg viewBox="0 0 100 100"><path d="M50 8v12" stroke="#6B7395" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#FF6FA8"/><rect x="16" y="20" width="68" height="56" rx="16" fill="#7FA2FF"/><rect x="24" y="30" width="52" height="30" rx="10" fill="#E8EEFF"/><circle cx="38" cy="45" r="7" fill="#1F2544"/><circle cx="62" cy="45" r="7" fill="#1F2544"/><circle cx="40" cy="43" r="2.4" fill="#fff"/><circle cx="64" cy="43" r="2.4" fill="#fff"/><rect x="36" y="64" width="28" height="6" rx="3" fill="#2E5BD9"/><rect x="8" y="38" width="8" height="20" rx="4" fill="#4A7DFF"/><rect x="84" y="38" width="8" height="20" rx="4" fill="#4A7DFF"/><rect x="30" y="78" width="12" height="14" rx="4" fill="#4A7DFF"/><rect x="58" y="78" width="12" height="14" rx="4" fill="#4A7DFF"/></svg>',
   bird: '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="56" rx="34" ry="32" fill="#5BC0EB"/><ellipse cx="50" cy="68" rx="20" ry="16" fill="#D8F3FF"/><path d="M30 54c-12 2-18 12-16 20 10 0 18-6 20-14z" fill="#3A9BD1"/><path d="M50 22c-4-10 4-16 10-14-2 4-4 8-4 14z" fill="#3A9BD1"/><circle cx="40" cy="46" r="6" fill="#1F2544"/><circle cx="62" cy="46" r="6" fill="#1F2544"/><circle cx="42" cy="44" r="2" fill="#fff"/><circle cx="64" cy="44" r="2" fill="#fff"/><path d="M44 56l7 9 7-9z" fill="#FFB000"/><path d="M38 88l-4 6M62 88l4 6" stroke="#FFB000" stroke-width="4" stroke-linecap="round"/></svg>',
 
+  /* Герои Мастерской: там ребёнок придумывает свою историю, и одного котика
+     для неё мало — чем больше выбор, тем охотнее он берётся сочинять. */
+  fox: '<svg viewBox="0 0 100 100"><path d="M20 44L14 12l28 16z" fill="#F07B2E"/><path d="M80 44L86 12l-28 16z" fill="#F07B2E"/><path d="M25 34l-2-13 11 7z" fill="#4A332B"/><path d="M75 34l2-13-11 7z" fill="#4A332B"/><ellipse cx="50" cy="54" rx="34" ry="30" fill="#F59040"/><path d="M50 86c-14 0-25-9-26-19 8-4 17-6 26-6s18 2 26 6c-1 10-12 19-26 19z" fill="#FFF3E6"/><ellipse cx="36" cy="50" rx="5.5" ry="7" fill="#2A1F1A"/><ellipse cx="64" cy="50" rx="5.5" ry="7" fill="#2A1F1A"/><circle cx="38" cy="47" r="2" fill="#fff"/><circle cx="66" cy="47" r="2" fill="#fff"/><path d="M44 66h12l-6 6z" fill="#2A1F1A"/><path d="M50 72c-3 4-8 4-11 1M50 72c3 4 8 4 11 1" stroke="#2A1F1A" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>',
+  dino: '<svg viewBox="0 0 100 100"><path d="M30 28l7-14 6 14zM45 22l6-14 7 14zM60 26l8-13 5 15z" fill="#2FA86A"/><ellipse cx="50" cy="58" rx="34" ry="30" fill="#4CCB8A"/><ellipse cx="50" cy="72" rx="21" ry="14" fill="#CDF6E1"/><circle cx="37" cy="52" r="8" fill="#fff"/><circle cx="63" cy="52" r="8" fill="#fff"/><circle cx="38" cy="53" r="3.8" fill="#1F2544"/><circle cx="64" cy="53" r="3.8" fill="#1F2544"/><circle cx="27" cy="63" r="5" fill="#FF9BC0" opacity=".65"/><circle cx="73" cy="63" r="5" fill="#FF9BC0" opacity=".65"/><circle cx="45" cy="66" r="2" fill="#1C7A4C"/><circle cx="55" cy="66" r="2" fill="#1C7A4C"/><path d="M40 74c6 5 14 5 20 0" stroke="#1C7A4C" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>',
+  bunny: '<svg viewBox="0 0 100 100"><ellipse cx="35" cy="26" rx="8" ry="21" fill="#EDEBF8"/><ellipse cx="65" cy="26" rx="8" ry="21" fill="#EDEBF8"/><ellipse cx="35" cy="28" rx="4" ry="14" fill="#FFC2D8"/><ellipse cx="65" cy="28" rx="4" ry="14" fill="#FFC2D8"/><ellipse cx="50" cy="62" rx="32" ry="28" fill="#F7F5FD"/><ellipse cx="38" cy="58" rx="5" ry="7" fill="#1F2544"/><ellipse cx="62" cy="58" rx="5" ry="7" fill="#1F2544"/><circle cx="40" cy="55" r="1.9" fill="#fff"/><circle cx="64" cy="55" r="1.9" fill="#fff"/><path d="M46 70h8l-4 5z" fill="#FF7FA8"/><rect x="46" y="79" width="8" height="7" rx="2" fill="#fff" stroke="#D9DCEC" stroke-width="1.5"/><path d="M50 75c-3 4-8 4-10 1M50 75c3 4 8 4 10 1" stroke="#7A819B" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M28 68H10M28 74l-16 4M72 68h18M72 74l16 4" stroke="#C9CEE4" stroke-width="2" stroke-linecap="round"/></svg>',
+
   /* ===== Относительные команды: герой идёт туда, куда смотрит ===== */
   forward:   '<svg viewBox="0 0 24 24"><path d="M12 19V7M7 12l5-5 5 5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 21h12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".6"/></svg>',
   turnLeft:  '<svg viewBox="0 0 24 24"><path d="M16 20v-6a5 5 0 0 0-5-5H6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 6L5 9l4 3" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -32,6 +38,10 @@ const ICONS = {
   shrink: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="11" height="11" rx="2" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M20 14v6h-6M20 20l-6-6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   color:  '<svg viewBox="0 0 24 24"><path d="M12 3C7 8 4 11 4 14.5A8 8 0 0 0 20 14.5C20 11 17 8 12 3z" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 19a4.5 4.5 0 0 1-4.5-4.5" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>',
   vanish: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 3.4"/><path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/></svg>',
+
+  /* Ластик Мастерской: тёмный контур, потому что он лежит не на цветном
+     блоке, а на светлой кнопке выбора */
+  eraser: '<svg viewBox="0 0 24 24"><path d="M7 20h12M4.5 16.5l7-7a2 2 0 0 1 3 0l3 3a2 2 0 0 1 0 3l-4 4H8z" fill="none" stroke="#565E80" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 10l6 6" stroke="#565E80" stroke-width="2.2"/></svg>',
 
   /* Куда смотрит герой — иначе «вперёд» выглядит для ребёнка случайным */
   facing: '<svg viewBox="0 0 24 24"><path d="M5 12h12M13 7l6 5-6 5" fill="none" stroke="#1F2544" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></svg>',
@@ -47,14 +57,35 @@ const ICONS = {
   logo: '<svg viewBox="0 0 40 40"><rect x="2" y="2" width="16" height="16" rx="5" fill="#FFD34E"/><rect x="22" y="2" width="16" height="16" rx="5" fill="#4A7DFF"/><rect x="2" y="22" width="16" height="16" rx="5" fill="#3ECF8E"/><rect x="22" y="22" width="16" height="16" rx="5" fill="#FF6FA8"/><path d="M27 10h6M30 7l3 3-3 3" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
+/* Первые трое ходят по урокам, остальные живут в Мастерской: в заданиях
+   герой задан автором, а в своей истории ребёнок выбирает сам. */
 const HEROES = {
   cat:   { name: 'Котик',  icon: ICONS.cat },
   robot: { name: 'Робот',  icon: ICONS.robot },
-  bird:  { name: 'Птичка', icon: ICONS.bird }
+  bird:  { name: 'Птичка', icon: ICONS.bird },
+  fox:   { name: 'Лисёнок', icon: ICONS.fox },
+  dino:  { name: 'Дракоша', icon: ICONS.dino },
+  bunny: { name: 'Зайка',  icon: ICONS.bunny }
 };
 
 const BACKGROUNDS = {
-  meadow: { name: 'Поляна' },
-  space:  { name: 'Космос' },
-  sea:    { name: 'Море' }
+  meadow:  { name: 'Поляна' },
+  space:   { name: 'Космос' },
+  sea:     { name: 'Море' },
+  snow:    { name: 'Снег' },
+  sunset:  { name: 'Закат' },
+  rainbow: { name: 'Радуга' }
 };
+
+/* Чем ребёнок украшает сцену в Мастерской. Символы те же, что в картах уроков,
+   поэтому сцена собирается и проверяется уже существующим кодом. */
+const DECOR = [
+  { ch: 'S', name: 'Герой',  icon: ICONS.facing },
+  { ch: 'a', name: 'Яблоко', icon: ICONS.apple },
+  { ch: 'c', name: 'Цветок', icon: ICONS.flower },
+  { ch: '*', name: 'Звезда', icon: ICONS.star },
+  { ch: 'h', name: 'Домик',  icon: ICONS.home },
+  { ch: 'f', name: 'Рыбка',  icon: ICONS.fish },
+  { ch: '#', name: 'Камень', icon: ICONS.stone },
+  { ch: '.', name: 'Убрать', icon: ICONS.eraser }
+];

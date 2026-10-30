@@ -200,6 +200,15 @@ section { padding: 56px 0; }
 @keyframes spin { from { transform: rotate(0) scale(1.3); } to { transform: rotate(360deg) scale(1); } }
 .bg-meadow { --grid-line: rgba(70, 150, 90, .14); background: #E6F7E8; }
 .bg-sea { --grid-line: rgba(40, 120, 200, .12); background: linear-gradient(#DDF1FF, #BFE3FF); }
+/* Фоны Мастерской — градиенты и точки, ни одной картинки: сцена должна
+   открываться на телефоне за 2G так же быстро, как на школьном компьютере. */
+.bg-snow { --grid-line: rgba(90, 130, 180, .14);
+  background-color: #EAF4FF;
+  background-image: radial-gradient(circle at 20% 30%, #fff 0 2.5px, transparent 3px), radial-gradient(circle at 70% 60%, #fff 0 2px, transparent 2.5px), linear-gradient(#F4FAFF, #CFE6FF);
+  background-size: 90px 90px, 130px 130px, auto; }
+.bg-sunset { --grid-line: rgba(150, 80, 60, .12); background: linear-gradient(#FFE1A8, #FFB38A 55%, #FF9EB5); }
+.bg-rainbow { --grid-line: rgba(90, 90, 140, .12);
+  background: linear-gradient(#FFE0E8, #FFF0C9 20%, #DFF7E2 45%, #D9EEFF 70%, #EADDFF); }
 .bg-space { --grid-line: rgba(255, 255, 255, .07); background: radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 20%, #fff 0 1px, transparent 2px), radial-gradient(circle at 45% 75%, #fff 0 1px, transparent 2px), radial-gradient(circle at 85% 65%, #fff 0 1.5px, transparent 2.5px), #20265A; background-size: 120px 120px, 160px 160px, 140px 140px, 200px 200px, auto; }
 .actor { position: absolute; width: calc(100% / var(--cols)); height: calc(100% / var(--rows));
   left: calc(100% * var(--c) / var(--cols)); top: calc(100% * var(--r) / var(--rows)); transition: left .4s ease, top .4s ease; z-index: 2; }
@@ -266,7 +275,12 @@ section { padding: 56px 0; }
 
 /* Мастерская */
 .pickers { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 12px; }
-.pick-row { display: flex; gap: 8px; }
+.pick-row { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Сцену ребёнок собирает кликом по клетке, поэтому клетка должна выглядеть
+   нажимаемой — но только в Мастерской, в уроке по карте не рисуют. */
+#studioStage .cell { cursor: pointer; }
+#studioStage .cell:hover { background: rgba(255, 255, 255, .35); }
+.stage-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .pick { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 14px; border: 3px solid transparent; background: #F4F6FC; min-width: 64px; }
 .pick.sel { border-color: var(--blue); background: #EEF3FF; }
 .pick small { font-size: 12px; font-weight: 700; }
@@ -489,7 +503,7 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .nav-links::-webkit-scrollbar { display: none; }
   .auth-area { margin-left: auto; }
   .lesson-grid { grid-template-columns: 1fr; }
-  .prof-grid, .prof-teaser { grid-template-columns: 1fr 1fr; }
+  .prof-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 860px) {
   .hero-inner, .grid-3, .steps, .teacher-entry, .profile-grid, .about-grid, .how { grid-template-columns: 1fr; }
@@ -505,7 +519,7 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
   .hero { padding: 28px 0 40px; }
   .hero h1 { font-size: 32px; }
   .section-head h2 { font-size: 26px; }
-  .prof-grid, .prof-mini, .prof-teaser { grid-template-columns: 1fr; }
+  .prof-grid, .prof-mini { grid-template-columns: 1fr; }
   .col-stage, .col-code { padding: 12px; }
   .pblock { width: 60px; height: 60px; }
   .pblock .bi svg { width: 26px; height: 26px; }
@@ -616,6 +630,32 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .how .step { display: flex; gap: 16px; align-items: flex-start; text-align: left; padding: 0; }
 .how .step-num { margin: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 19px; }
 
+/* ===== Мастерская на главной ===== */
+.studio-promo { display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; align-items: start; }
+.sp-card { background: #fff; border-radius: 24px; padding: 24px; box-shadow: var(--shadow); }
+.sp-card h4 { font-size: 16px; color: var(--muted); margin-bottom: 10px; }
+.sp-card h4 + .sp-row { margin-bottom: 18px; }
+.sp-card .btn { width: 100%; margin-top: 4px; }
+/* Сетка, а не flex: шесть героев должны лечь ровными рядами, а не «пять и один» */
+.sp-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)); gap: 10px; }
+.sp-pick { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 6px;
+  border-radius: 16px; border: 3px solid transparent; background: #F4F6FC; transition: .18s; }
+.sp-pick:hover { border-color: var(--blue); transform: translateY(-3px); }
+.sp-pick small { font-size: 13px; font-weight: 700; }
+.sp-ico { width: 48px; height: 48px; }
+.sp-ico svg { width: 100%; height: 100%; }
+.sp-swatch { width: 48px; height: 48px; border-radius: 12px; }
+.sp-hint { color: var(--muted); font-size: 15px; margin: 2px 0 16px; }
+.sp-demos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.sp-demo { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 16px;
+  background: #F4F6FC; border: 3px solid transparent; text-align: left; transition: .18s; }
+.sp-demo:hover { border-color: var(--blue); transform: translateY(-3px); }
+.sd-prev { display: flex; align-items: center; justify-content: center; height: 76px; border-radius: 12px; }
+.sd-prev svg { width: 52px; height: 52px; }
+.sd-text { display: flex; flex-direction: column; }
+.sd-text b { font-size: 15px; }
+.sd-text small { color: var(--muted); font-size: 13px; }
+
 /* ===== Профессии на главной ===== */
 .prof-teaser { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .pt-card { background: #fff; border-radius: 22px; padding: 24px 20px; box-shadow: var(--shadow);
@@ -652,3 +692,16 @@ body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 .stage.rel .facing { display: block; }
 .facing svg { width: 42%; height: 42%; margin: 0 0 0 auto; transform: translate(10%, 118%); }
 
+
+/* ---------- Адаптивность блоков главной ----------
+   Эти блоки описаны ниже основного набора медиазапросов, а при равной
+   специфичности в CSS побеждает последнее правило. Поэтому их мобильные
+   переопределения стоят здесь, в конце файла, а не вместе с остальными. */
+@media (max-width: 1060px) {
+  .studio-promo { grid-template-columns: 1fr; }
+  .prof-teaser { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .prof-teaser, .sp-demos { grid-template-columns: 1fr; }
+  .sp-card { padding: 18px; }
+}

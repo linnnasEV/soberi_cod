@@ -21,8 +21,24 @@ route('home', () => {
       '<span class="pt-ico">' + ICONS[pr.ico] + '</span><b>' + pr.title + '</b>' +
       '<span>' + pr.fun + '</span></button>';
   }).join('');
+  renderHomeStudio();
   document.getElementById('ctaHero').innerHTML = ICONS.cat;
 });
+
+/* Мастерская на главной: герой и фон выбираются здесь же, а работа из галереи
+   открывается в один клик. Это вход в раздел, а не рассказ о нём. */
+function renderHomeStudio() {
+  document.getElementById('homeHeroes').innerHTML = Object.entries(HEROES).map(([id, h]) =>
+    '<button class="sp-pick" onclick="openStudioWith(\'' + id + '\')" title="' + h.name + '">' +
+    '<span class="sp-ico">' + h.icon + '</span><small>' + h.name + '</small></button>').join('');
+  document.getElementById('homeBgs').innerHTML = Object.entries(BACKGROUNDS).map(([id, b]) =>
+    '<button class="sp-pick" onclick="openStudioWith(null, \'' + id + '\')">' +
+    '<span class="sp-swatch bg-' + id + '"></span><small>' + b.name + '</small></button>').join('');
+  document.getElementById('homeDemos').innerHTML = DEMO_PROJECTS.slice(0, 4).map(p =>
+    '<button class="sp-demo" onclick="openProject(\'' + p.id + '\')">' +
+    '<span class="sd-prev bg-' + p.bg + '">' + HEROES[p.hero].icon + '</span>' +
+    '<span class="sd-text"><b>' + esc(p.title) + '</b><small>' + countBlocks(p.program) + ' блоков</small></span></button>').join('');
+}
 
 route('about', () => {});
 
