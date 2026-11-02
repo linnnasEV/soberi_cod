@@ -3,12 +3,14 @@
    открыты все блоки, все герои и все фоны, а сцену ребёнок собирает сам:
    ставит яблоки, камни и домики и переносит героя куда хочет. */
 
-const STUDIO_ROWS = 5, STUDIO_COLS = 7;
+/* Поле крупнее и клетки мельче: на семи больших клетках историю не развернуть,
+   а десять на семь дают место и дороге героя, и небу, и земле. */
+const STUDIO_ROWS = 7, STUDIO_COLS = 10;
 /* Порядок блоков — от самого понятного к самому редкому: сначала шаги,
    потом фокусы, потом управление программой. */
 const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
                     'color', 'vanish', 'sound', 'say', 'wait', 'repeat'];
-const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 2, c: 0 }, tool: 'h', program: [], running: false };
+const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 5, c: 0 }, tool: 'h', program: [], running: false };
 
 /* Мастерская — это и есть главная страница: ребёнок открыл сайт и сразу
    собирает программу, без промежуточных экранов. */
@@ -97,9 +99,19 @@ function fitStage() {
     st.style.width = ''; st.style.height = '';
     return;
   }
-  const w = Math.min(wrap.clientWidth, wrap.clientHeight * STUDIO_COLS / STUDIO_ROWS);
+  const bw = wrap.clientWidth, bh = wrap.clientHeight;
+  const ratio = STUDIO_COLS / STUDIO_ROWS;
+  // Если место почти той же формы, что поле, занимаем его целиком: белые
+  // поля по бокам сцены ребёнку не нужны, а клетки остаются почти
+  // квадратными. Если форма сильно другая — держим пропорцию.
+  if (Math.abs(bw / bh - ratio) / ratio <= 0.25) {
+    st.style.width = Math.floor(bw) + 'px';
+    st.style.height = Math.floor(bh) + 'px';
+    return;
+  }
+  const w = Math.min(bw, bh * ratio);
   st.style.width = Math.floor(w) + 'px';
-  st.style.height = Math.floor(w * STUDIO_ROWS / STUDIO_COLS) + 'px';
+  st.style.height = Math.floor(w / ratio) + 'px';
 }
 
 window.addEventListener('resize', fitStage);
@@ -144,7 +156,7 @@ function resetScene() {
   };
   if (S.running) runStudio();            // идущую программу сначала останавливаем
   S.decor = {};
-  S.start = { r: 2, c: 0 };
+  S.start = { r: 5, c: 0 };
   S.editor.setup({ blocks: ALL_BLOCKS, program: [] });
   mountStudioStage();
   dropStudioSession();
@@ -188,6 +200,9 @@ function renderStudioPickers() {
    а услышать «Старт» может каждый. Молчим, если звук в классе выключен. */
 function sayAloud(text) {
   if (DB.settings.sound === false) return;
+  // Во время показа примера говорит только сам показ: иначе его фразу
+  // перебивают кнопки, которые он же и нажимает.
+  if (typeof Tour !== 'undefined' && Tour.playing) return;
   Speech.say(text);
 }
 
@@ -203,13 +218,13 @@ function pickBg(id) {
   sayPick(BACKGROUNDS[id].name);
 }
 
-/* Выбран предмет — дальше нужно нажать на клетку. Это единственный
-   неочевидный шаг в Мастерской, поэтому о нём говорим вслух. */
+/* Выбран предмет — дальше нужно нажать на клетку. Вслух называем только
+   сам предмет: «нажми на клетку» написано рядом и в голосе лишнее. */
 function pickTool(ch) {
   S.tool = ch;
   renderStudioPickers();
   const d = DECOR.find(x => x.ch === ch);
-  if (d) sayPick(d.ch === 'S' ? 'Герой. Нажми на клетку' : d.name + '. Нажми на клетку');
+  if (d) sayAloud(d.name);
 }
 
 /* Список предметов на телефоне раскрывается кнопкой «Поставь на сцену»:
@@ -218,7 +233,7 @@ function toggleDecor() {
   const open = document.body.classList.toggle('dec-open');
   const btn = document.getElementById('decBtn');
   if (btn) btn.textContent = open ? '✕ Закрыть детали' : '+ Добавь детали на фон';
-  if (open) sayAloud('Выбери деталь и нажми на клетку');
+  if (open) sayAloud('Выбери деталь');
 }
 
 /* Галерея работ — панель поверх мастерской: вместе со сценой в один экран
@@ -291,8 +306,10 @@ const SURPRISE = [
   { goal: 'h', go: 'Пора домой',        done: 'Я дома!' }
 ];
 
-/* Чем украшаем сцену вокруг дороги героя */
-const PROPS = ['t', 'c', 'g', 'o', 'u', 'b', 'n', 'e', 'm', '#'];
+/* Чем украшаем сцену вокруг дороги героя. Небо и земля разделены нарочно:
+   трава в небе и облако под ногами ломают ребёнку всю картину. */
+const SKY_PROPS = ['u', 'o', 'w', '*'];
+const GROUND_PROPS = ['t', 'c', 'g', 'b', 'n', 'e', 'm', '#'];
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -301,9 +318,10 @@ function surpriseStudio() {
   S.hero = pickRandom(Object.keys(HEROES));
   S.bg = pickRandom(Object.keys(BACKGROUNDS));
 
-  const row = 1 + Math.floor(Math.random() * (STUDIO_ROWS - 2));   // не у самого края
-  const steps = 3 + Math.floor(Math.random() * 3);                 // 3–5 шагов вправо
-  const turn = Math.random() < 0.6 ? (Math.random() < 0.5 ? -1 : 1) : 0;
+  // Герой идёт по земле — это нижние ряды поля, а не середина неба
+  const row = STUDIO_ROWS - 2 - Math.floor(Math.random() * 2);
+  const steps = 4 + Math.floor(Math.random() * 4);                 // 4–7 шагов вправо
+  const turn = Math.random() < 0.5 ? -1 : 0;                       // иногда шаг вверх
   const goal = { r: row + turn, c: steps };
 
   S.start = { r: row, c: 0 };
@@ -313,12 +331,14 @@ function surpriseStudio() {
   // дорогу героя не загораживаем: программа должна дойти до цели
   const path = new Set([goal.r + ':' + goal.c]);
   for (let c = 0; c <= steps; c++) path.add(row + ':' + c);
-  for (let i = 0; i < 5; i++) {
-    const r = Math.floor(Math.random() * STUDIO_ROWS), c = Math.floor(Math.random() * STUDIO_COLS);
+  const put = (r, ch) => {
+    const c = Math.floor(Math.random() * STUDIO_COLS);
     const key = r + ':' + c;
-    if (path.has(key) || S.decor[key]) continue;
-    S.decor[key] = pickRandom(PROPS);
-  }
+    if (path.has(key) || S.decor[key]) return;
+    S.decor[key] = ch;
+  };
+  for (let i = 0; i < 2; i++) put(Math.floor(Math.random() * 2), pickRandom(SKY_PROPS));
+  for (let i = 0; i < 4; i++) put(STUDIO_ROWS - 1 - Math.floor(Math.random() * 2), pickRandom(GROUND_PROPS));
 
   const prog = [{ t: 'say', text: idea.go }, { t: 'repeat', n: steps, body: [{ t: 'right' }] }];
   if (turn) prog.push({ t: turn < 0 ? 'up' : 'down' });

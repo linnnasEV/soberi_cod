@@ -162,16 +162,34 @@ const Speech = {
   },
 
   say(text) {
-    if (!this.available() || !text) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'ru-RU';
-      u.rate = 0.9;     // младшим школьникам нужно помедленнее
-      const v = this.ruVoice();
-      if (v) u.voice = v;
-      speechSynthesis.speak(u);
-    } catch (e) {}
+    this.speak(text);
+  },
+
+  /* То же самое, но можно дождаться конца фразы: показ примера не должен
+     перебивать сам себя, иначе ребёнок слышит обрывки.
+     Событие end приходит не во всех браузерах, поэтому есть страховка
+     по времени — примерно скорость спокойной речи. */
+  speak(text) {
+    return new Promise(done => {
+      if (!this.available() || !text) return done();
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ru-RU';
+        u.rate = 0.9;     // младшим школьникам нужно помедленнее
+        const v = this.ruVoice();
+        if (v) u.voice = v;
+        let fired = false;
+        const fin = () => { if (!fired) { fired = true; done(); } };
+        u.onend = fin;
+        u.onerror = fin;
+        // Страховка с запасом: она не отменяет речь, а только отпускает
+        // ожидание. Сработав раньше времени, она обрезала бы фразу —
+        // следующий шаг начинается с speechSynthesis.cancel().
+        setTimeout(fin, 1200 + text.length * 140);
+        speechSynthesis.speak(u);
+      } catch (e) { done(); }
+    });
   },
 
   stop() {

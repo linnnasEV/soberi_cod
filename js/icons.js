@@ -41,8 +41,8 @@ const ICONS = {
   dog: '<svg viewBox="0 0 100 100"><ellipse cx="20" cy="48" rx="11" ry="22" fill="#9C6433"/><ellipse cx="80" cy="48" rx="11" ry="22" fill="#9C6433"/><ellipse cx="50" cy="54" rx="33" ry="30" fill="#C98B4B"/><ellipse cx="50" cy="70" rx="21" ry="15" fill="#F6E2C6"/><ellipse cx="37" cy="50" rx="5.5" ry="7" fill="#2A1F1A"/><ellipse cx="63" cy="50" rx="5.5" ry="7" fill="#2A1F1A"/><circle cx="39" cy="47" r="2" fill="#fff"/><circle cx="65" cy="47" r="2" fill="#fff"/><ellipse cx="50" cy="65" rx="7.5" ry="5.5" fill="#2A1F1A"/><path d="M50 71c-3 5-9 5-12 1M50 71c3 5 9 5 12 1" stroke="#2A1F1A" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M47 76h6v8a3 3 0 0 1-6 0z" fill="#FF8FA8"/></svg>',
   robot: '<svg viewBox="0 0 100 100"><path d="M50 8v12" stroke="#6B7395" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#FF6FA8"/><rect x="16" y="20" width="68" height="56" rx="16" fill="#7FA2FF"/><rect x="24" y="30" width="52" height="30" rx="10" fill="#E8EEFF"/><circle cx="38" cy="45" r="7" fill="#1F2544"/><circle cx="62" cy="45" r="7" fill="#1F2544"/><circle cx="40" cy="43" r="2.4" fill="#fff"/><circle cx="64" cy="43" r="2.4" fill="#fff"/><rect x="36" y="64" width="28" height="6" rx="3" fill="#2E5BD9"/><rect x="8" y="38" width="8" height="20" rx="4" fill="#4A7DFF"/><rect x="84" y="38" width="8" height="20" rx="4" fill="#4A7DFF"/><rect x="30" y="78" width="12" height="14" rx="4" fill="#4A7DFF"/><rect x="58" y="78" width="12" height="14" rx="4" fill="#4A7DFF"/></svg>',
   dino: '<svg viewBox="0 0 100 100"><path d="M30 28l7-14 6 14zM45 22l6-14 7 14zM60 26l8-13 5 15z" fill="#2FA86A"/><ellipse cx="50" cy="58" rx="34" ry="30" fill="#4CCB8A"/><ellipse cx="50" cy="72" rx="21" ry="14" fill="#CDF6E1"/><circle cx="37" cy="52" r="8" fill="#fff"/><circle cx="63" cy="52" r="8" fill="#fff"/><circle cx="38" cy="53" r="3.8" fill="#1F2544"/><circle cx="64" cy="53" r="3.8" fill="#1F2544"/><circle cx="27" cy="63" r="5" fill="#FF9BC0" opacity=".65"/><circle cx="73" cy="63" r="5" fill="#FF9BC0" opacity=".65"/><circle cx="45" cy="66" r="2" fill="#1C7A4C"/><circle cx="55" cy="66" r="2" fill="#1C7A4C"/><path d="M40 74c6 5 14 5 20 0" stroke="#1C7A4C" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>',
-  knight: '<svg viewBox="0 0 100 100"><path d="M50 4c-7 3-10 9-10 16h20c0-7-3-13-10-16z" fill="#E8453C"/><rect x="18" y="18" width="64" height="52" rx="24" fill="#C6D0E6"/><ellipse cx="50" cy="52" rx="23" ry="21" fill="#FFDFC4"/><rect x="14" y="34" width="72" height="9" rx="4" fill="#9AA6C4"/><circle cx="41" cy="54" r="4" fill="#1F2544"/><circle cx="59" cy="54" r="4" fill="#1F2544"/><circle cx="42.5" cy="52.5" r="1.4" fill="#fff"/><circle cx="60.5" cy="52.5" r="1.4" fill="#fff"/><path d="M43 64c4 4 10 4 14 0" stroke="#C97B5A" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="33" cy="60" r="4.5" fill="#FFADAD" opacity=".7"/><circle cx="67" cy="60" r="4.5" fill="#FFADAD" opacity=".7"/><path d="M22 76h56l6 16H16z" fill="#8894B8"/><path d="M50 78v14" stroke="#C6D0E6" stroke-width="4"/></svg>',
-  princess: '<svg viewBox="0 0 100 100"><path d="M30 30l6 10 14-16 14 16 6-10 3 16H27z" fill="#FFD34E" stroke="#E5A500" stroke-width="3" stroke-linejoin="round"/><circle cx="36" cy="33" r="3" fill="#FF6FA8"/><circle cx="64" cy="33" r="3" fill="#6FD0FF"/><path d="M18 62c0-20 14-16 32-16s32-4 32 16v8c-4-10-10-14-14-16-6 4-12 6-18 6s-12-2-18-6c-4 2-10 6-14 16z" fill="#8A5230"/><ellipse cx="50" cy="62" rx="26" ry="25" fill="#FFDFC4"/><path d="M24 52c2-10 12-14 26-14s24 4 26 14c-6-6-14-8-26-8s-20 2-26 8z" fill="#8A5230"/><circle cx="40" cy="62" r="4.5" fill="#1F2544"/><circle cx="60" cy="62" r="4.5" fill="#1F2544"/><circle cx="41.5" cy="60" r="1.6" fill="#fff"/><circle cx="61.5" cy="60" r="1.6" fill="#fff"/><circle cx="31" cy="70" r="5" fill="#FFADC4" opacity=".75"/><circle cx="69" cy="70" r="5" fill="#FFADC4" opacity=".75"/><path d="M44 74c3 4 9 4 12 0" stroke="#D4566F" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+  boy: '<svg viewBox="0 0 100 100"><rect x="37" y="64" width="10" height="22" rx="5" fill="#3A4680"/><rect x="53" y="64" width="10" height="22" rx="5" fill="#3A4680"/><rect x="31" y="84" width="19" height="9" rx="4.5" fill="#2A2F45"/><rect x="50" y="84" width="19" height="9" rx="4.5" fill="#2A2F45"/><rect x="20" y="42" width="10" height="26" rx="5" fill="#4A7DFF"/><rect x="70" y="42" width="10" height="26" rx="5" fill="#4A7DFF"/><circle cx="25" cy="70" r="5.5" fill="#FFDFC4"/><circle cx="75" cy="70" r="5.5" fill="#FFDFC4"/><rect x="30" y="38" width="40" height="32" rx="13" fill="#4A7DFF"/><path d="M42 44h16l-8 10z" fill="#6E9BFF"/><circle cx="50" cy="22" r="19" fill="#FFDFC4"/><path d="M31 21a19 19 0 0 1 38 0c-3-8-9-11-19-11s-16 3-19 11z" fill="#8A5230"/><circle cx="43" cy="23" r="3" fill="#1F2544"/><circle cx="57" cy="23" r="3" fill="#1F2544"/><circle cx="44" cy="22" r="1.1" fill="#fff"/><circle cx="58" cy="22" r="1.1" fill="#fff"/><circle cx="36" cy="29" r="4" fill="#FFADAD" opacity=".7"/><circle cx="64" cy="29" r="4" fill="#FFADAD" opacity=".7"/><path d="M45 31c3 3 7 3 10 0" stroke="#C97B5A" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>',
+  girl: '<svg viewBox="0 0 100 100"><rect x="42" y="68" width="8" height="18" rx="4" fill="#FFDFC4"/><rect x="52" y="68" width="8" height="18" rx="4" fill="#FFDFC4"/><rect x="36" y="84" width="17" height="9" rx="4.5" fill="#D4566F"/><rect x="49" y="84" width="17" height="9" rx="4.5" fill="#D4566F"/><rect x="20" y="42" width="10" height="26" rx="5" fill="#FF8FB8"/><rect x="70" y="42" width="10" height="26" rx="5" fill="#FF8FB8"/><circle cx="25" cy="70" r="5.5" fill="#FFDFC4"/><circle cx="75" cy="70" r="5.5" fill="#FFDFC4"/><path d="M50 36c10 0 14 6 16 14l4 20H30l4-20c2-8 6-14 16-14z" fill="#FF6FA8"/><path d="M34 62h32" stroke="#FFB3CE" stroke-width="4"/><path d="M28 24c0-13 10-20 22-20s22 7 22 20v22c-3-8-6-13-9-16-4 4-9 6-13 6s-9-2-13-6c-3 3-6 8-9 16z" fill="#8A5230"/><circle cx="50" cy="24" r="18" fill="#FFDFC4"/><path d="M32 20a18 18 0 0 1 36 0c-4-7-10-10-18-10s-14 3-18 10z" fill="#8A5230"/><circle cx="43" cy="25" r="3" fill="#1F2544"/><circle cx="57" cy="25" r="3" fill="#1F2544"/><circle cx="44" cy="24" r="1.1" fill="#fff"/><circle cx="58" cy="24" r="1.1" fill="#fff"/><circle cx="36" cy="31" r="4" fill="#FFADC4" opacity=".75"/><circle cx="64" cy="31" r="4" fill="#FFADC4" opacity=".75"/><path d="M45 33c3 3 7 3 10 0" stroke="#D4566F" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M72 16l5-4 2 6 6 1-5 4 1 6-6-3-5 3 1-6-4-4z" fill="#FFD34E"/></svg>',
   fishHero: '<svg viewBox="0 0 100 100"><path d="M70 50c0 16-13 28-28 28S14 66 14 50s10-28 28-28 28 12 28 28z" fill="#FF9A3C"/><path d="M70 50l20-18v36z" fill="#FF7A1C"/><path d="M40 22c6-10 14-10 18-6-6 2-10 6-12 10z" fill="#FFC98A"/><circle cx="32" cy="42" r="7" fill="#fff"/><circle cx="33" cy="42" r="3.6" fill="#1F2544"/><circle cx="34.5" cy="40.5" r="1.3" fill="#fff"/><path d="M26 58c6 5 14 5 20 1" stroke="#D45A00" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M52 34c6 6 6 24 0 32" stroke="#FFD0A0" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
   bird: '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="56" rx="34" ry="32" fill="#5BC0EB"/><ellipse cx="50" cy="68" rx="20" ry="16" fill="#D8F3FF"/><path d="M30 54c-12 2-18 12-16 20 10 0 18-6 20-14z" fill="#3A9BD1"/><path d="M50 22c-4-10 4-16 10-14-2 4-4 8-4 14z" fill="#3A9BD1"/><circle cx="40" cy="46" r="6" fill="#1F2544"/><circle cx="62" cy="46" r="6" fill="#1F2544"/><circle cx="42" cy="44" r="2" fill="#fff"/><circle cx="64" cy="44" r="2" fill="#fff"/><path d="M44 56l7 9 7-9z" fill="#FFB000"/><path d="M38 88l-4 6M62 88l4 6" stroke="#FFB000" stroke-width="4" stroke-linecap="round"/></svg>',
   bunny: '<svg viewBox="0 0 100 100"><ellipse cx="35" cy="26" rx="8" ry="21" fill="#EDEBF8"/><ellipse cx="65" cy="26" rx="8" ry="21" fill="#EDEBF8"/><ellipse cx="35" cy="28" rx="4" ry="14" fill="#FFC2D8"/><ellipse cx="65" cy="28" rx="4" ry="14" fill="#FFC2D8"/><ellipse cx="50" cy="62" rx="32" ry="28" fill="#F7F5FD"/><ellipse cx="38" cy="58" rx="5" ry="7" fill="#1F2544"/><ellipse cx="62" cy="58" rx="5" ry="7" fill="#1F2544"/><circle cx="40" cy="55" r="1.9" fill="#fff"/><circle cx="64" cy="55" r="1.9" fill="#fff"/><path d="M46 70h8l-4 5z" fill="#FF7FA8"/><rect x="46" y="79" width="8" height="7" rx="2" fill="#fff" stroke="#D9DCEC" stroke-width="1.5"/><path d="M50 75c-3 4-8 4-10 1M50 75c3 4 8 4 10 1" stroke="#7A819B" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M28 68H10M28 74l-16 4M72 68h18M72 74l16 4" stroke="#C9CEE4" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -83,8 +83,8 @@ const HEROES = {
   dog:      { name: 'Собачка',  icon: ICONS.dog },
   robot:    { name: 'Робот',    icon: ICONS.robot },
   dino:     { name: 'Дракоша',  icon: ICONS.dino },
-  knight:   { name: 'Рыцарь',   icon: ICONS.knight },
-  princess: { name: 'Принцесса', icon: ICONS.princess },
+  boy:      { name: 'Мальчик',  icon: ICONS.boy },
+  girl:     { name: 'Девочка',  icon: ICONS.girl },
   fishy:    { name: 'Рыбка',    icon: ICONS.fishHero },
   bird:     { name: 'Птичка',   icon: ICONS.bird },
   bunny:    { name: 'Зайка',    icon: ICONS.bunny }
@@ -94,58 +94,52 @@ const HEROES = {
    Не заливка, а нарисованное место: лес, город, пляж. Ребёнку легче
    придумать историю там, где видно, где он находится. Рисунок бледный —
    поверх него лежат клетки, предметы и герой, и они должны читаться. */
+/* Рисунок места, а не картина: несколько крупных форм по краям и пустая
+   середина. Всё, что ярче и мельче, спорит с предметами, которые ребёнок
+   ставит на клетки, — а главная здесь его сцена, а не наш фон. */
 const BG_ART = {
   forest:
-    '<rect width="140" height="100" fill="#E4F5DC"/><ellipse cx="20" cy="74" rx="40" ry="16" fill="#CBEBBE"/><ellipse cx="110" cy="78" rx="46" ry="18" fill="#CBEBBE"/>' +
-    '<g fill="#9ED49A"><circle cx="16" cy="40" r="15"/><circle cx="28" cy="50" r="12"/><circle cx="6" cy="52" r="11"/></g><rect x="14" y="56" width="5" height="22" rx="2" fill="#B98F62"/>' +
-    '<g fill="#8FCB8C"><circle cx="124" cy="34" r="16"/><circle cx="112" cy="46" r="12"/><circle cx="134" cy="48" r="11"/></g><rect x="121" y="52" width="6" height="26" rx="2" fill="#B98F62"/>' +
-    '<g fill="#A8DCA2"><circle cx="68" cy="26" r="13"/><circle cx="56" cy="34" r="10"/><circle cx="80" cy="34" r="10"/></g><rect x="65" y="38" width="5" height="18" rx="2" fill="#C49C70"/>' +
-    '<path d="M0 88h140" stroke="#B5E0A8" stroke-width="10"/>',
+    '<rect width="140" height="100" fill="#EAF6E4"/><rect y="74" width="140" height="26" fill="#D6EDC8"/>' +
+    '<g fill="#C3E3B4"><circle cx="16" cy="62" r="13"/><circle cx="30" cy="68" r="10"/></g><rect x="14" y="70" width="5" height="10" fill="#C9B193"/>' +
+    '<g fill="#C3E3B4"><circle cx="124" cy="60" r="14"/><circle cx="110" cy="68" r="10"/></g><rect x="121" y="70" width="6" height="10" fill="#C9B193"/>' +
+    '<g fill="#CFE8C2"><circle cx="70" cy="86" r="8"/><circle cx="82" cy="88" r="6"/></g>',
   city:
-    '<rect width="140" height="100" fill="#DDECFF"/><circle cx="118" cy="20" r="11" fill="#FFE9A8"/>' +
-    '<g fill="#B9CCE8"><rect x="6" y="38" width="22" height="50" rx="3"/><rect x="34" y="26" width="18" height="62" rx="3"/><rect x="58" y="44" width="20" height="44" rx="3"/><rect x="84" y="30" width="22" height="58" rx="3"/><rect x="112" y="48" width="22" height="40" rx="3"/></g>' +
-    '<g fill="#FFF3C4"><rect x="10" y="44" width="6" height="6"/><rect x="20" y="44" width="6" height="6"/><rect x="10" y="56" width="6" height="6"/><rect x="20" y="56" width="6" height="6"/><rect x="38" y="34" width="6" height="6"/><rect x="38" y="46" width="6" height="6"/><rect x="38" y="58" width="6" height="6"/><rect x="62" y="52" width="6" height="6"/><rect x="70" y="52" width="6" height="6"/><rect x="88" y="38" width="6" height="6"/><rect x="98" y="38" width="6" height="6"/><rect x="88" y="52" width="6" height="6"/><rect x="116" y="56" width="6" height="6"/><rect x="126" y="56" width="6" height="6"/></g>' +
-    '<rect y="88" width="140" height="12" fill="#C6CFE0"/><path d="M0 94h16M28 94h16M56 94h16M84 94h16M112 94h16" stroke="#fff" stroke-width="3"/>',
+    '<rect width="140" height="100" fill="#E6F0FF"/>' +
+    '<g fill="#CFDBEE"><rect x="4" y="62" width="20" height="30" rx="2"/><rect x="28" y="54" width="16" height="38" rx="2"/><rect x="100" y="58" width="18" height="34" rx="2"/><rect x="122" y="66" width="16" height="26" rx="2"/></g>' +
+    '<g fill="#EAF1FB"><rect x="8" y="68" width="5" height="5"/><rect x="16" y="68" width="5" height="5"/><rect x="32" y="60" width="5" height="5"/><rect x="32" y="72" width="5" height="5"/><rect x="104" y="64" width="5" height="5"/><rect x="126" y="72" width="5" height="5"/></g>' +
+    '<rect y="92" width="140" height="8" fill="#DCE3F0"/>',
   space:
-    '<rect width="140" height="100" fill="#1E2452"/>' +
-    '<g fill="#fff"><circle cx="12" cy="14" r="1.6"/><circle cx="36" cy="26" r="1.2"/><circle cx="58" cy="10" r="1.8"/><circle cx="82" cy="22" r="1.3"/><circle cx="104" cy="12" r="1.6"/><circle cx="128" cy="28" r="1.4"/><circle cx="20" cy="48" r="1.3"/><circle cx="48" cy="60" r="1.5"/><circle cx="72" cy="46" r="1.2"/><circle cx="96" cy="64" r="1.6"/><circle cx="120" cy="52" r="1.3"/><circle cx="30" cy="82" r="1.5"/><circle cx="62" cy="88" r="1.2"/><circle cx="90" cy="80" r="1.4"/><circle cx="132" cy="84" r="1.6"/></g>' +
-    '<circle cx="112" cy="70" r="16" fill="#6C5BD4"/><ellipse cx="112" cy="70" rx="26" ry="6" fill="none" stroke="#A89BF0" stroke-width="3"/><circle cx="106" cy="64" r="4" fill="#8A7BE0"/>' +
-    '<circle cx="24" cy="24" r="9" fill="#F2A65A"/><circle cx="21" cy="21" r="3" fill="#D98A3E"/>',
+    '<rect width="140" height="100" fill="#272E5C"/>' +
+    '<g fill="#fff" opacity=".65"><circle cx="14" cy="16" r="1.4"/><circle cx="46" cy="24" r="1.1"/><circle cx="92" cy="14" r="1.3"/><circle cx="124" cy="30" r="1.2"/><circle cx="28" cy="52" r="1.1"/><circle cx="112" cy="58" r="1.2"/><circle cx="60" cy="86" r="1.1"/><circle cx="100" cy="92" r="1.3"/></g>' +
+    '<circle cx="126" cy="18" r="8" fill="#49509A"/><circle cx="12" cy="88" r="10" fill="#3B4280"/>',
   fairy:
-    '<rect width="140" height="100" fill="#F6E4FF"/><rect y="58" width="140" height="42" fill="#DFF5E4"/>' +
-    '<g fill="none" stroke-width="5"><path d="M20 70a50 50 0 0 1 100 0" stroke="#FF9FC4"/><path d="M27 70a43 43 0 0 1 86 0" stroke="#FFD08A"/><path d="M34 70a36 36 0 0 1 72 0" stroke="#FFF0A0"/><path d="M41 70a29 29 0 0 1 58 0" stroke="#A8E6B6"/><path d="M48 70a22 22 0 0 1 44 0" stroke="#A8CFFF"/></g>' +
-    '<g><path d="M14 86c0-8 5-12 10-12s10 4 10 12z" fill="#FF8FA8"/><rect x="21" y="84" width="6" height="12" rx="2" fill="#FFF0E0"/><circle cx="20" cy="80" r="2" fill="#fff"/><circle cx="28" cy="82" r="2" fill="#fff"/></g>' +
-    '<g><path d="M108 90c0-7 4-10 8-10s8 3 8 10z" fill="#C79BFF"/><rect x="113" y="88" width="6" height="10" rx="2" fill="#FFF0E0"/></g>' +
-    '<g fill="#FFD34E"><path d="M60 16l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M96 24l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z"/><path d="M30 30l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z"/></g>',
+    '<rect width="140" height="100" fill="#F7EDFF"/><rect y="76" width="140" height="24" fill="#E6F6E8"/>' +
+    '<g fill="none" stroke-width="4" opacity=".55"><path d="M4 42a34 34 0 0 1 56-18" stroke="#FFB3CE"/><path d="M4 50a42 42 0 0 1 62-22" stroke="#FFE0A8"/><path d="M4 58a50 50 0 0 1 68-26" stroke="#BFEACB"/></g>' +
+    '<g><path d="M112 88c0-6 4-9 8-9s8 3 8 9z" fill="#FFC2D8"/><rect x="117" y="86" width="5" height="9" rx="2" fill="#FFF3E8"/></g>' +
+    '<g><path d="M92 92c0-4 3-6 5-6s5 2 5 6z" fill="#E3CCFF"/><rect x="95" y="90" width="4" height="7" rx="2" fill="#FFF3E8"/></g>',
   beach:
-    '<rect width="140" height="100" fill="#CFF0FF"/><circle cx="116" cy="18" r="12" fill="#FFD34E"/>' +
-    '<rect y="36" width="140" height="30" fill="#7FD0F0"/><path d="M0 36h140" stroke="#5CBEE4" stroke-width="2"/>' +
-    '<g stroke="#A9E5FA" stroke-width="3" fill="none" stroke-linecap="round"><path d="M8 46c4-3 8-3 12 0s8 3 12 0"/><path d="M48 56c4-3 8-3 12 0s8 3 12 0"/><path d="M88 44c4-3 8-3 12 0s8 3 12 0"/></g>' +
-    '<path d="M0 66h140v34H0z" fill="#FFE6B8"/><path d="M0 66c20 6 40 6 60 0s40-6 80 0" fill="#FFF0D2"/>' +
-    '<g><rect x="16" y="58" width="5" height="28" rx="2" fill="#B98F62" transform="rotate(-6 18 72)"/><g fill="#5FB36B"><ellipse cx="18" cy="56" rx="14" ry="5" transform="rotate(-20 18 56)"/><ellipse cx="18" cy="56" rx="14" ry="5" transform="rotate(20 18 56)"/><ellipse cx="18" cy="54" rx="5" ry="12"/></g></g>' +
-    '<circle cx="96" cy="84" r="4" fill="#FFC2D8"/><circle cx="60" cy="90" r="3.5" fill="#FFD9E6"/>',
+    '<rect width="140" height="100" fill="#E2F4FF"/><circle cx="124" cy="16" r="9" fill="#FFE6A8"/>' +
+    '<rect y="48" width="140" height="22" fill="#BEE7F5"/>' +
+    '<g stroke="#DAF1FA" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M10 56c4-2 8-2 12 0s8 2 12 0"/><path d="M78 62c4-2 8-2 12 0s8 2 12 0"/></g>' +
+    '<rect y="70" width="140" height="30" fill="#FBECCB"/><path d="M0 70c22 5 44 5 66 0s52-5 74 0" fill="#FFF6E2"/>',
   snow:
-    '<rect width="140" height="100" fill="#E9F4FF"/><path d="M0 70c20-10 40-10 60 0s50 8 80-4v34H0z" fill="#fff"/>' +
-    '<g fill="#CFE6F7"><path d="M20 72c0-16 6-28 10-34 4 6 10 18 10 34z"/><path d="M110 76c0-14 5-24 8-30 3 6 8 16 8 30z"/></g>' +
-    '<g fill="#9ED0E8"><path d="M24 50h12M28 42h4M24 58h12" stroke="#B5DEF0" stroke-width="2"/></g>' +
-    '<g fill="#fff" opacity=".9"><circle cx="18" cy="16" r="2.4"/><circle cx="46" cy="26" r="2"/><circle cx="74" cy="14" r="2.6"/><circle cx="100" cy="30" r="2"/><circle cx="126" cy="18" r="2.4"/><circle cx="34" cy="44" r="1.8"/><circle cx="88" cy="48" r="2"/><circle cx="58" cy="54" r="1.8"/></g>' +
-    '<path d="M0 94h140" stroke="#DCEEFB" stroke-width="10"/>',
+    '<rect width="140" height="100" fill="#EFF7FF"/><path d="M0 76c24-8 44-8 68 0s48 6 72-2v26H0z" fill="#fff"/>' +
+    '<g fill="#DCEBF7"><path d="M14 78c0-12 5-20 8-25 3 5 8 13 8 25z"/><path d="M118 80c0-10 4-17 6-21 2 4 6 11 6 21z"/></g>' +
+    '<g fill="#fff" opacity=".8"><circle cx="30" cy="20" r="2"/><circle cx="72" cy="14" r="2.2"/><circle cx="108" cy="26" r="1.8"/><circle cx="50" cy="40" r="1.6"/></g>',
   castle:
-    '<rect width="140" height="100" fill="#E7E6FF"/><circle cx="24" cy="20" r="10" fill="#FFE9A8"/><ellipse cx="70" cy="96" rx="80" ry="22" fill="#CBE8C0"/>' +
-    '<g fill="#C7CEE8" stroke="#A3ACD0" stroke-width="2"><rect x="34" y="46" width="72" height="42"/><rect x="26" y="34" width="20" height="54"/><rect x="94" y="34" width="20" height="54"/><rect x="60" y="28" width="20" height="60"/></g>' +
-    '<g fill="#8E79D6"><path d="M26 34l10-14 10 14zM94 34l10-14 10 14zM60 28l10-16 10 16z"/></g>' +
-    '<g fill="#FF8FA8"><path d="M36 16l10 3-10 3zM104 16l10 3-10 3zM70 10l10 3-10 3z"/></g><g stroke="#A3ACD0" stroke-width="2"><path d="M36 20V8M104 20V8M70 14V2"/></g>' +
-    '<path d="M62 88V70a8 8 0 0 1 16 0v18z" fill="#9A7B52"/><g fill="#BFE8FF"><rect x="32" y="52" width="7" height="10" rx="3"/><rect x="101" y="52" width="7" height="10" rx="3"/><rect x="46" y="58" width="8" height="10" rx="4"/><rect x="86" y="58" width="8" height="10" rx="4"/></g>',
+    '<rect width="140" height="100" fill="#EFEDFF"/><ellipse cx="70" cy="104" rx="90" ry="26" fill="#DCEFD4"/>' +
+    '<g fill="#D6DAEE"><rect x="96" y="58" width="36" height="34"/><rect x="90" y="48" width="12" height="44"/><rect x="126" y="48" width="12" height="44"/></g>' +
+    '<g fill="#B9BFE0"><path d="M90 48l6-9 6 9zM126 48l6-9 6 9z"/></g>' +
+    '<path d="M108 92V78a6 6 0 0 1 12 0v14z" fill="#C2A77F"/>',
   day:
-    '<rect width="140" height="100" fill="#CDE9FF"/><circle cx="116" cy="20" r="14" fill="#FFD34E"/>' +
-    '<g stroke="#FFC531" stroke-width="3" stroke-linecap="round"><path d="M116 2v6M116 40v-4M94 20h6M132 20h6M101 5l4 4M131 35l-4-4M131 5l-4 4M101 35l4-4"/></g>' +
-    '<g fill="#fff"><ellipse cx="30" cy="24" rx="16" ry="9"/><ellipse cx="42" cy="22" rx="11" ry="7"/><ellipse cx="74" cy="36" rx="13" ry="7"/><ellipse cx="84" cy="34" rx="9" ry="6"/></g>' +
-    '<path d="M0 72c24-8 46-8 70 0s46 8 70 0v28H0z" fill="#BFE8A8"/><path d="M0 84c30-6 50-6 72 0s40 6 68 0" stroke="#A9DD92" stroke-width="4" fill="none"/>',
+    '<rect width="140" height="100" fill="#DFF0FF"/><circle cx="122" cy="16" r="11" fill="#FFE9A8"/>' +
+    '<g fill="#fff"><ellipse cx="26" cy="22" rx="14" ry="7"/><ellipse cx="38" cy="20" rx="9" ry="5"/><ellipse cx="86" cy="32" rx="11" ry="6"/></g>' +
+    '<path d="M0 78c26-7 48-7 72 0s42 7 68 0v22H0z" fill="#D8EFC6"/>',
   night:
-    '<rect width="140" height="100" fill="#1B2347"/>' +
-    '<path d="M104 10a16 16 0 1 0 0 30 13 13 0 0 1 0-30z" fill="#FFE9A8"/>' +
-    '<g fill="#FFF3C4"><circle cx="14" cy="16" r="1.8"/><circle cx="34" cy="28" r="1.3"/><circle cx="54" cy="12" r="2"/><circle cx="72" cy="26" r="1.4"/><circle cx="88" cy="14" r="1.6"/><circle cx="126" cy="26" r="1.8"/><circle cx="24" cy="44" r="1.4"/><circle cx="46" cy="52" r="1.6"/><circle cx="66" cy="42" r="1.2"/><circle cx="96" cy="50" r="1.5"/><circle cx="118" cy="46" r="1.3"/><circle cx="12" cy="62" r="1.5"/><circle cx="80" cy="62" r="1.3"/><circle cx="134" cy="60" r="1.6"/></g>' +
-    '<path d="M0 78c20-12 36-12 54 0s42 10 86-4v26H0z" fill="#2C3568"/><path d="M0 88c26-8 44-8 68 0s44 6 72-2v14H0z" fill="#3A4480"/>'
+    '<rect width="140" height="100" fill="#252C55"/>' +
+    '<path d="M122 10a13 13 0 1 0 0 26 10 10 0 0 1 0-26z" fill="#F2E3B0"/>' +
+    '<g fill="#F7EFD2" opacity=".7"><circle cx="16" cy="18" r="1.5"/><circle cx="48" cy="26" r="1.2"/><circle cx="80" cy="14" r="1.5"/><circle cx="34" cy="46" r="1.2"/><circle cx="96" cy="48" r="1.3"/><circle cx="64" cy="60" r="1.1"/></g>' +
+    '<path d="M0 80c22-10 40-10 60 0s48 8 80-4v24H0z" fill="#333C70"/>'
 };
 
 const BACKGROUNDS = {
@@ -163,7 +157,7 @@ const BACKGROUNDS = {
 /* Работы, сохранённые до смены героев и фонов, должны открываться, а не падать.
    Старое имя переводим в новое, незнакомое — в значение по умолчанию. */
 const LEGACY_BG = { meadow: 'forest', sea: 'beach', sunset: 'day', rainbow: 'fairy' };
-const LEGACY_HERO = { fox: 'dog', fish: 'fishy' };
+const LEGACY_HERO = { fox: 'dog', fish: 'fishy', knight: 'boy', princess: 'girl' };
 
 function heroId(id) {
   return HEROES[id] ? id : (HEROES[LEGACY_HERO[id]] ? LEGACY_HERO[id] : 'cat');

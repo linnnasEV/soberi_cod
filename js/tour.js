@@ -1,7 +1,11 @@
 /* ===== Первое знакомство с Мастерской =====
-   Ребёнок 6 лет не читает инструкцию, но повторяет увиденное. Поэтому при
-   первом визите платформа один раз показывает сама: блок попал в программу,
-   нажата кнопка, герой пошёл. Дальше — две подсказки-стрелки, и всё.
+   Ребёнок 6 лет не читает инструкцию, но повторяет увиденное. Поэтому
+   платформа один раз проходит весь путь сама, по шагам и в том же порядке,
+   в каком его пройдёт он: выбрать героя → выбрать место → поставить деталь →
+   собрать программу → нажать «Старт». Дальше — две подсказки-стрелки.
+
+   Каждый шаг ждёт, пока договорит голос: иначе фраза обрывается на половине
+   и ребёнок слышит обрывки вместо объяснения.
 
    Подсказки учат нажимать, а не перетаскивать: перетаскивание в редакторе
    работает, но пальцем на дешёвом планшете оно получается не у всех,
@@ -14,6 +18,7 @@ const Tour = {
   armed: false,      // подсказки включены (только при первом визите)
   addedOnce: false,
   ranOnce: false,
+  saved: null,       // сцена ребёнка, которую вернём после показа
 
   seen() {
     try { return localStorage.getItem(this.KEY) === '1'; }
@@ -31,7 +36,7 @@ const Tour = {
     setTimeout(() => { if (!this.seen()) this.play(true); }, 700);
   },
 
-  /* Кнопка «Показать пример» — доступна всегда, программу ребёнка не теряет */
+  /* Кнопка «Показать пример» — доступна всегда, работу ребёнка не теряет */
   example() {
     if (this.playing) return;
     this.play(false);
@@ -39,20 +44,31 @@ const Tour = {
 
   layer() { return document.getElementById('tourLayer'); },
 
-  /* Реплика показа: её видно на сцене и слышно вслух. Фразы короткие —
-     шестилетка не дочитывает длинные, зато дослушивает короткие. */
+  /* Реплику видно на сцене и слышно вслух. Возвращает обещание: шаг
+     закончится не раньше, чем договорит голос. */
   say(text, skip) {
     const el = this.layer();
     el.hidden = false;
     el.innerHTML = '<div class="tour-box"><span>' + esc(text) + '</span>' +
       (skip ? '<button class="tour-skip" onclick="Tour.skip()">Пропустить</button>' : '') + '</div>';
-    if (DB.settings.sound !== false) Speech.say(text);
+    return DB.settings.sound === false ? Promise.resolve() : Speech.speak(text);
   },
 
   hide() {
     const el = this.layer();
     el.hidden = true;
     el.innerHTML = '';
+  },
+
+  /* Жёлтая рамка на том месте, о котором сейчас речь */
+  glow(id) {
+    this.unglow();
+    const el = document.getElementById(id);
+    if (el) el.classList.add('tour-glow');
+  },
+
+  unglow() {
+    document.querySelectorAll('.tour-glow').forEach(el => el.classList.remove('tour-glow'));
   },
 
   wait(ms) {
@@ -63,62 +79,112 @@ const Tour = {
     if (!S.editor) return;
     this.playing = true;
     const my = ++this.token;
-    const saved = JSON.parse(JSON.stringify(S.editor.program));
+    // Запоминаем всё, что собрал ребёнок: показ не должен стирать его работу
+    this.saved = {
+      hero: S.hero, bg: S.bg,
+      decor: Object.assign({}, S.decor),
+      start: Object.assign({}, S.start),
+      program: JSON.parse(JSON.stringify(S.editor.program))
+    };
     this.clearHints();
     S.editor.setup({ blocks: ALL_BLOCKS, program: [] });
     S.editor.setLocked(true);
 
-    const step = async (text, fn, ms) => {
+    // Чистая сцена: герой слева на земле, остальное появится на глазах
+    S.decor = {};
+    S.start = { r: STUDIO_ROWS - 2, c: 0 };
+    mountStudioStage();
+
+    const step = async (text, fn, pause) => {
       if (my !== this.token) return false;
-      this.say(text, first);
+      const said = this.say(text, first);
       fn && fn();
-      await this.wait(ms);
+      await Promise.all([said, this.wait(pause)]);
       return my === this.token;
     };
 
+    const house = { r: STUDIO_ROWS - 2, c: 3 };
+
     try {
-      if (!await step('Нажимаю на синий блок. Это шаг вправо', () => {
+      if (!await step('Сначала выбираю героя. Пусть будет собачка', () => {
+        this.glow('heroPick');
+        pickHero('dog');
+      }, 800)) return this.stop(first);
+
+      if (!await step('Теперь выбираю место. Пусть будет лес', () => {
+        this.glow('bgPick');
+        pickBg('forest');
+      }, 800)) return this.stop(first);
+
+      if (!await step('Ставлю домик на землю. Туда собачка и пойдёт', () => {
+        this.glow('decorPick');
+        pickTool('h');
+        placeDecor(house.r, house.c);
+      }, 900)) return this.stop(first);
+
+      this.unglow();
+
+      if (!await step('Беру блок «Вправо». Это один шаг', () => {
+        this.glow('studioPalette');
         S.editor.pulsePalette('right');
         S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
-      }, 1800)) return this.stop(saved, first);
+      }, 800)) return this.stop(first);
 
-      if (!await step('Ещё один блок. Теперь шагов два', () => {
-        S.editor.pulsePalette('right');
-        S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
-      }, 1800)) return this.stop(saved, first);
+      if (!await step('Нажимаю ещё два раза: до домика три шага', async () => {
+        for (let i = 0; i < 2; i++) {
+          S.editor.pulsePalette('right');
+          S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
+          await this.wait(500);
+        }
+      }, 1100)) return this.stop(first);
 
-      if (!await step('Нажимаю зелёную кнопку Старт', () => {
-        const b = document.getElementById('studioRun');
-        b && b.classList.add('pulse');
-      }, 1800)) return this.stop(saved, first);
+      if (!await step('Нажимаю зелёную кнопку «Старт»', () => {
+        this.glow('studioRun');
+        const btn = document.getElementById('studioRun');
+        btn && btn.classList.add('pulse');
+      }, 800)) return this.stop(first);
 
-      const b = document.getElementById('studioRun');
-      b && b.classList.remove('pulse');
-      this.say('Герой идёт. Он слушается блоков', first);
+      this.unglow();
+      const btn = document.getElementById('studioRun');
+      btn && btn.classList.remove('pulse');
+
+      const walking = this.say('Собачка идёт. Она слушается блоков', first);
       await S.stage.run(S.editor.program, (n, p) => S.editor.highlight(n, p));
-      if (my !== this.token) return this.stop(saved, first);
+      await walking;
+      if (my !== this.token) return this.stop(first);
       S.editor.clearHighlight();
 
-      this.say('Теперь попробуй сам!', false);
-      await this.wait(1600);
+      await Promise.all([this.say('Дошла до домика! Теперь попробуй сам', false), this.wait(1200)]);
     } finally {
-      if (my === this.token) this.stop(saved, first);
+      if (my === this.token) this.stop(first);
     }
   },
 
-  stop(saved, first) {
+  stop(first) {
     this.playing = false;
-    const b = document.getElementById('studioRun');
-    b && b.classList.remove('pulse');
+    this.unglow();
+    const btn = document.getElementById('studioRun');
+    btn && btn.classList.remove('pulse');
     S.editor.setLocked(false);
     S.editor.clearHighlight();
-    // Программу ребёнка возвращаем: «Показать пример» не должно стирать работу
-    S.editor.setup({ blocks: ALL_BLOCKS, program: saved || [] });
-    S.stage.reset();
+
+    // Возвращаем сцену ребёнка целиком: героя, место, предметы и программу
+    const was = this.saved;
+    this.saved = null;
+    if (was) {
+      S.hero = was.hero;
+      S.bg = was.bg;
+      S.decor = was.decor;
+      S.start = was.start;
+      S.editor.setup({ blocks: ALL_BLOCKS, program: was.program || [] });
+      renderStudioPickers();
+      mountStudioStage();
+      saveStudioSession();
+    }
     this.hide();
     if (first) {
       this.remember();
-      this.addedOnce = (saved || []).length > 0;
+      this.addedOnce = !!(was && was.program && was.program.length);
       this.hint();
     }
   },
@@ -126,7 +192,8 @@ const Tour = {
   skip() {
     this.token++;          // прерывает текущий показ
     this.playing = false;
-    this.stop([], true);
+    Speech.stop();
+    this.stop(true);
   },
 
   /* ===== Стрелки-подсказки =====

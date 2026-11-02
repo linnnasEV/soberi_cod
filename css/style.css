@@ -179,7 +179,7 @@ section { padding: 56px 0; }
 .stage { --cols: 7; --rows: 5; position: relative; width: 100%; aspect-ratio: 7 / 5; border-radius: 16px; overflow: hidden; user-select: none; }
 /* Фон — нарисованное место, а не заливка. Лежит под клетками и чуть
    приглушён: поверх него должны читаться предметы и герой. */
-.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .92; pointer-events: none; }
+.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .7; pointer-events: none; }
 .scene-art svg { width: 100%; height: 100%; display: block; }
 .cells { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); }
 .cell { border-right: 2px solid var(--grid-line); border-bottom: 2px solid var(--grid-line); display: flex; align-items: center; justify-content: center; }
@@ -702,7 +702,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 
 /* ----- Три колонки: что выбрать · куда поставить · чем программировать ----- */
 .studio { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 18px; }
-.studio-grid { display: grid; grid-template-columns: minmax(186px, 240px) minmax(0, 1fr) minmax(300px, 380px);
+.studio-grid { display: grid; grid-template-columns: minmax(214px, 296px) minmax(0, 1fr) minmax(296px, 360px);
   /* Ряд ровно в высоту остатка, а не по содержимому: иначе самая высокая
      колонка растягивает страницу и возвращает прокрутку. */
   grid-template-rows: minmax(0, 1fr);
@@ -727,7 +727,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .pk-dec .code-label { margin-bottom: 4px; }
 .pk-dec .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px;
   padding-bottom: 4px; scrollbar-width: thin; scroll-snap-type: x proximity; }
-.pk-dec .pick { flex: 0 0 auto; width: 64px; scroll-snap-align: start; }
+.pk-dec .pick { flex: 0 0 auto; width: 74px; scroll-snap-align: start; }
 .stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
 .stage-wrap .stage { width: auto; height: 100%; max-width: 100%; max-height: 100%; flex: 0 0 auto; }
 .stage-tools { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; margin-top: 0; }
@@ -738,7 +738,9 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .col-pick .code-label { font-size: 11px; margin-bottom: 5px; }
 /* Три иконки в ряд: при двух рейка не влезает в экран, при четырёх подпись
    обрезается на «Лисёнок». */
-.col-pick .pick-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 6px; }
+/* Плитка крупная: ребёнок выбирает героя по картинке, а не по подписи,
+   и «Принцесса» с «Ракушкой» должны помещаться целиком. */
+.col-pick .pick-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
 /* Селектор обязан быть вложенным: класс «pick» носят и кнопки выбора,
    и предметы, лежащие на сцене (.item.pick). Без .pick-row вокруг короны
    на сцене появлялась белая плашка кнопки. */
@@ -746,7 +748,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   border: 3px solid transparent; background: #F4F6FC; min-width: 0; }
 .pick-row .pick.sel { border-color: var(--blue); background: #EEF3FF; }
 .pick-row .pick small { font-size: 11px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.pick-ico, .pick-bg { width: 34px; height: 34px; flex: 0 0 auto; }
+.pick-ico, .pick-bg { width: 46px; height: 46px; flex: 0 0 auto; }
 .pick-bg { border-radius: 9px; overflow: hidden; }
 .pick-bg svg { width: 100%; height: 100%; display: block; }
 .pk-toggle { display: none; }
@@ -776,9 +778,10 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .col-pick, .studio-grid .col-stage, .studio-grid .col-code { padding: 10px; }
   .col-pick { gap: 6px; }
   .pick-row .pick { padding: 3px 2px; }
-  .pick-ico, .pick-bg { width: 28px; height: 28px; }
-  .pk-dec .pick { width: 50px; }
-  .pk-dec .pick small { font-size: 10px; }
+  .pick-ico, .pick-bg { width: 32px; height: 32px; }
+  .col-pick .pick-row { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); }
+  .pk-sys { gap: 2px; }
+  .pk-dec .pick { width: 64px; }
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
   .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
@@ -840,6 +843,10 @@ body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
   box-shadow: 0 10px 24px rgba(0, 0, 0, .25); pointer-events: auto; }
 .tour-skip { padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, .18); color: #fff; font-weight: 800; font-size: 14px; }
 .tour-skip:hover { background: rgba(255, 255, 255, .3); }
+
+/* Жёлтая рамка на том месте, о котором сейчас говорит показ примера */
+.tour-glow { position: relative; border-radius: 14px;
+  box-shadow: 0 0 0 4px var(--yellow), 0 0 0 9px rgba(255, 211, 78, .3); transition: box-shadow .2s; }
 
 /* ----- Ghost-подсказки -----
    Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */
@@ -905,7 +912,7 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-4
   .pk-dec .pk-toggle { display: flex; width: 100%; min-height: 52px; font-size: 16px; }
   .pk-dec .code-label, .pk-dec .pick-row { display: none; }
   body.dec-open .pk-dec .pick-row { display: flex; margin-top: 8px; }
-  .pk-dec .pick { width: 74px; }
+  .pk-dec .pick { width: 80px; }
 
   /* Герой и фон — лента: видно четыре иконки, остальные листаются вбок */
   .col-pick .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; scrollbar-width: none; padding-bottom: 2px; }
