@@ -1,7 +1,7 @@
 /* Сервис-воркер: кэширует все файлы платформы, чтобы она открывалась без интернета.
    Стратегия «сначала кэш»: страница открывается мгновенно даже при очень медленном
    интернете, а свежие файлы догружаются в фоне и применяются при следующем открытии. */
-const CACHE = 'sobericod-v18';
+const CACHE = 'sobericod-v19';
 const FILES = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'css/style.css',
   'js/icons.js', 'js/data.js', 'js/store.js', 'js/sync.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
@@ -40,6 +40,21 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // Синхронизацию класса не кэшируем: учителю нужен свежий журнал, а не вчерашний
   if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.includes('/api/')) return;
+
+  /* Саму страницу берём из сети, если сеть отвечает за две секунды: иначе
+     после обновления сайта ребёнок и учитель ещё долго видели вчерашнюю
+     версию, и даже Ctrl+Shift+R возвращал её из кэша. Адреса файлов внутри
+     страницы помечены версией (?v=…), поэтому свежая страница тянет свежие
+     стили и скрипты, а не берёт их из кэша. Нет сети — отдаём кэш. */
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      Promise.race([
+        refresh(req).catch(() => null),
+        new Promise(res => setTimeout(() => res(null), 2000))
+      ]).then(res => res || caches.match('index.html', { ignoreSearch: true }))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(hit => {
       if (hit) {

@@ -14,7 +14,7 @@ const COLS_MIN = 7, COLS_MAX = 13;
 let STUDIO_COLS = 9;
 /* Порядок блоков — от самого понятного к самому редкому: сначала шаги,
    потом фокусы, потом управление программой. */
-const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
+const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'take', 'spin', 'grow', 'shrink',
                     'color', 'vanish', 'sound', 'say', 'wait', 'repeat'];
 const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 4, c: 0 }, tool: 'h', program: [], running: false };
 
@@ -27,7 +27,9 @@ route('home', () => {
       palette: document.getElementById('studioPalette'),
       workspace: document.getElementById('studioWs'),
       counter: document.getElementById('studioCounter'),
-      onChange: () => { S.stage.reset(); saveStudioSession(); Tour.onProgram(); }
+      onChange: () => { S.stage.reset(); saveStudioSession(); Tour.onProgram(); },
+      // Блок проговаривается вслух при добавлении: ребёнок слышит, что взял
+      onAdd: t => sayAloud(BLOCKS[t].label)
     });
     restoreStudioSession();
     S.editor.setup({ blocks: ALL_BLOCKS, program: S.program });

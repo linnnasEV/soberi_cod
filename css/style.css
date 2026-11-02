@@ -9,10 +9,14 @@
   --bg: #F5F8FF; --card: #fff; --text: #1F2544; --muted: #565E80; --line: #E3E8F6;
   --shadow: 0 8px 24px rgba(74, 125, 255, .12); --radius: 18px;
   --c-motion: #4A7DFF; --c-looks: #8B5CF6; --c-sound: #2FBF7F; --c-control: #FF9A2E;
+  --c-collect: #12B3A4;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
+/* overscroll-behavior-x: лента предметов прокручивается вбок, и у её края
+   браузер начинал «листать назад» — ребёнок уезжал с сайта. */
+html { -webkit-text-size-adjust: 100%; overscroll-behavior-x: none; }
+body { overscroll-behavior-x: none; }
 /* Шрифт системный — ни одного скачанного байта. Размер и межстрочный интервал
    подняты под младшего школьника: он читает по слогам, и мелкий плотный текст
    для него не «компактный», а нечитаемый. */
@@ -179,7 +183,7 @@ section { padding: 56px 0; }
 .stage { --cols: 7; --rows: 5; position: relative; width: 100%; aspect-ratio: 7 / 5; border-radius: 16px; overflow: hidden; user-select: none; }
 /* Фон — нарисованное место, а не заливка. Лежит под клетками и чуть
    приглушён: поверх него должны читаться предметы и герой. */
-.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .7; pointer-events: none; }
+.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .85; pointer-events: none; }
 .scene-art svg { width: 100%; height: 100%; display: block; }
 .cells { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); }
 .cell { border-right: 2px solid var(--grid-line); border-bottom: 2px solid var(--grid-line); display: flex; align-items: center; justify-content: center; }
@@ -213,6 +217,17 @@ section { padding: 56px 0; }
 .sprite svg { width: 100%; height: 100%; transform: scaleX(var(--flip, 1)) scale(var(--sc, 1)) rotate(var(--rot, 0deg)); transition: transform .4s; }
 .sprite.hop { animation: hop .5s ease; }
 @keyframes hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-55%); } }
+/* Прыжок через клетку: герой поднимается дугой и мягко приземляется.
+   Движение по горизонтали в это время тоже замедлено — иначе прыжок
+   выглядел как рывок, и ребёнок не понимал, что произошло. */
+.actor.jumping { transition: left .66s cubic-bezier(.35, 0, .35, 1), top .66s cubic-bezier(.35, 0, .35, 1); }
+.sprite.hop-far { animation: hopFar .66s cubic-bezier(.3, 0, .35, 1); }
+@keyframes hopFar {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-70%) scale(1.08); }
+  62% { transform: translateY(-70%) scale(1.08); }
+  100% { transform: translateY(0) scale(1); }
+}
 .sprite.bump { animation: bump .4s ease; }
 @keyframes bump { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(calc(var(--dx) * 22%), calc(var(--dy) * 22%)) rotate(-8deg); } 70% { transform: translate(calc(var(--dx) * -6%), calc(var(--dy) * -6%)); } }
 .sprite.wiggle { animation: wiggle .45s ease; }
@@ -243,6 +258,7 @@ section { padding: 56px 0; }
 .looks { --bc: var(--c-looks); }
 .sound { --bc: var(--c-sound); }
 .control { --bc: var(--c-control); }
+.collect { --bc: var(--c-collect); }
 .pblock { width: 70px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: transform .15s; touch-action: manipulation; }
 .pblock:hover { transform: translateY(-3px); }
 .pblock:active { transform: scale(.94); }
@@ -737,7 +753,8 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .pk-dec .code-label { margin-bottom: 4px; }
 .dec-row { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
 .pk-dec .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px;
-  padding-bottom: 4px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+  padding-bottom: 4px; scrollbar-width: thin; scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain; }
 .pk-dec .pick { flex: 0 0 auto; width: 74px; scroll-snap-align: start; }
 /* Герой и ластик всегда на месте и не уезжают вместе с лентой */
 .dec-fixed { overflow: visible; flex: 0 0 auto; padding-right: 8px; border-right: 2px solid var(--line); }
@@ -750,7 +767,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 
 /* Рейка выбора: иконки крупные, подписи в одну строку по 11 px */
 .col-pick { gap: 6px; overflow-y: auto; scrollbar-width: thin; }
-.col-pick .pk { min-width: 0; flex: 0 0 auto; }
+.col-pick .pk, .pk-dec { min-width: 0; flex: 0 0 auto; padding: 5px; }
 /* Герой и фон — разные вопросы, и между ними нужен воздух, иначе «Зайка»
    и заголовок «ФОН» читаются как один список. */
 .col-pick .pk + .pk { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
@@ -879,14 +896,14 @@ body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
 .tour-skip { padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, .18); color: #fff; font-weight: 800; font-size: 14px; }
 .tour-skip:hover { background: rgba(255, 255, 255, .3); }
 
-/* Подсветка того места, о котором сейчас говорит показ примера.
-   Рамка внутренняя: внешнюю срезала прокрутка колонки выбора, и подсветки
-   не было видно вовсе. */
-.tour-glow { position: relative; border-radius: 14px; background: #FFF7DC;
-  box-shadow: inset 0 0 0 3px var(--yellow); }
-/* Без плавного перехода: подсветка должна зажигаться ровно в тот момент,
-   когда о месте говорит голос, а не разгораться следом за ним. */
-.tour-glow.btn, .btn.tour-glow { color: #6B4E00; }
+/* Подсветка того места, о котором сейчас говорит показ примера: обведена
+   вся карточка — «ГЕРОЙ» вместе с рядом иконок. Рамка внутренняя, потому
+   что внешнюю срезает прокрутка колонки выбора; снаружи добавлен мягкий
+   ореол — там, где его есть куда рисовать. Без перехода: подсветка должна
+   зажигаться ровно тогда, когда о месте говорит голос. */
+.tour-glow { position: relative; border-radius: 16px;
+  box-shadow: inset 0 0 0 4px var(--yellow), 0 0 0 4px rgba(255, 211, 78, .45); }
+.tour-glow:not(.btn) { background: #FFF7DC; }
 
 /* ----- Ghost-подсказки -----
    Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */

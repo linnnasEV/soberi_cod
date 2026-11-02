@@ -4,11 +4,12 @@
    новый встанет сразу после него. Так можно исправлять ошибки в середине программы. */
 
 class Editor {
-  constructor({ palette, workspace, counter, onChange }) {
+  constructor({ palette, workspace, counter, onChange, onAdd }) {
     this.paletteEl = palette;
     this.wsEl = workspace;
     this.counterEl = counter;
     this.onChange = onChange || (() => {});
+    this.onAdd = onAdd || (() => {});   // чем назвать блок вслух
     this.locked = false;
     this.wsEl.addEventListener('click', e => {
       if (e.target === this.wsEl || e.target.classList.contains('ws-main')) this.cursorToEnd();
@@ -81,6 +82,7 @@ class Editor {
       idx = this.program.indexOf(rep) + 1;
     }
     list.splice(idx, 0, node);
+    this.onAdd(type);
     this.cursor = type === 'repeat'
       ? { list: node.body, idx: 0, rep: node }
       : { list, idx: idx + 1, rep: list === this.program ? null : rep };

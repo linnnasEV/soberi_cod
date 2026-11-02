@@ -21,17 +21,17 @@ const CELLS = {
   /* Предметы Мастерской. Часть из них можно подобрать (сундук, корона,
      ракушка, зелье) — за ними герой и отправляется в путь; остальное стоит
      на сцене как украшение. */
-  't': { icon: 'tree',     cls: 'deco' },
-  'm': { icon: 'car',      cls: 'deco' },
-  'n': { icon: 'fountain', cls: 'deco' },
-  'b': { icon: 'bench',    cls: 'deco' },
-  'r': { icon: 'rocket',   cls: 'deco' },
+  't': { icon: 'tree',     cls: 'deco', solid: true },
+  'm': { icon: 'car',      cls: 'deco', solid: true },
+  'n': { icon: 'fountain', cls: 'deco', solid: true },
+  'b': { icon: 'bench',    cls: 'deco', solid: true },
+  'r': { icon: 'rocket',   cls: 'deco', solid: true },
+  'e': { icon: 'fence',    cls: 'deco', solid: true },
   'q': { icon: 'crab',     cls: 'deco' },
   'u': { icon: 'sun',      cls: 'deco' },
   'o': { icon: 'cloud',    cls: 'deco' },
   'g': { icon: 'grass',    cls: 'deco' },
   'w': { icon: 'moon',     cls: 'deco' },
-  'e': { icon: 'fence',    cls: 'deco' },
   'k': { icon: 'crown',  cls: 'pick', collect: true, many: 'короны' },
   'x': { icon: 'chest',  cls: 'pick', collect: true, many: 'сундуки' },
   'l': { icon: 'shell',  cls: 'pick', collect: true, many: 'ракушки' },
@@ -40,6 +40,9 @@ const CELLS = {
 
 function isGoal(ch) { return !!(CELLS[ch] && CELLS[ch].goal); }
 function isCollect(ch) { return !!(CELLS[ch] && CELLS[ch].collect); }
+/* Сквозь дерево, забор и машину не пройти — их обходят или перепрыгивают.
+   Солнце, облако и трава не мешают: по ним герой проходит. */
+function isSolid(ch) { return ch === '#' || !!(CELLS[ch] && CELLS[ch].solid); }
 
 function parseMap(map) {
   let start = { r: 0, c: 0 };
@@ -79,7 +82,7 @@ function stepDir(type, dir) {
    препятствие. Вернёт null, если прыгать некуда. */
 function jumpTarget(m, pos, dir) {
   const d = COMPASS[dir];
-  const free = p => p.r >= 0 && p.c >= 0 && p.r < m.rows && p.c < m.cols && m.grid[p.r][p.c] !== '#';
+  const free = p => p.r >= 0 && p.c >= 0 && p.r < m.rows && p.c < m.cols && !isSolid(m.grid[p.r][p.c]);
   const one = { r: pos.r + d[0], c: pos.c + d[1] };
   if (free(one)) return one;
   const two = { r: pos.r + d[0] * 2, c: pos.c + d[1] * 2 };
@@ -111,11 +114,15 @@ function simulate(level, prog, sandbox = false) {
       }
       continue;
     }
+    if (node.t === 'take') {
+      if (isCollect(m.grid[pos.r][pos.c])) collected.add(pos.r + ':' + pos.c);
+      continue;
+    }
     const d = stepDir(node.t, dir);
     if (!d) continue;
     const nr = pos.r + d[0], nc = pos.c + d[1];
     if (nr < 0 || nc < 0 || nr >= m.rows || nc >= m.cols) { if (sandbox) continue; crash = 'edge'; break; }
-    if (m.grid[nr][nc] === '#') { if (sandbox) continue; crash = 'stone'; break; }
+    if (isSolid(m.grid[nr][nc])) { if (sandbox) continue; crash = 'stone'; break; }
     pos = { r: nr, c: nc };
     if (isCollect(m.grid[nr][nc])) collected.add(nr + ':' + nc);
   }
@@ -332,25 +339,56 @@ class Stage {
       this.applyLook();
       const nr = this.pos.r + d[0], nc = this.pos.c + d[1];
       const out = nr < 0 || nc < 0 || nr >= this.m.rows || nc >= this.m.cols;
-      if (out || this.m.grid[nr][nc] === '#') {
+      if (out || isSolid(this.m.grid[nr][nc])) {
         await this.bump(d);
         if (!this.sandbox) return { crash: out ? 'edge' : 'stone' };
         return null;
       }
       this.pos = { r: nr, c: nc };
       this.place();
-      this.collect(nr, nc);
+      // В уроке предметы подбираются по дороге, в Мастерской — только блоком
+      // «Собрать»: там это осознанное действие, а не побочный эффект шага.
+      if (!this.sandbox) this.collect(nr, nc);
       await this.wait(this.delay);
       return null;
     }
 
+    /* Прыжок должен читаться именно как прыжок: герой взлетает дугой,
+       перелетает клетку и мягко приземляется. Раньше он просто перескакивал,
+       и ребёнок не понимал, чем это отличается от шага. */
     if (t === 'jump') {
       const to = jumpTarget(this.m, this.pos, this.dir);
       if (!to) { await this.bump(COMPASS[this.dir]); return null; }
+      const lite = document.body.classList.contains('lite');
+      Sound.tone([560, 820], 0.09);
+      if (!lite) {
+        this.heroEl.classList.add('jumping');
+        this.sprite.classList.remove('hop-far');
+        void this.sprite.offsetWidth;
+        this.sprite.classList.add('hop-far');
+      }
       this.pos = to;
       this.place();
-      this.collect(to.r, to.c);
-      await this.pulse('hop', this.delay + 100);
+      await this.wait(lite ? this.delay : 680);
+      this.sprite.classList.remove('hop-far');
+      this.heroEl.classList.remove('jumping');
+      if (!this.sandbox) this.collect(to.r, to.c);
+      return null;
+    }
+
+    /* «Собрать» — то, ради чего герой шёл: цветок, звезда, сундук, корона,
+       ракушка, зелье. На пустой клетке герой разводит руками. */
+    if (t === 'take') {
+      const here = this.m.grid[this.pos.r][this.pos.c];
+      const key = this.pos.r + ':' + this.pos.c;
+      if (isCollect(here) && !this.collected.has(key)) {
+        this.collect(this.pos.r, this.pos.c);
+        Sound.tone([760, 1040], 0.09);
+        await this.pulse('wiggle', this.delay);
+      } else {
+        Sound.oops();
+        await this.pulse('wiggle', this.delay * 0.8);
+      }
       return null;
     }
 

@@ -60,11 +60,14 @@ const Tour = {
     el.innerHTML = '';
   },
 
-  /* Жёлтая рамка на том месте, о котором сейчас речь */
-  glow(id) {
+  /* Жёлтая рамка на том месте, о котором сейчас речь. Обводим не ряд
+     иконок, а всю карточку вместе с заголовком: ребёнок должен понять,
+     что речь про «ГЕРОЙ», а не про одну кнопку. */
+  glow(id, exact) {
     this.unglow();
     const el = document.getElementById(id);
-    if (el) el.classList.add('tour-glow');
+    if (!el) return;
+    ((exact ? null : el.closest('.pk')) || el).classList.add('tour-glow');
   },
 
   unglow() {
@@ -107,7 +110,7 @@ const Tour = {
     // блоки, «Старт». Фразы короткие и совпадают с тем, что в этот момент
     // происходит на экране.
     const row = STUDIO_ROWS - 2;
-    const flower = { r: row, c: 2 }, house = { r: row, c: 4 };
+    const flower = { r: row, c: 2 }, house = { r: row, c: 4 }, extra = { r: row, c: 6 };
 
     try {
       if (!await step('Первый шаг — выбираем героя. Пусть будет котик', () => {
@@ -127,11 +130,18 @@ const Tour = {
         pickTool('c'); placeDecor(flower.r, flower.c);
         await this.wait(400);
         pickTool('h'); placeDecor(house.r, house.c);
-      }, 1200)) return this.stop(first);
+      }, 1000)) return this.stop(first);
+
+      if (!await step('Поставил лишнее? Нажми «Убрать» и на эту клетку', async () => {
+        pickTool('t'); placeDecor(extra.r, extra.c);
+        await this.wait(900);
+        this.glow('decorFixed', true);
+        pickTool('.'); placeDecor(extra.r, extra.c);
+      }, 900)) return this.stop(first);
 
       this.unglow();
 
-      if (!await step('Котик соберёт цветочек и пойдёт домой', null, 600)) return this.stop(first);
+      if (!await step('Теперь котик соберёт цветочек и пойдёт к домику', null, 500)) return this.stop(first);
 
       if (!await step('Два шага вправо — и котик у цветочка', async () => {
         this.glow('studioPalette');
@@ -140,18 +150,23 @@ const Tour = {
           S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
           await this.wait(450);
         }
-      }, 800)) return this.stop(first);
+      }, 700)) return this.stop(first);
 
-      if (!await step('Ещё два шага — и он дома', async () => {
+      if (!await step('Цветочек под ногами — берём блок «Собрать»', () => {
+        S.editor.pulsePalette('take');
+        S.editor.setLocked(false); S.editor.add('take'); S.editor.setLocked(true);
+      }, 700)) return this.stop(first);
+
+      if (!await step('И ещё два шага — до домика', async () => {
         for (let i = 0; i < 2; i++) {
           S.editor.pulsePalette('right');
           S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
           await this.wait(450);
         }
-      }, 800)) return this.stop(first);
+      }, 700)) return this.stop(first);
 
       if (!await step('Нажимаем зелёную кнопку «Старт»', () => {
-        this.glow('studioRun');
+        this.glow('studioRun', true);
         const btn = document.getElementById('studioRun');
         btn && btn.classList.add('pulse');
       }, 700)) return this.stop(first);
@@ -166,7 +181,7 @@ const Tour = {
       if (my !== this.token) return this.stop(first);
       S.editor.clearHighlight();
 
-      await Promise.all([this.say('Цветочек собран, котик дома. Теперь попробуй сам', false), this.wait(1200)]);
+      await Promise.all([this.say('Цветочек собран, котик у домика. Теперь попробуй сам', false), this.wait(1200)]);
     } finally {
       if (my === this.token) this.stop(first);
     }

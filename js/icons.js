@@ -22,6 +22,7 @@ const ICONS = {
   grow:   '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M4 10V4h6M4 4l6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   shrink: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="11" height="11" rx="2" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M20 14v6h-6M20 20l-6-6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   color:  '<svg viewBox="0 0 24 24"><path d="M12 3C7 8 4 11 4 14.5A8 8 0 0 0 20 14.5C20 11 17 8 12 3z" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 19a4.5 4.5 0 0 1-4.5-4.5" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  take:   '<svg viewBox="0 0 24 24"><path d="M7.5 12V6.2a1.6 1.6 0 0 1 3.2 0V11M10.7 11V4.4a1.6 1.6 0 0 1 3.2 0V11M13.9 11V5.6a1.6 1.6 0 0 1 3.2 0v6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M17.1 10.4a1.6 1.6 0 0 1 3.2 0V14c0 4-3.2 7-7 7s-6.8-3-6.8-7v-2.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   vanish: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 3.4"/><path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/></svg>',
 
   /* Ластик: тёмный контур, потому что лежит не на цветном блоке,
@@ -64,8 +65,8 @@ const ICONS = {
   crab:   '<svg viewBox="0 0 100 100"><path d="M18 46c-6-6-6-14-2-18 6 2 12 8 12 16z" fill="#F0453A"/><path d="M82 46c6-6 6-14 2-18-6 2-12 8-12 16z" fill="#F0453A"/><ellipse cx="50" cy="58" rx="32" ry="22" fill="#FF6B5A" stroke="#C32C22" stroke-width="3"/><path d="M22 72l-10 12M34 78l-4 12M66 78l4 12M78 72l10 12" stroke="#C32C22" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="48" r="7" fill="#fff" stroke="#C32C22" stroke-width="2.5"/><circle cx="62" cy="48" r="7" fill="#fff" stroke="#C32C22" stroke-width="2.5"/><circle cx="38" cy="49" r="3.2" fill="#1F2544"/><circle cx="62" cy="49" r="3.2" fill="#1F2544"/><path d="M40 66c6 5 14 5 20 0" stroke="#C32C22" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>',
   sun:    '<svg viewBox="0 0 100 100"><g stroke="#FFA53A" stroke-width="6" stroke-linecap="round"><path d="M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M81 19l-8 8M27 73l-8 8"/></g><circle cx="50" cy="50" r="24" fill="#FFD34E" stroke="#E5A500" stroke-width="4"/><circle cx="42" cy="46" r="3" fill="#C97B2E"/><circle cx="58" cy="46" r="3" fill="#C97B2E"/><path d="M42 58c5 5 11 5 16 0" stroke="#C97B2E" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>',
   cloud:  '<svg viewBox="0 0 100 100"><path d="M26 72a18 18 0 0 1-2-36 22 22 0 0 1 42-6 16 16 0 0 1 10 42z" fill="#fff" stroke="#BFD4F0" stroke-width="4" stroke-linejoin="round"/><circle cx="38" cy="54" r="3" fill="#BFD4F0"/><circle cx="58" cy="54" r="3" fill="#BFD4F0"/><path d="M40 62c5 4 11 4 16 0" stroke="#BFD4F0" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
-  grass:  '<svg viewBox="0 0 100 100"><path d="M20 86c0-18 4-30 8-38M34 86c0-22 6-36 12-46M50 86c0-20 2-34 4-44M66 86c0-22-4-36-10-44M80 86c0-18-4-30-8-38" stroke="#4FA35E" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M12 86h76" stroke="#3E8A4C" stroke-width="8" stroke-linecap="round"/><circle cx="34" cy="44" r="4" fill="#FFD34E"/><circle cx="68" cy="50" r="4" fill="#FF6FA8"/></svg>',
-  moon:   '<svg viewBox="0 0 100 100"><path d="M64 10a40 40 0 1 0 0 80 34 34 0 0 1 0-80z" fill="#FFE9A8" stroke="#E5C06A" stroke-width="4" stroke-linejoin="round"/><circle cx="40" cy="36" r="6" fill="#EFD48C"/><circle cx="32" cy="58" r="4.5" fill="#EFD48C"/><circle cx="48" cy="68" r="3.5" fill="#EFD48C"/><path d="M80 20l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#FFD34E"/></svg>',
+  grass:  '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="82" rx="40" ry="12" fill="#7FBF6A"/><path d="M50 82c-2-18-10-28-18-34 10 2 18 12 20 28z" fill="#4FA35E"/><path d="M50 82c2-18 10-28 18-34-10 2-18 12-20 28z" fill="#5FB36B"/><path d="M50 82c0-22 2-34 2-44-6 10-8 24-8 44z" fill="#3E8A4C"/><path d="M50 82c-6-14-16-20-24-22 8 8 14 14 18 24z" fill="#6FC47A"/><path d="M50 82c6-14 16-20 24-22-8 8-14 14-18 24z" fill="#6FC47A"/><circle cx="32" cy="50" r="5" fill="#FFD34E" stroke="#E5A500" stroke-width="2"/><circle cx="70" cy="56" r="5" fill="#FF6FA8" stroke="#D4566F" stroke-width="2"/></svg>',
+  moon:   '<svg viewBox="0 0 100 100"><path d="M58 8a42 42 0 1 0 0 84 34 34 0 1 1 0-84z" fill="#FFD95B" stroke="#E0A92A" stroke-width="4" stroke-linejoin="round"/><circle cx="34" cy="34" r="6" fill="#F2C33F"/><circle cx="26" cy="58" r="4.5" fill="#F2C33F"/><circle cx="40" cy="70" r="3.5" fill="#F2C33F"/><path d="M82 24l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFF0A8" stroke="#E0A92A" stroke-width="2" stroke-linejoin="round"/></svg>',
   fence:  '<svg viewBox="0 0 100 100"><g fill="#D79A58" stroke="#8A5A33" stroke-width="3" stroke-linejoin="round"><path d="M14 38l8-10 8 10v48H14z"/><path d="M42 38l8-10 8 10v48H42z"/><path d="M70 38l8-10 8 10v48H70z"/></g><rect x="8" y="48" width="84" height="8" rx="3" fill="#C98B4B" stroke="#8A5A33" stroke-width="2.5"/><rect x="8" y="68" width="84" height="8" rx="3" fill="#C98B4B" stroke="#8A5A33" stroke-width="2.5"/></svg>',
   stone:  '<svg viewBox="0 0 100 100"><path d="M12 78c-4-20 8-44 30-50 18-5 38 4 46 22 6 14 2 28-4 32-20 4-56 4-72-4z" fill="#8A93A8"/><path d="M26 44c6-8 14-11 22-11" stroke="#B7BFD1" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M14 80c22 6 50 6 70 0" stroke="#6E768A" stroke-width="5" fill="none"/></svg>',
   potion: '<svg viewBox="0 0 100 100"><rect x="40" y="10" width="20" height="16" rx="4" fill="#C9D2E6" stroke="#8A93A8" stroke-width="3"/><path d="M38 26h24v10l16 26a16 16 0 0 1-14 26H36a16 16 0 0 1-14-26l16-26z" fill="#E8EEFF" stroke="#8A93A8" stroke-width="3.5" stroke-linejoin="round"/><path d="M27 60h46a16 16 0 0 1-9 28H36a16 16 0 0 1-9-28z" fill="#A66BFF"/><circle cx="42" cy="72" r="4" fill="#E0C8FF"/><circle cx="58" cy="78" r="3" fill="#E0C8FF"/><circle cx="52" cy="66" r="2.5" fill="#fff"/></svg>',
@@ -99,15 +100,15 @@ const HEROES = {
    ставит на клетки, — а главная здесь его сцена, а не наш фон. */
 const BG_ART = {
   forest:
-    '<rect width="140" height="100" fill="#EAF6E4"/><rect y="74" width="140" height="26" fill="#D6EDC8"/>' +
-    '<g fill="#C3E3B4"><circle cx="16" cy="62" r="13"/><circle cx="30" cy="68" r="10"/></g><rect x="14" y="70" width="5" height="10" fill="#C9B193"/>' +
-    '<g fill="#C3E3B4"><circle cx="124" cy="60" r="14"/><circle cx="110" cy="68" r="10"/></g><rect x="121" y="70" width="6" height="10" fill="#C9B193"/>' +
-    '<g fill="#CFE8C2"><circle cx="70" cy="86" r="8"/><circle cx="82" cy="88" r="6"/></g>',
+    '<rect width="140" height="100" fill="#DCF2D2"/><rect y="74" width="140" height="26" fill="#B9E4A6"/>' +
+    '<g fill="#8FD080"><circle cx="16" cy="62" r="13"/><circle cx="30" cy="68" r="10"/></g><rect x="14" y="70" width="5" height="10" fill="#C9B193"/>' +
+    '<g fill="#8FD080"><circle cx="124" cy="60" r="14"/><circle cx="110" cy="68" r="10"/></g><rect x="121" y="70" width="6" height="10" fill="#C9B193"/>' +
+    '<g fill="#A3DA92"><circle cx="70" cy="86" r="8"/><circle cx="82" cy="88" r="6"/></g>',
   city:
-    '<rect width="140" height="100" fill="#E6F0FF"/>' +
-    '<g fill="#CFDBEE"><rect x="4" y="62" width="20" height="30" rx="2"/><rect x="28" y="54" width="16" height="38" rx="2"/><rect x="100" y="58" width="18" height="34" rx="2"/><rect x="122" y="66" width="16" height="26" rx="2"/></g>' +
+    '<rect width="140" height="100" fill="#D4E6FF"/>' +
+    '<g fill="#A9C2E6"><rect x="4" y="62" width="20" height="30" rx="2"/><rect x="28" y="54" width="16" height="38" rx="2"/><rect x="100" y="58" width="18" height="34" rx="2"/><rect x="122" y="66" width="16" height="26" rx="2"/></g>' +
     '<g fill="#EAF1FB"><rect x="8" y="68" width="5" height="5"/><rect x="16" y="68" width="5" height="5"/><rect x="32" y="60" width="5" height="5"/><rect x="32" y="72" width="5" height="5"/><rect x="104" y="64" width="5" height="5"/><rect x="126" y="72" width="5" height="5"/></g>' +
-    '<rect y="92" width="140" height="8" fill="#DCE3F0"/>',
+    '<rect y="92" width="140" height="8" fill="#BFCAE0"/>',
   /* Космос — без земли и без луны: планеты, кольцо и туманность. Ночь — та же
      земля, только тёмная, с месяцем и спящими домами. Раньше их путали. */
   space:
@@ -120,28 +121,31 @@ const BG_ART = {
     '<circle cx="26" cy="88" r="9" fill="#5E6BC8"/><circle cx="23" cy="85" r="3" fill="#4450A8"/>' +
     '<path d="M64 88l10-6-10-6 2 6z" fill="#FFE9A8"/>',
   fairy:
-    '<rect width="140" height="100" fill="#F7EDFF"/><rect y="76" width="140" height="24" fill="#E6F6E8"/>' +
-    '<g fill="none" stroke-width="4" opacity=".55"><path d="M4 42a34 34 0 0 1 56-18" stroke="#FFB3CE"/><path d="M4 50a42 42 0 0 1 62-22" stroke="#FFE0A8"/><path d="M4 58a50 50 0 0 1 68-26" stroke="#BFEACB"/></g>' +
-    '<g><path d="M112 88c0-6 4-9 8-9s8 3 8 9z" fill="#FFC2D8"/><rect x="117" y="86" width="5" height="9" rx="2" fill="#FFF3E8"/></g>' +
-    '<g><path d="M92 92c0-4 3-6 5-6s5 2 5 6z" fill="#E3CCFF"/><rect x="95" y="90" width="4" height="7" rx="2" fill="#FFF3E8"/></g>',
+    '<rect width="140" height="100" fill="#F3E6FF"/><rect y="74" width="140" height="26" fill="#C9EFC6"/>' +
+    '<g fill="none" stroke-width="5"><path d="M2 74a40 40 0 0 1 74-21" stroke="#FF8FB8"/><path d="M2 82a48 48 0 0 1 82-25" stroke="#FFC46B"/><path d="M2 90a56 56 0 0 1 90-29" stroke="#8FD99B"/></g>' +
+    '<g fill="#C9A6F0"><path d="M104 74V58h6v16zM118 74V54h6v20zM131 74V62h6v12z"/></g>' +
+    '<g fill="#8E6BD0"><path d="M101 58l6-9 6 9zM115 54l6-9 6 9zM128 62l6-8 6 8z"/></g>' +
+    '<g><path d="M18 92c0-8 6-12 11-12s11 4 11 12z" fill="#FF7FA8"/><rect x="26" y="90" width="7" height="9" rx="2" fill="#FFF3E8"/><circle cx="24" cy="86" r="2.4" fill="#fff"/><circle cx="34" cy="88" r="2" fill="#fff"/></g>' +
+    '<g><path d="M52 95c0-5 4-8 7-8s7 3 7 8z" fill="#C79BFF"/><rect x="57" y="93" width="5" height="7" rx="2" fill="#FFF3E8"/></g>' +
+    '<g fill="#FFD34E"><path d="M34 18l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z"/><path d="M96 16l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M70 30l1.8 4.5 4.5 1.8-4.5 1.8-1.8 4.5-1.8-4.5-4.5-1.8 4.5-1.8z"/></g>',
   beach:
-    '<rect width="140" height="100" fill="#E2F4FF"/><circle cx="124" cy="16" r="9" fill="#FFE6A8"/>' +
-    '<rect y="48" width="140" height="22" fill="#BEE7F5"/>' +
+    '<rect width="140" height="100" fill="#C9ECFF"/><circle cx="124" cy="16" r="10" fill="#FFD95B"/>' +
+    '<rect y="48" width="140" height="22" fill="#6FC9E8"/>' +
     '<g stroke="#DAF1FA" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M10 56c4-2 8-2 12 0s8 2 12 0"/><path d="M78 62c4-2 8-2 12 0s8 2 12 0"/></g>' +
-    '<rect y="70" width="140" height="30" fill="#FBECCB"/><path d="M0 70c22 5 44 5 66 0s52-5 74 0" fill="#FFF6E2"/>',
+    '<rect y="70" width="140" height="30" fill="#FBDFA0"/><path d="M0 70c22 5 44 5 66 0s52-5 74 0" fill="#FFEFC9"/>',
   snow:
-    '<rect width="140" height="100" fill="#EFF7FF"/><path d="M0 76c24-8 44-8 68 0s48 6 72-2v26H0z" fill="#fff"/>' +
-    '<g fill="#DCEBF7"><path d="M14 78c0-12 5-20 8-25 3 5 8 13 8 25z"/><path d="M118 80c0-10 4-17 6-21 2 4 6 11 6 21z"/></g>' +
+    '<rect width="140" height="100" fill="#DCEDFF"/><path d="M0 76c24-8 44-8 68 0s48 6 72-2v26H0z" fill="#fff"/>' +
+    '<g fill="#9FC9E4"><path d="M14 78c0-12 5-20 8-25 3 5 8 13 8 25z"/><path d="M118 80c0-10 4-17 6-21 2 4 6 11 6 21z"/></g>' +
     '<g fill="#fff" opacity=".8"><circle cx="30" cy="20" r="2"/><circle cx="72" cy="14" r="2.2"/><circle cx="108" cy="26" r="1.8"/><circle cx="50" cy="40" r="1.6"/></g>',
   castle:
-    '<rect width="140" height="100" fill="#EFEDFF"/><ellipse cx="70" cy="104" rx="90" ry="26" fill="#DCEFD4"/>' +
-    '<g fill="#D6DAEE"><rect x="96" y="58" width="36" height="34"/><rect x="90" y="48" width="12" height="44"/><rect x="126" y="48" width="12" height="44"/></g>' +
-    '<g fill="#B9BFE0"><path d="M90 48l6-9 6 9zM126 48l6-9 6 9z"/></g>' +
+    '<rect width="140" height="100" fill="#DFDCFF"/><ellipse cx="70" cy="104" rx="90" ry="26" fill="#BEE5AE"/>' +
+    '<g fill="#B4BCE0"><rect x="96" y="58" width="36" height="34"/><rect x="90" y="48" width="12" height="44"/><rect x="126" y="48" width="12" height="44"/></g>' +
+    '<g fill="#8E97CC"><path d="M90 48l6-9 6 9zM126 48l6-9 6 9z"/></g>' +
     '<path d="M108 92V78a6 6 0 0 1 12 0v14z" fill="#C2A77F"/>',
   day:
-    '<rect width="140" height="100" fill="#DFF0FF"/><circle cx="122" cy="16" r="11" fill="#FFE9A8"/>' +
+    '<rect width="140" height="100" fill="#BEE4FF"/><circle cx="122" cy="16" r="12" fill="#FFD95B"/>' +
     '<g fill="#fff"><ellipse cx="26" cy="22" rx="14" ry="7"/><ellipse cx="38" cy="20" rx="9" ry="5"/><ellipse cx="86" cy="32" rx="11" ry="6"/></g>' +
-    '<path d="M0 78c26-7 48-7 72 0s42 7 68 0v22H0z" fill="#D8EFC6"/>',
+    '<path d="M0 78c26-7 48-7 72 0s42 7 68 0v22H0z" fill="#AEE094"/>',
   night:
     '<rect width="140" height="100" fill="#20336B"/>' +
     '<path d="M120 8a15 15 0 1 0 0 30 12 12 0 0 1 0-30z" fill="#FFF0B8"/>' +

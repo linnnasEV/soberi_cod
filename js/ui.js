@@ -157,8 +157,12 @@ const Speech = {
      не сразу, поэтому отсутствие голоса здесь не повод молчать: без явного
      выбора браузер сам подберёт подходящий по lang. */
   ruVoice() {
-    try { return (speechSynthesis.getVoices() || []).find(v => /^ru/i.test(v.lang)) || null; }
-    catch (e) { return null; }
+    try {
+      const ru = (speechSynthesis.getVoices() || []).filter(v => /^ru/i.test(v.lang));
+      // Женский голос звучит мягче механического мужского: на Windows это
+      // Ирина, на Android — голос Google, на Mac — Милена.
+      return ru.find(v => /ирина|irina|милена|milena|алён|alena|светлана|google|yandex/i.test(v.name)) || ru[0] || null;
+    } catch (e) { return null; }
   },
 
   say(text) {
@@ -176,7 +180,8 @@ const Speech = {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         u.lang = 'ru-RU';
-        u.rate = 0.9;     // младшим школьникам нужно помедленнее
+        u.rate = 0.92;    // младшим школьникам нужно помедленнее
+        u.pitch = 1.15;   // чуть выше — так голос звучит дружелюбнее, а не как диктор
         const v = this.ruVoice();
         if (v) u.voice = v;
         let fired = false;

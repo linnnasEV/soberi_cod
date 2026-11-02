@@ -285,6 +285,7 @@ const BLOCKS = {
   turnLeft:  { label: 'Налево',  cls: 'motion' },
   turnRight: { label: 'Направо', cls: 'motion' },
   jump:      { label: 'Прыжок',  cls: 'motion' },
+  take:      { label: 'Собрать', cls: 'collect' },
   say:       { label: 'Сказать', cls: 'looks' },
   grow:      { label: 'Больше',  cls: 'looks' },
   shrink:    { label: 'Меньше',  cls: 'looks' },
