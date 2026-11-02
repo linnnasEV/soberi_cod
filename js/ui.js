@@ -94,10 +94,12 @@ function starsHTML(n, max = 3) {
 /* Облегчённый режим: без анимаций и теней — для очень слабых компьютеров */
 /* Переключателей по два: один в подвале, другой в рейке Мастерской (на главной
    подвала нет). Обновляем оба — иначе один показывает устаревшее состояние. */
+/* Облегчённый режим убран из интерфейса, но у тех, кто включил его раньше,
+   он остался записан в настройках — и выключал анимации, в том числе прыжок.
+   Поэтому при запуске он гасится насовсем. */
 function applyLite() {
-  document.body.classList.toggle('lite', !!DB.settings.lite);
-  const txt = DB.settings.lite ? 'Облегчённый режим: вкл' : 'Облегчённый режим: выкл';
-  document.querySelectorAll('.js-lite').forEach(t => { t.textContent = txt; });
+  if (DB.settings.lite) { DB.settings.lite = false; saveDB(); }
+  document.body.classList.remove('lite');
 }
 
 function toggleLite() {
@@ -113,6 +115,33 @@ function toggleLite() {
 function applySound() {
   const txt = DB.settings.sound === false ? 'Звук: выкл' : 'Звук: вкл';
   document.querySelectorAll('.js-sound').forEach(t => { t.textContent = txt; });
+}
+
+/* ===== Выбор голоса =====
+   Голоса браузер отдаёт не сразу, поэтому список перерисовывается ещё и по
+   событию voiceschanged. Если русский голос в системе один — выбирать нечего,
+   и список прячется. */
+function renderVoices() {
+  const box = document.getElementById('voiceBox');
+  const sel = document.getElementById('voicePick');
+  if (!box || !sel) return;
+  const list = Speech.voices();
+  if (list.length < 2) { box.hidden = true; return; }
+  box.hidden = false;
+  const cur = (Speech.ruVoice() || {}).name;
+  sel.innerHTML = list.map(v =>
+    '<option value="' + esc(v.name) + '"' + (v.name === cur ? ' selected' : '') + '>' +
+    esc(v.name.replace(/^Microsoft\s+/, '').replace(/\s*-\s*Russian.*$/i, '')) + '</option>').join('');
+}
+
+function pickVoice(name) {
+  DB.settings.voice = name;
+  saveDB();
+  Speech.say('Привет! Теперь я говорю так.');
+}
+
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.addEventListener('voiceschanged', renderVoices);
 }
 
 function toggleSound() {
@@ -156,13 +185,24 @@ const Speech = {
   /* Русский голос, если он есть в системе. Список голосов браузер отдаёт
      не сразу, поэтому отсутствие голоса здесь не повод молчать: без явного
      выбора браузер сам подберёт подходящий по lang. */
+  /* Все русские голоса, которые есть в системе. Своего голоса платформа не
+     скачивает: это были бы мегабайты и зависимость от интернета. Зато можно
+     выбрать лучший из установленных — в Edge, например, есть «Natural». */
+  voices() {
+    try { return (speechSynthesis.getVoices() || []).filter(v => /^ru/i.test(v.lang)); }
+    catch (e) { return []; }
+  },
+
   ruVoice() {
-    try {
-      const ru = (speechSynthesis.getVoices() || []).filter(v => /^ru/i.test(v.lang));
-      // Женский голос звучит мягче механического мужского: на Windows это
-      // Ирина, на Android — голос Google, на Mac — Милена.
-      return ru.find(v => /ирина|irina|милена|milena|алён|alena|светлана|google|yandex/i.test(v.name)) || ru[0] || null;
-    } catch (e) { return null; }
+    const ru = this.voices();
+    if (!ru.length) return null;
+    const saved = ru.find(v => v.name === DB.settings.voice);
+    if (saved) return saved;
+    // Иначе берём самый приятный из найденных: сначала «натуральные»,
+    // потом женские, потом любой русский.
+    return ru.find(v => /natural|neural/i.test(v.name)) ||
+           ru.find(v => /ирина|irina|милена|milena|алён|alena|светлана|svetlana|dariya|google/i.test(v.name)) ||
+           ru[0];
   },
 
   say(text) {

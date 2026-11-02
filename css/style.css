@@ -183,7 +183,7 @@ section { padding: 56px 0; }
 .stage { --cols: 7; --rows: 5; position: relative; width: 100%; aspect-ratio: 7 / 5; border-radius: 16px; overflow: hidden; user-select: none; }
 /* Фон — нарисованное место, а не заливка. Лежит под клетками и чуть
    приглушён: поверх него должны читаться предметы и герой. */
-.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .85; pointer-events: none; }
+.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .8; pointer-events: none; }
 .scene-art svg { width: 100%; height: 100%; display: block; }
 .cells { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); }
 .cell { border-right: 2px solid var(--grid-line); border-bottom: 2px solid var(--grid-line); display: flex; align-items: center; justify-content: center; }
@@ -213,21 +213,15 @@ section { padding: 56px 0; }
 .actor { position: absolute; width: calc(100% / var(--cols)); height: calc(100% / var(--rows));
   left: calc(100% * var(--c) / var(--cols)); top: calc(100% * var(--r) / var(--rows)); transition: left .4s ease, top .4s ease; z-index: 2; }
 .actor.no-anim { transition: none; }
-.sprite { width: 100%; height: 100%; padding: 6%; transition: opacity .25s; }
+.sprite { width: 100%; height: 100%; padding: 6%; transition: opacity .25s, transform .3s ease-out; }
+/* Подъём в прыжке — переход, а не анимация: при системном «уменьшить
+   движение» браузер обрывает анимации, и прыжок пропадал. */
+.sprite.lift { transform: translateY(-62%) scale(1.06); }
 .sprite svg { width: 100%; height: 100%; transform: scaleX(var(--flip, 1)) scale(var(--sc, 1)) rotate(var(--rot, 0deg)); transition: transform .4s; }
 .sprite.hop { animation: hop .5s ease; }
 @keyframes hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-55%); } }
-/* Прыжок через клетку: герой поднимается дугой и мягко приземляется.
-   Движение по горизонтали в это время тоже замедлено — иначе прыжок
-   выглядел как рывок, и ребёнок не понимал, что произошло. */
-.actor.jumping { transition: left .66s cubic-bezier(.35, 0, .35, 1), top .66s cubic-bezier(.35, 0, .35, 1); }
-.sprite.hop-far { animation: hopFar .66s cubic-bezier(.3, 0, .35, 1); }
-@keyframes hopFar {
-  0% { transform: translateY(0) scale(1); }
-  30% { transform: translateY(-70%) scale(1.08); }
-  62% { transform: translateY(-70%) scale(1.08); }
-  100% { transform: translateY(0) scale(1); }
-}
+/* Перелёт на другую клетку: пока герой наверху, он плавно переезжает вбок */
+.actor.jumping { transition: left .44s ease-in-out, top .44s ease-in-out; }
 .sprite.bump { animation: bump .4s ease; }
 @keyframes bump { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(calc(var(--dx) * 22%), calc(var(--dy) * 22%)) rotate(-8deg); } 70% { transform: translate(calc(var(--dx) * -6%), calc(var(--dy) * -6%)); } }
 .sprite.wiggle { animation: wiggle .45s ease; }
@@ -797,6 +791,9 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .pk-sys { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line);
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 0 0 auto; }
 .pk-sys .link-btn { font-size: 12px; color: var(--muted); text-align: left; }
+.voice-box { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; max-width: 100%; }
+.voice-box select { font-size: 12px; max-width: 120px; border: 1px solid var(--line); border-radius: 8px;
+  padding: 2px 4px; background: #fff; color: var(--text); }
 .pk-sys .link-btn:hover { color: var(--blue); }
 
 /* Колонка кода: палитра и кнопки держат размер, программа забирает остаток */
@@ -902,8 +899,7 @@ body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
    ореол — там, где его есть куда рисовать. Без перехода: подсветка должна
    зажигаться ровно тогда, когда о месте говорит голос. */
 .tour-glow { position: relative; border-radius: 16px;
-  box-shadow: inset 0 0 0 4px var(--yellow), 0 0 0 4px rgba(255, 211, 78, .45); }
-.tour-glow:not(.btn) { background: #FFF7DC; }
+  box-shadow: inset 0 0 0 5px var(--yellow), 0 0 0 5px rgba(255, 211, 78, .5); }
 
 /* ----- Ghost-подсказки -----
    Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */

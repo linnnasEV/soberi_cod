@@ -359,18 +359,19 @@ class Stage {
     if (t === 'jump') {
       const to = jumpTarget(this.m, this.pos, this.dir);
       if (!to) { await this.bump(COMPASS[this.dir]); return null; }
-      const lite = document.body.classList.contains('lite');
+      // Подъём сделан переходом, а не ключевыми кадрами: в системе может быть
+      // включено «уменьшить движение» (Windows: «Показывать анимацию»), и тогда
+      // браузер обрывает любые animation, а герой просто телепортировался.
+      // Переходы это не затрагивает, и прыжок виден у всех.
       Sound.tone([560, 820], 0.09);
-      if (!lite) {
-        this.heroEl.classList.add('jumping');
-        this.sprite.classList.remove('hop-far');
-        void this.sprite.offsetWidth;
-        this.sprite.classList.add('hop-far');
-      }
+      this.heroEl.classList.add('jumping');
+      this.sprite.classList.add('lift');
+      await this.wait(170);
       this.pos = to;
       this.place();
-      await this.wait(lite ? this.delay : 680);
-      this.sprite.classList.remove('hop-far');
+      await this.wait(430);
+      this.sprite.classList.remove('lift');
+      await this.wait(170);
       this.heroEl.classList.remove('jumping');
       if (!this.sandbox) this.collect(to.r, to.c);
       return null;
