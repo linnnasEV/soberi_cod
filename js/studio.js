@@ -3,9 +3,15 @@
    открыты все блоки, все герои и все фоны, а сцену ребёнок собирает сам:
    ставит яблоки, камни и домики и переносит героя куда хочет. */
 
-/* Поле крупнее и клетки мельче: на семи больших клетках историю не развернуть,
-   а десять на семь дают место и дороге героя, и небу, и земле. */
-const STUDIO_ROWS = 7, STUDIO_COLS = 10;
+/* Поле крупнее и клетки мельче: на семи больших клетках историю не развернуть.
+   Рядов всегда семь — это небо, земля и дорога между ними, — а колонок
+   столько, сколько войдёт в отведённое место при квадратной клетке: на
+   широком мониторе сцена не должна упираться в белые поля по бокам.
+   Предмет, поставленный за правым краем узкого окна, не пропадает: он
+   хранится в S.decor и снова виден, когда окно становится шире. */
+const STUDIO_ROWS = 7;
+const COLS_MIN = 9, COLS_MAX = 16;
+let STUDIO_COLS = 10;
 /* Порядок блоков — от самого понятного к самому редкому: сначала шаги,
    потом фокусы, потом управление программой. */
 const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
@@ -82,8 +88,21 @@ function studioMap() {
 }
 
 function mountStudioStage() {
+  fitCols();
   S.stage.mount(studioMap(), { hero: S.hero, bg: S.bg, sandbox: true });
   fitStage();
+}
+
+/* Сколько колонок поместится по ширине, если клетка квадратная */
+function fitCols() {
+  const wrap = document.querySelector('#page-home .stage-wrap');
+  if (!wrap || window.innerWidth < 768) { STUDIO_COLS = 10; return; }
+  const bw = wrap.clientWidth, bh = wrap.clientHeight;
+  if (!bw || !bh) return;
+  const cell = bh / STUDIO_ROWS;
+  STUDIO_COLS = Math.max(COLS_MIN, Math.min(COLS_MAX, Math.round(bw / cell)));
+  // Герой не должен остаться за краем суженного поля
+  if (S.start.c > STUDIO_COLS - 1) S.start.c = STUDIO_COLS - 1;
 }
 
 /* ===== Сцена по размеру окна =====
@@ -114,7 +133,14 @@ function fitStage() {
   st.style.height = Math.floor(w / ratio) + 'px';
 }
 
-window.addEventListener('resize', fitStage);
+// При изменении окна поле пересобирается: число колонок могло измениться.
+// С задержкой — иначе при перетаскивании края окна сцена собирается заново
+// по сотне раз подряд, а на слабом школьном компьютере это заметно.
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (S.stage && !S.running) mountStudioStage(); }, 150);
+});
 
 function studioCellClick(e) {
   if (S.running) return;

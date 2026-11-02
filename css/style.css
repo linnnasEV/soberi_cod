@@ -735,6 +735,9 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 /* Рейка выбора: иконки крупные, подписи в одну строку по 11 px */
 .col-pick { gap: 6px; overflow-y: auto; scrollbar-width: thin; }
 .col-pick .pk { min-width: 0; flex: 0 0 auto; }
+/* Герой и фон — разные вопросы, и между ними нужен воздух, иначе «Зайка»
+   и заголовок «ФОН» читаются как один список. */
+.col-pick .pk + .pk { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
 .col-pick .code-label { font-size: 11px; margin-bottom: 5px; }
 /* Три иконки в ряд: при двух рейка не влезает в экран, при четырёх подпись
    обрезается на «Лисёнок». */
@@ -784,6 +787,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .col-pick { gap: 6px; }
   .pick-row .pick { padding: 3px 2px; }
   .pick-ico, .pick-bg { width: 36px; height: 36px; }
+  .col-pick .pk + .pk { margin-top: 2px; padding-top: 5px; }
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 2px 12px; }
   .pk-dec .pick { width: 64px; }
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
