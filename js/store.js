@@ -11,7 +11,7 @@ function newProfile(name, pic) {
 }
 
 function defaultDB() {
-  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { lite: false, track: null, sound: true } };
+  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { track: null, sound: true } };
 }
 
 let DB = loadDB();

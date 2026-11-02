@@ -223,6 +223,9 @@ class Stage {
       '<div class="cells">' + cells + '</div>' +
       '<div class="actor"><div class="bubble"></div><div class="facing">' + ICONS.facing + '</div>' +
       '<div class="sprite">' + heroOf(hero).icon + '</div></div>';
+    this.scale = 1;
+    this.hue = 0;
+    this.rot = 0;
     this.heroEl = this.el.querySelector('.actor');
     this.sprite = this.el.querySelector('.sprite');
     this.bubble = this.el.querySelector('.bubble');
@@ -230,14 +233,14 @@ class Stage {
     this.reset();
   }
 
+  /* Размер, цвет и поворот героя при перезапуске НЕ сбрасываются: ребёнок
+     сделал героя большим — он и остаётся большим, пока не уменьшит его или
+     не очистит сцену. Начальные значения задаются в mount(). */
   reset() {
     this.token++;
     this.pos = { ...this.m.start };
     this.collected = new Set();
     this.dir = 0;
-    this.scale = 1;
-    this.hue = 0;
-    this.rot = 0;
     this.heroEl.classList.add('no-anim');
     this.place();
     void this.heroEl.offsetWidth;
@@ -265,7 +268,7 @@ class Stage {
     if (this.facingEl) this.facingEl.style.setProperty('--deg', this.dir * 90);
   }
 
-  get delay() { return document.body.classList.contains('lite') ? 260 : 480; }
+  get delay() { return 480; }
   wait(ms) { return new Promise(res => setTimeout(res, ms)); }
 
   /* Проигрывает одноразовую CSS-анимацию: класс снимается и ставится заново,
@@ -426,8 +429,10 @@ class Stage {
     }
 
     if (t === 'grow' || t === 'shrink') {
-      // пределы, чтобы герой не исчез совсем и не вылез за клетку
-      this.scale = Math.min(1.8, Math.max(0.4, this.scale * (t === 'grow' ? 1.35 : 0.74)));
+      // Три заметных шага в каждую сторону и стоп: больше — герой вылезает
+      // за клетку, меньше — его уже не видно. Размер сохраняется до тех пор,
+      // пока ребёнок не уменьшит героя или не очистит сцену.
+      this.scale = Math.min(1.6, Math.max(0.5, this.scale * (t === 'grow' ? 1.25 : 0.8)));
       this.applyLook();
       Sound.tone([t === 'grow' ? 760 : 400], 0.1);
       await this.wait(this.delay);

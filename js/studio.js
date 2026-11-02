@@ -190,7 +190,6 @@ function resetScene() {
   dropStudioSession();
   Sound.tone([440, 330], 0.08);
 
-  sayAloud('Очистила сцену');
   if (had > 3) {
     toast('Сцена очищена.', 'info', { label: 'Отменить', fn: () => undoReset(snapshot) }, 5000);
   } else {

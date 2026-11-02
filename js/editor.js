@@ -115,7 +115,7 @@ class Editor {
     // Подсказка идёт ПОСЛЕ курсора: курсор показывает, куда встанет блок,
     // и в пустом поле он должен быть первым, что видно.
     if (this.program.length === 0) {
-      main.insertAdjacentHTML('beforeend', '<div class="empty-hint">блоки появятся здесь</div>');
+      main.insertAdjacentHTML('beforeend', '<div class="empty-hint">Блоки появятся здесь</div>');
     }
     this.wsEl.appendChild(main);
     this.updateCounter();

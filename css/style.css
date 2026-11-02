@@ -497,16 +497,6 @@ footer { background: #fff; border-top: 1px solid var(--line); margin-top: 32px; 
 }
 
 /* ---------- Облегчённый режим и доступность ---------- */
-body.lite *, body.lite *::before, body.lite *::after { animation: none !important; box-shadow: none !important; }
-body.lite .actor { transition: left .2s linear, top .2s linear; }
-body.lite .card, body.lite .course-card, body.lite .col-stage, body.lite .col-code, body.lite .pt-card, body.lite .lesson-item, body.lite .proj-card, body.lite .prof-card, body.lite .stat, body.lite .progress-list, body.lite .profile-card, body.lite .guide { border: 1px solid var(--line); }
-/* В облегчённом режиме порталы остаются порталами, но без свечения и прыжков */
-body.lite .portal { border-color: var(--line); }
-body.lite .p-glow, body.lite .cta-sparks, body.lite .cta-hero { display: none; }
-body.lite .section-curve { margin-top: 0; border-radius: 0; }
-body.lite .wblock.running { outline: 4px solid var(--yellow); }
-body.lite .wblock.wrong { outline: 4px solid var(--red); }
-body.lite .pblock.pulse { outline: 4px solid var(--yellow); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

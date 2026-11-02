@@ -94,21 +94,6 @@ function starsHTML(n, max = 3) {
 /* Облегчённый режим: без анимаций и теней — для очень слабых компьютеров */
 /* Переключателей по два: один в подвале, другой в рейке Мастерской (на главной
    подвала нет). Обновляем оба — иначе один показывает устаревшее состояние. */
-/* Облегчённый режим убран из интерфейса, но у тех, кто включил его раньше,
-   он остался записан в настройках — и выключал анимации, в том числе прыжок.
-   Поэтому при запуске он гасится насовсем. */
-function applyLite() {
-  if (DB.settings.lite) { DB.settings.lite = false; saveDB(); }
-  document.body.classList.remove('lite');
-}
-
-function toggleLite() {
-  DB.settings.lite = !DB.settings.lite;
-  saveDB();
-  applyLite();
-  toast(DB.settings.lite ? 'Анимации выключены: так быстрее на слабых компьютерах' : 'Анимации включены');
-}
-
 /* ===== Звук =====
    Сигнал успеха радует одного ребёнка и мешает классу из двадцати,
    поэтому звук выключается одной кнопкой в подвале. */
@@ -153,10 +138,9 @@ function toggleSound() {
 }
 
 /* Короткий салют после решённого урока: полтора десятка бумажек на CSS,
-   ни одной картинки и ни одного килобайта. В облегчённом режиме не нужен:
-   там анимации выключены намеренно. */
+   ни одной картинки и ни одного килобайта. */
 function confetti(host) {
-  if (DB.settings.lite || !host) return;
+  if (!host) return;
   const box = document.createElement('div');
   box.className = 'confetti';
   box.setAttribute('aria-hidden', 'true');
@@ -196,13 +180,9 @@ const Speech = {
   ruVoice() {
     const ru = this.voices();
     if (!ru.length) return null;
-    const saved = ru.find(v => v.name === DB.settings.voice);
-    if (saved) return saved;
-    // Иначе берём самый приятный из найденных: сначала «натуральные»,
-    // потом женские, потом любой русский.
-    return ru.find(v => /natural|neural/i.test(v.name)) ||
-           ru.find(v => /ирина|irina|милена|milena|алён|alena|светлана|svetlana|dariya|google/i.test(v.name)) ||
-           ru[0];
+    // Если голос выбрали руками — берём его. Иначе первый русский из системы:
+    // «угадывать красивый» оказалось хуже, чем ничего не выбирать.
+    return ru.find(v => v.name === DB.settings.voice) || ru[0];
   },
 
   say(text) {
@@ -220,8 +200,7 @@ const Speech = {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         u.lang = 'ru-RU';
-        u.rate = 0.92;    // младшим школьникам нужно помедленнее
-        u.pitch = 1.15;   // чуть выше — так голос звучит дружелюбнее, а не как диктор
+        u.rate = 0.9;     // младшим школьникам нужно помедленнее
         const v = this.ruVoice();
         if (v) u.voice = v;
         let fired = false;

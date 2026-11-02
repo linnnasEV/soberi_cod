@@ -1,5 +1,4 @@
 (function init() {
-  applyLite();
   applySound();
   renderVoices();
   renderAuthArea();
