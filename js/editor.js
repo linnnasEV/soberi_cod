@@ -110,8 +110,10 @@ class Editor {
     main.className = 'ws-main';
     this.renderList(this.program, main, null);
     this.wsEl.innerHTML = '';
+    // Подсказка идёт ПОСЛЕ курсора: курсор показывает, куда встанет блок,
+    // и в пустом поле он должен быть первым, что видно.
     if (this.program.length === 0) {
-      main.insertAdjacentHTML('afterbegin', '<div class="empty-hint">Нажми на блок сверху, и он появится здесь</div>');
+      main.insertAdjacentHTML('beforeend', '<div class="empty-hint">блоки появятся здесь</div>');
     }
     this.wsEl.appendChild(main);
     this.updateCounter();

@@ -16,7 +16,26 @@ const CELLS = {
   'h': { icon: 'home',   cls: 'goal', goal: true },
   'f': { icon: 'fish',   cls: 'goal', goal: true },
   'a': { icon: 'apple',  cls: 'pick', collect: true, many: 'все яблоки' },
-  'c': { icon: 'flower', cls: 'pick', collect: true, many: 'все цветы' }
+  'c': { icon: 'flower', cls: 'pick', collect: true, many: 'все цветы' },
+
+  /* Предметы Мастерской. Часть из них можно подобрать (сундук, корона,
+     ракушка, зелье) — за ними герой и отправляется в путь; остальное стоит
+     на сцене как украшение. */
+  't': { icon: 'tree',     cls: 'deco' },
+  'm': { icon: 'car',      cls: 'deco' },
+  'n': { icon: 'fountain', cls: 'deco' },
+  'b': { icon: 'bench',    cls: 'deco' },
+  'r': { icon: 'rocket',   cls: 'deco' },
+  'q': { icon: 'crab',     cls: 'deco' },
+  'u': { icon: 'sun',      cls: 'deco' },
+  'o': { icon: 'cloud',    cls: 'deco' },
+  'g': { icon: 'grass',    cls: 'deco' },
+  'w': { icon: 'moon',     cls: 'deco' },
+  'e': { icon: 'fence',    cls: 'deco' },
+  'k': { icon: 'crown',  cls: 'pick', collect: true, many: 'короны' },
+  'x': { icon: 'chest',  cls: 'pick', collect: true, many: 'сундуки' },
+  'l': { icon: 'shell',  cls: 'pick', collect: true, many: 'ракушки' },
+  'z': { icon: 'potion', cls: 'pick', collect: true, many: 'зелья' }
 };
 
 function isGoal(ch) { return !!(CELLS[ch] && CELLS[ch].goal); }
@@ -55,6 +74,19 @@ function stepDir(type, dir) {
   return type === 'forward' ? COMPASS[dir] : DIRS[type];
 }
 
+/* Куда приземлится прыжок: на соседнюю клетку, а если там камень или край —
+   через неё. Так блок «Прыжок» значит ровно то, что говорит: перепрыгнуть
+   препятствие. Вернёт null, если прыгать некуда. */
+function jumpTarget(m, pos, dir) {
+  const d = COMPASS[dir];
+  const free = p => p.r >= 0 && p.c >= 0 && p.r < m.rows && p.c < m.cols && m.grid[p.r][p.c] !== '#';
+  const one = { r: pos.r + d[0], c: pos.c + d[1] };
+  if (free(one)) return one;
+  const two = { r: pos.r + d[0] * 2, c: pos.c + d[1] * 2 };
+  if (free(two)) return two;
+  return null;
+}
+
 function turned(type, dir) {
   if (type === 'turnRight') return (dir + 1) % 4;
   if (type === 'turnLeft') return (dir + 3) % 4;
@@ -71,6 +103,14 @@ function simulate(level, prog, sandbox = false) {
   let crash = null;
   for (const { node } of flatten(prog)) {
     if (node.t === 'turnLeft' || node.t === 'turnRight') { dir = turned(node.t, dir); continue; }
+    if (node.t === 'jump') {
+      const to = jumpTarget(m, pos, dir);
+      if (to) {
+        pos = to;
+        if (isCollect(m.grid[pos.r][pos.c])) collected.add(pos.r + ':' + pos.c);
+      }
+      continue;
+    }
     const d = stepDir(node.t, dir);
     if (!d) continue;
     const nr = pos.r + d[0], nc = pos.c + d[1];
@@ -91,7 +131,7 @@ function simulate(level, prog, sandbox = false) {
 
 /* Итоговая проверка урока: возвращает {ok, msg} */
 function checkLesson(lesson, prog, hero) {
-  const name = HEROES[hero].name;
+  const name = heroOf(hero).name;
   if (prog.length === 0) return { ok: false, msg: 'Программа пустая. Добавь блоки!' };
   const res = simulate(lesson, prog);
   if (res.crash === 'stone') return { ok: false, msg: 'Ой, камень! ' + name + ' не может пройти сквозь камни.' };
@@ -157,7 +197,7 @@ class Stage {
     this.level = level; this.hero = hero; this.bg = bg; this.sandbox = sandbox;
     this.m = parseMap(level.map);
     const { rows, cols, grid } = this.m;
-    this.el.className = 'stage bg-' + bg + (rel ? ' rel' : '');
+    this.el.className = 'stage bg-' + bgId(bg) + (rel ? ' rel' : '');
     this.el.style.setProperty('--cols', cols);
     this.el.style.setProperty('--rows', rows);
     this.el.style.aspectRatio = cols + ' / ' + rows;
@@ -168,9 +208,14 @@ class Stage {
       const cls = def ? def.cls : '';
       cells += '<div class="cell"><div class="item ' + cls + '" data-cell="' + r + ':' + c + '">' + item + '</div></div>';
     }));
-    this.el.innerHTML = '<div class="cells">' + cells + '</div>' +
+    // Фон — не заливка, а нарисованное место: лес, город, пляж. Рисунок лежит
+    // под клетками, поэтому предметы и герой остаются читаемыми.
+    const art = bgOf(bg).art || '';
+    this.el.innerHTML =
+      '<div class="scene-art" aria-hidden="true"><svg viewBox="0 0 140 100" preserveAspectRatio="xMidYMid slice">' + art + '</svg></div>' +
+      '<div class="cells">' + cells + '</div>' +
       '<div class="actor"><div class="bubble"></div><div class="facing">' + ICONS.facing + '</div>' +
-      '<div class="sprite">' + HEROES[hero].icon + '</div></div>';
+      '<div class="sprite">' + heroOf(hero).icon + '</div></div>';
     this.heroEl = this.el.querySelector('.actor');
     this.sprite = this.el.querySelector('.sprite');
     this.bubble = this.el.querySelector('.bubble');
@@ -226,6 +271,25 @@ class Stage {
     this.sprite.classList.remove(cls);
   }
 
+  /* Подобрать то, что лежит на клетке: сундук, корону, ракушку, зелье */
+  collect(r, c) {
+    if (!isCollect(this.m.grid[r][c]) || this.collected.has(r + ':' + c)) return;
+    this.collected.add(r + ':' + c);
+    const a = this.el.querySelector('[data-cell="' + r + ':' + c + '"]');
+    a && a.classList.add('gone');
+    Sound.tone([880], 0.08);
+  }
+
+  /* Реплика должна быть видна целиком: у верхнего ряда облачко уходило за край
+     сцены, у крайних столбцов — вбок. Разворачиваем его внутрь поля. */
+  placeBubble() {
+    const b = this.bubble;
+    b.className = 'bubble';
+    if (this.pos.r === 0) b.classList.add('b-down');
+    if (this.pos.c === 0) b.classList.add('b-left');
+    else if (this.pos.c === this.m.cols - 1) b.classList.add('b-right');
+  }
+
   async bump(d) {
     this.sprite.style.setProperty('--dx', d[1]);
     this.sprite.style.setProperty('--dy', d[0]);
@@ -275,22 +339,28 @@ class Stage {
       }
       this.pos = { r: nr, c: nc };
       this.place();
-      if (isCollect(this.m.grid[nr][nc]) && !this.collected.has(nr + ':' + nc)) {
-        this.collected.add(nr + ':' + nc);
-        const a = this.el.querySelector('[data-cell="' + nr + ':' + nc + '"]');
-        a && a.classList.add('gone');
-        Sound.tone([880], 0.08);
-      }
+      this.collect(nr, nc);
       await this.wait(this.delay);
       return null;
     }
 
-    if (t === 'jump') { await this.pulse('hop', this.delay + 100); return null; }
+    if (t === 'jump') {
+      const to = jumpTarget(this.m, this.pos, this.dir);
+      if (!to) { await this.bump(COMPASS[this.dir]); return null; }
+      this.pos = to;
+      this.place();
+      this.collect(to.r, to.c);
+      await this.pulse('hop', this.delay + 100);
+      return null;
+    }
 
     if (t === 'say') {
-      this.bubble.textContent = node.text || 'Привет!';
+      const text = node.text || 'Привет!';
+      this.bubble.textContent = text;
+      this.placeBubble();
       this.bubble.classList.add('show');
-      await this.wait(1300);
+      Speech.say(text);        // блок «Сказать» теперь и правда говорит
+      await this.wait(1500);
       this.bubble.classList.remove('show');
       await this.wait(150);
       return null;

@@ -46,7 +46,7 @@
   <div class="studio" id="studioTop">
     <div class="studio-grid">
 
-      <!-- 1. ЧТО ВЫБРАТЬ -->
+      <!-- 1. КОГО ОЖИВИТЬ И ГДЕ -->
       <div class="col-pick">
         <div class="pk">
           <div class="code-label">Герой</div>
@@ -56,11 +56,6 @@
           <div class="code-label">Фон</div>
           <div class="pick-row" id="bgPick"></div>
         </div>
-        <div class="pk pk-dec">
-          <button class="btn btn-ghost pk-toggle" id="decBtn" onclick="toggleDecor()">+ Поставь на сцену</button>
-          <div class="code-label">Поставь на сцену</div>
-          <div class="pick-row" id="decorPick"></div>
-        </div>
         <!-- Переключатели для взрослого: на главной подвала нет, его место заняла сцена -->
         <div class="pk-sys">
           <button class="link-btn js-sound" onclick="toggleSound()">Звук</button>
@@ -68,43 +63,48 @@
         </div>
       </div>
 
-      <!-- 2. КУДА ПОСТАВИТЬ -->
+      <!-- 2. СЦЕНА. Над ней — показ примера и детали, которые на неё ставят:
+           ребёнок видит кнопку раньше, чем успеет растеряться. -->
       <div class="col-stage">
+        <div class="stage-top">
+          <button class="btn btn-example" onclick="showExample()">▶ Показать пример</button>
+          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
+          <button class="btn btn-ghost btn-sm" onclick="openGalleryBtn()">🖼 Галерея</button>
+        </div>
+        <div class="pk pk-dec">
+          <button class="btn btn-ghost pk-toggle" id="decBtn" onclick="toggleDecor()">+ Добавь детали на фон</button>
+          <div class="code-label">Добавь детали на фон — потом нажми на клетку</div>
+          <div class="pick-row" id="decorPick"></div>
+        </div>
         <div class="stage-wrap">
           <div class="stage" id="studioStage"></div>
           <div id="tourLayer" class="tour-layer" hidden></div>
         </div>
-        <div class="stage-tools">
-          <button class="btn btn-ghost btn-sm" onclick="showExample()">▶ Показать пример</button>
-          <button class="btn btn-ghost btn-sm" onclick="speakStudioHelp()">🔊 Прослушать</button>
-          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleGallery()">🖼 Галерея</button>
-        </div>
       </div>
 
-      <!-- 3. ЧЕМ ПРОГРАММИРОВАТЬ И КАК ЗАПУСТИТЬ -->
+      <!-- 3. ЧТО ДОЛЖЕН СДЕЛАТЬ ГЕРОЙ -->
       <div class="col-code">
-        <div class="code-label">Блоки</div>
+        <div class="code-label">Что должен сделать герой?</div>
         <div class="palette" id="studioPalette"></div>
         <div class="ws-head"><span class="code-label">Моя программа</span><span class="counter" id="studioCounter"></span></div>
         <div class="workspace" id="studioWs"></div>
         <div class="controls">
-          <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Запустить</button>
-          <button class="btn btn-reset btn-lg" onclick="resetScene()">↺ Сбросить</button>
-          <button class="btn btn-primary btn-sm btn-save" onclick="askSaveStudio()">Сохранить в галерею</button>
+          <button class="btn btn-go btn-lg" id="studioRun" onclick="runStudio()">▶ Старт</button>
+          <button class="btn btn-reset btn-lg" onclick="resetScene()">↺ Очистить</button>
+          <button class="btn btn-primary btn-sm btn-save" onclick="askSaveStudio()">💾 Сохранить в галерею</button>
         </div>
       </div>
 
       <!-- На телефоне «в галерею» стоит последним, уже после выбора героя и фона -->
-      <button class="btn btn-primary mob-save" onclick="askSaveStudio()">Сохранить в галерею</button>
+      <button class="btn btn-primary mob-save" onclick="askSaveStudio()">💾 Сохранить в галерею</button>
     </div>
   </div>
 
   <!-- Панель для телефона: сцена занимает экран, а блоки и программа
        выезжают шторкой снизу — иначе до кнопки «Запустить» нужно листать. -->
   <div class="mbar" id="mbar">
-    <button class="btn btn-go" onclick="runStudio()">▶ Запустить</button>
-    <button class="btn btn-reset" onclick="resetScene()">↺ Сбросить</button>
+    <button class="btn btn-go" onclick="runStudio()">▶ Старт</button>
+    <button class="btn btn-reset" onclick="resetScene()">↺ Очистить</button>
     <button class="btn btn-primary" onclick="toggleSheet()" id="sheetBtn">🧩 Блоки</button>
   </div>
 

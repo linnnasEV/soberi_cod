@@ -177,28 +177,35 @@ section { padding: 56px 0; }
 
 /* Сцена */
 .stage { --cols: 7; --rows: 5; position: relative; width: 100%; aspect-ratio: 7 / 5; border-radius: 16px; overflow: hidden; user-select: none; }
-.cells { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); }
+/* Фон — нарисованное место, а не заливка. Лежит под клетками и чуть
+   приглушён: поверх него должны читаться предметы и герой. */
+.scene-art { position: absolute; inset: 0; z-index: 0; opacity: .92; pointer-events: none; }
+.scene-art svg { width: 100%; height: 100%; display: block; }
+.cells { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); }
 .cell { border-right: 2px solid var(--grid-line); border-bottom: 2px solid var(--grid-line); display: flex; align-items: center; justify-content: center; }
 .item { width: 76%; height: 76%; transition: transform .25s, opacity .25s; }
 .item svg { width: 100%; height: 100%; }
 .item.pick { width: 62%; height: 62%; }
+/* Украшения не должны спорить с героем: чуть меньше и чуть мягче */
+.item.deco { width: 66%; height: 66%; opacity: .95; }
 .item.pick.gone { transform: scale(0) translateY(-40%); opacity: 0; }
 .item.goal { animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 .stage.won .item.goal { animation: spin .8s ease; }
 @keyframes spin { from { transform: rotate(0) scale(1.3); } to { transform: rotate(360deg) scale(1); } }
-.bg-meadow { --grid-line: rgba(70, 150, 90, .14); background: #E6F7E8; }
-.bg-sea { --grid-line: rgba(40, 120, 200, .12); background: linear-gradient(#DDF1FF, #BFE3FF); }
-/* Фоны Мастерской — градиенты и точки, ни одной картинки: сцена должна
-   открываться на телефоне за 2G так же быстро, как на школьном компьютере. */
-.bg-snow { --grid-line: rgba(90, 130, 180, .14);
-  background-color: #EAF4FF;
-  background-image: radial-gradient(circle at 20% 30%, #fff 0 2.5px, transparent 3px), radial-gradient(circle at 70% 60%, #fff 0 2px, transparent 2.5px), linear-gradient(#F4FAFF, #CFE6FF);
-  background-size: 90px 90px, 130px 130px, auto; }
-.bg-sunset { --grid-line: rgba(150, 80, 60, .12); background: linear-gradient(#FFE1A8, #FFB38A 55%, #FF9EB5); }
-.bg-rainbow { --grid-line: rgba(90, 90, 140, .12);
-  background: linear-gradient(#FFE0E8, #FFF0C9 20%, #DFF7E2 45%, #D9EEFF 70%, #EADDFF); }
-.bg-space { --grid-line: rgba(255, 255, 255, .07); background: radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 20%, #fff 0 1px, transparent 2px), radial-gradient(circle at 45% 75%, #fff 0 1px, transparent 2px), radial-gradient(circle at 85% 65%, #fff 0 1.5px, transparent 2.5px), #20265A; background-size: 120px 120px, 160px 160px, 140px 140px, 200px 200px, auto; }
+.bg-forest { --grid-line: rgba(70, 130, 80, .16); background: #E4F5DC; }
+.bg-city   { --grid-line: rgba(60, 90, 140, .14); background: #DDECFF; }
+.bg-space  { --grid-line: rgba(255, 255, 255, .10); background: #1E2452; }
+.bg-fairy  { --grid-line: rgba(120, 80, 150, .14); background: #F6E4FF; }
+.bg-beach  { --grid-line: rgba(150, 110, 40, .16); background: #CFF0FF; }
+.bg-snow   { --grid-line: rgba(90, 130, 180, .16); background: #E9F4FF; }
+.bg-castle { --grid-line: rgba(90, 80, 150, .14); background: #E7E6FF; }
+.bg-day    { --grid-line: rgba(70, 120, 170, .14); background: #CDE9FF; }
+.bg-night  { --grid-line: rgba(255, 255, 255, .10); background: #1B2347; }
+/* Старые работы с прежними фонами открываются, а не падают */
+.bg-meadow { --grid-line: rgba(70, 130, 80, .16); background: #E4F5DC; }
+.bg-sea, .bg-sunset, .bg-rainbow { --grid-line: rgba(70, 120, 170, .14); background: #CFF0FF; }
+
 .actor { position: absolute; width: calc(100% / var(--cols)); height: calc(100% / var(--rows));
   left: calc(100% * var(--c) / var(--cols)); top: calc(100% * var(--r) / var(--rows)); transition: left .4s ease, top .4s ease; z-index: 2; }
 .actor.no-anim { transition: none; }
@@ -213,6 +220,16 @@ section { padding: 56px 0; }
 .bubble { position: absolute; bottom: 92%; left: 50%; transform: translateX(-50%) scale(.6); opacity: 0; background: #fff; color: var(--text); border: 2px solid var(--text); border-radius: 14px; padding: 4px 10px; font-weight: 800; font-size: clamp(12px, 1.6vw, 16px); white-space: nowrap; transition: .2s; pointer-events: none; z-index: 3; }
 .bubble::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--text); }
 .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+/* У верхнего ряда облачко уходило за край сцены, у крайних столбцов — вбок.
+   Поэтому у края оно разворачивается внутрь поля. */
+.bubble.b-down { bottom: auto; top: 92%; }
+.bubble.b-down::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--text); }
+.bubble.b-left { left: 0; transform: translateX(0) scale(.6); }
+.bubble.b-left.show { transform: translateX(0) scale(1); }
+.bubble.b-left::after { left: 22px; }
+.bubble.b-right { left: auto; right: 0; transform: translateX(0) scale(.6); }
+.bubble.b-right.show { transform: translateX(0) scale(1); }
+.bubble.b-right::after { left: auto; right: 16px; }
 
 /* Палитра и программа */
 .code-label { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
@@ -241,7 +258,9 @@ section { padding: 56px 0; }
 .workspace { min-height: 132px; border: 3px dashed #D5DDF2; border-radius: 16px; padding: 10px; margin-bottom: 14px; background: #FAFBFF; transition: .2s; }
 .workspace.over { border-color: var(--blue); background: #EEF3FF; }
 .ws-main { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; min-height: 104px; align-content: flex-start; cursor: text; }
-.empty-hint { color: var(--muted); font-weight: 600; padding: 30px 8px; width: 100%; text-align: center; pointer-events: none; }
+/* Подсказка мелкая и ниже курсора: курсор показывает, куда встанет блок,
+   и он должен быть первым, что видно в пустом поле. */
+.empty-hint { color: var(--muted); font-weight: 600; font-size: 13px; padding: 6px 8px; text-align: left; pointer-events: none; }
 .wblock { position: relative; width: 66px; height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; transition: transform .15s, box-shadow .15s; }
 .wblock .bi svg { width: 28px; height: 28px; }
 .wblock .rm { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: var(--text); font-weight: 900; line-height: 1; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); font-size: 15px; display: flex; align-items: center; justify-content: center; }
@@ -269,8 +288,9 @@ section { padding: 56px 0; }
 #studioStage .cell:hover { background: rgba(255, 255, 255, .35); }
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
 .proj-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
-.proj-preview { height: 110px; display: flex; align-items: center; justify-content: center; }
-.proj-preview span { width: 70px; height: 70px; }
+.proj-preview { position: relative; height: 110px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.pp-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.proj-preview span { position: relative; width: 70px; height: 70px; }
 .proj-info { padding: 12px 14px; }
 .proj-info h4 { font-size: 16px; }
 .author { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -682,7 +702,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 
 /* ----- Три колонки: что выбрать · куда поставить · чем программировать ----- */
 .studio { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 18px; }
-.studio-grid { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr) minmax(300px, 380px);
+.studio-grid { display: grid; grid-template-columns: minmax(186px, 240px) minmax(0, 1fr) minmax(300px, 380px);
   /* Ряд ровно в высоту остатка, а не по содержимому: иначе самая высокая
      колонка растягивает страницу и возвращает прокрутку. */
   grid-template-rows: minmax(0, 1fr);
@@ -693,7 +713,21 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 
 /* Сцена забирает весь остаток высоты, ширину берёт из пропорции 7:5.
    Если колонка шире, чем нужно по пропорции, max-width не даёт вылезти. */
-.studio-grid .col-stage { gap: 10px; }
+.studio-grid .col-stage { gap: 8px; }
+
+/* Строка над сценой: показ примера видно раньше всего остального */
+.stage-top { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; flex: 0 0 auto; }
+.btn-example { background: var(--purple); color: #fff; box-shadow: 0 4px 12px rgba(139, 92, 246, .3); }
+.btn-example:hover { background: #7A46E0; }
+
+/* Детали для сцены — лентой прямо над полем: ребёнок выбирает предмет и
+   сразу ставит его, не отводя глаз от сцены. Двадцать предметов в строку не
+   помещаются, поэтому строка прокручивается. */
+.pk-dec { flex: 0 0 auto; }
+.pk-dec .code-label { margin-bottom: 4px; }
+.pk-dec .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px;
+  padding-bottom: 4px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.pk-dec .pick { flex: 0 0 auto; width: 64px; scroll-snap-align: start; }
 .stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
 .stage-wrap .stage { width: auto; height: 100%; max-width: 100%; max-height: 100%; flex: 0 0 auto; }
 .stage-tools { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; margin-top: 0; }
@@ -705,12 +739,16 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 /* Три иконки в ряд: при двух рейка не влезает в экран, при четырёх подпись
    обрезается на «Лисёнок». */
 .col-pick .pick-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 6px; }
-.pick { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px; border-radius: 12px;
+/* Селектор обязан быть вложенным: класс «pick» носят и кнопки выбора,
+   и предметы, лежащие на сцене (.item.pick). Без .pick-row вокруг короны
+   на сцене появлялась белая плашка кнопки. */
+.pick-row .pick { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px; border-radius: 12px;
   border: 3px solid transparent; background: #F4F6FC; min-width: 0; }
-.pick.sel { border-color: var(--blue); background: #EEF3FF; }
-.pick small { font-size: 11px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pick-row .pick.sel { border-color: var(--blue); background: #EEF3FF; }
+.pick-row .pick small { font-size: 11px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .pick-ico, .pick-bg { width: 34px; height: 34px; flex: 0 0 auto; }
-.pick-bg { border-radius: 9px; }
+.pick-bg { border-radius: 9px; overflow: hidden; }
+.pick-bg svg { width: 100%; height: 100%; display: block; }
 .pk-toggle { display: none; }
 /* Переключатели для взрослого — внизу рейки, подальше от детских кнопок */
 .pk-sys { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line);
@@ -737,12 +775,10 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .studio-grid { gap: 10px; }
   .col-pick, .studio-grid .col-stage, .studio-grid .col-code { padding: 10px; }
   .col-pick { gap: 6px; }
-  .pick { padding: 3px 2px; }
+  .pick-row .pick { padding: 3px 2px; }
   .pick-ico, .pick-bg { width: 28px; height: 28px; }
-  /* Предметы в четыре колонки: названия у них короткие, а ряд экономит
-     полсотни пикселей, которые нужнее сцене. */
-  .pk-dec .pick-row { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); }
-  .pk-dec .pick small { font-size: 10px; }   /* «Яблоко» в узкой плитке не должно обрезаться */
+  .pk-dec .pick { width: 50px; }
+  .pk-dec .pick small { font-size: 10px; }
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
   .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
@@ -750,6 +786,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
      остаться целиком видны, а в программе обычно два-три блока. */
   .studio-grid .col-code .workspace { min-height: 56px; }
   .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 18px; }
+  .stage-top .btn { min-height: 38px; padding: 7px 12px; font-size: 14px; }
 }
 
 /* Планшет и узкий ноутбук: выбор переезжает лентой над сценой, колонок две */
@@ -855,21 +892,25 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-4
   .mob-save { order: 3; display: flex; width: 100%; min-height: 52px; font-size: 17px; }
   .studio-grid .col-code { order: 4; }
 
-  /* Сцена во всю ширину, высота из пропорции — это 200–250 px на телефоне */
-  .stage-wrap { display: block; flex: 0 0 auto; }
+  /* Сцена первая и во всю ширину, высота из пропорции — 200–250 px */
+  .studio-grid .col-stage { display: flex; flex-direction: column; }
+  .stage-wrap { order: 1; display: block; flex: 0 0 auto; }
   .stage-wrap .stage { width: 100%; height: auto; max-width: none; }
+  .stage-top { order: 2; }
+  .stage-top .btn { flex: 1 1 auto; }
+  .pk-dec { order: 3; }
 
-  /* «Поставь на сцену» — крупная кнопка на всю ширину, список предметов
-     раскрывается по ней: иначе выбор занимает первый экран вместо сцены. */
-  .col-pick .pk-dec { order: -1; }
+  /* «Добавь детали» — крупная кнопка на всю ширину, лента раскрывается по
+     ней: иначе выбор занимает первый экран вместо сцены. */
   .pk-dec .pk-toggle { display: flex; width: 100%; min-height: 52px; font-size: 16px; }
-  .col-pick .pk-dec .code-label, .col-pick .pk-dec .pick-row { display: none; }
-  body.dec-open .col-pick .pk-dec .pick-row { display: flex; margin-top: 10px; }
+  .pk-dec .code-label, .pk-dec .pick-row { display: none; }
+  body.dec-open .pk-dec .pick-row { display: flex; margin-top: 8px; }
+  .pk-dec .pick { width: 74px; }
 
   /* Герой и фон — лента: видно четыре иконки, остальные листаются вбок */
   .col-pick .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; scrollbar-width: none; padding-bottom: 2px; }
   .col-pick .pick-row::-webkit-scrollbar { display: none; }
-  .pick { flex: 0 0 auto; min-width: 74px; padding: 6px; }
+  .pick-row .pick { flex: 0 0 auto; min-width: 74px; padding: 6px; }
   .pick-ico, .pick-bg { width: 44px; height: 44px; }
   .pk-sys { flex-direction: row; gap: 16px; margin-top: 0; padding: 10px 12px; border-top: none;
     background: #fff; border-radius: 16px; box-shadow: var(--shadow); }

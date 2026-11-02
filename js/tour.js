@@ -39,11 +39,14 @@ const Tour = {
 
   layer() { return document.getElementById('tourLayer'); },
 
+  /* Реплика показа: её видно на сцене и слышно вслух. Фразы короткие —
+     шестилетка не дочитывает длинные, зато дослушивает короткие. */
   say(text, skip) {
     const el = this.layer();
     el.hidden = false;
     el.innerHTML = '<div class="tour-box"><span>' + esc(text) + '</span>' +
       (skip ? '<button class="tour-skip" onclick="Tour.skip()">Пропустить</button>' : '') + '</div>';
+    if (DB.settings.sound !== false) Speech.say(text);
   },
 
   hide() {
@@ -74,30 +77,30 @@ const Tour = {
     };
 
     try {
-      if (!await step('Смотри: нажимаю на блок — он попадает в программу', () => {
+      if (!await step('Нажимаю на синий блок. Это шаг вправо', () => {
         S.editor.pulsePalette('right');
         S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
-      }, 1300)) return this.stop(saved, first);
+      }, 1800)) return this.stop(saved, first);
 
-      if (!await step('Ещё один — и получилась программа из двух шагов', () => {
-        S.editor.pulsePalette('jump');
-        S.editor.setLocked(false); S.editor.add('jump'); S.editor.setLocked(true);
-      }, 1200)) return this.stop(saved, first);
+      if (!await step('Ещё один блок. Теперь шагов два', () => {
+        S.editor.pulsePalette('right');
+        S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
+      }, 1800)) return this.stop(saved, first);
 
-      if (!await step('Теперь нажимаю зелёную кнопку «Запустить»', () => {
+      if (!await step('Нажимаю зелёную кнопку Старт', () => {
         const b = document.getElementById('studioRun');
         b && b.classList.add('pulse');
-      }, 1200)) return this.stop(saved, first);
+      }, 1800)) return this.stop(saved, first);
 
       const b = document.getElementById('studioRun');
       b && b.classList.remove('pulse');
-      this.say('Герой выполняет команды по очереди', first);
+      this.say('Герой идёт. Он слушается блоков', first);
       await S.stage.run(S.editor.program, (n, p) => S.editor.highlight(n, p));
       if (my !== this.token) return this.stop(saved, first);
       S.editor.clearHighlight();
 
       this.say('Теперь попробуй сам!', false);
-      await this.wait(1200);
+      await this.wait(1600);
     } finally {
       if (my === this.token) this.stop(saved, first);
     }
@@ -132,7 +135,7 @@ const Tour = {
     if (!this.armed) return;
     this.clearHints();
     if (!this.addedOnce) this.tip('studioPalette', 'Нажми на блок');
-    else if (!this.ranOnce) this.tip('studioRun', 'Нажми, чтобы запустить');
+    else if (!this.ranOnce) this.tip('studioRun', 'Нажми «Старт»');
     else this.armed = false;
   },
 

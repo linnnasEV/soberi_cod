@@ -4,9 +4,11 @@
    ставит яблоки, камни и домики и переносит героя куда хочет. */
 
 const STUDIO_ROWS = 5, STUDIO_COLS = 7;
+/* Порядок блоков — от самого понятного к самому редкому: сначала шаги,
+   потом фокусы, потом управление программой. */
 const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
-                    'color', 'vanish', 'say', 'sound', 'wait', 'repeat'];
-const S = { hero: 'cat', bg: 'meadow', decor: {}, start: { r: 3, c: 1 }, tool: 'a', program: [], running: false };
+                    'color', 'vanish', 'sound', 'say', 'wait', 'repeat'];
+const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 2, c: 0 }, tool: 'h', program: [], running: false };
 
 /* Мастерская — это и есть главная страница: ребёнок открыл сайт и сразу
    собирает программу, без промежуточных экранов. */
@@ -52,8 +54,8 @@ function restoreStudioSession() {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (!raw) return;
     const s = JSON.parse(raw);
-    if (HEROES[s.hero]) S.hero = s.hero;
-    if (BACKGROUNDS[s.bg]) S.bg = s.bg;
+    if (s.hero) S.hero = heroId(s.hero);
+    if (s.bg) S.bg = bgId(s.bg);
     if (s.decor) S.decor = s.decor;
     if (s.start) S.start = s.start;
     if (Array.isArray(s.program)) S.program = s.program;
@@ -142,12 +144,13 @@ function resetScene() {
   };
   if (S.running) runStudio();            // идущую программу сначала останавливаем
   S.decor = {};
-  S.start = { r: 3, c: 1 };
+  S.start = { r: 2, c: 0 };
   S.editor.setup({ blocks: ALL_BLOCKS, program: [] });
   mountStudioStage();
   dropStudioSession();
   Sound.tone([440, 330], 0.08);
 
+  sayAloud('Очистила сцену');
   if (had > 3) {
     toast('Сцена очищена.', 'info', { label: 'Отменить', fn: () => undoReset(snapshot) }, 5000);
   } else {
@@ -168,9 +171,12 @@ function renderStudioPickers() {
   document.getElementById('heroPick').innerHTML = Object.entries(HEROES).map(([id, h]) =>
     '<button class="pick' + (S.hero === id ? ' sel' : '') + '" onclick="pickHero(\'' + id + '\')" title="' + h.name + '">' +
     '<span class="pick-ico">' + h.icon + '</span><small>' + h.name + '</small></button>').join('');
+  // В кнопке фона показываем сам рисунок, а не цветной квадрат: «Лес» и
+  // «Сказка» ребёнок выбирает глазами, а не читая подпись.
   document.getElementById('bgPick').innerHTML = Object.entries(BACKGROUNDS).map(([id, b]) =>
-    '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="pickBg(\'' + id + '\')">' +
-    '<span class="pick-bg bg-' + id + '"></span><small>' + b.name + '</small></button>').join('');
+    '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="pickBg(\'' + id + '\')" title="' + b.name + '">' +
+    '<span class="pick-bg bg-' + id + '"><svg viewBox="0 0 140 100" preserveAspectRatio="xMidYMid slice">' + b.art + '</svg></span>' +
+    '<small>' + b.name + '</small></button>').join('');
   // «Герой» показывает того героя, который выбран сейчас: так понятнее, что
   // этим инструментом переносят именно его.
   document.getElementById('decorPick').innerHTML = DECOR.map(d =>
@@ -178,12 +184,14 @@ function renderStudioPickers() {
     '<span class="pick-ico">' + (d.ch === 'S' ? HEROES[S.hero].icon : d.icon) + '</span><small>' + d.name + '</small></button>').join('');
 }
 
-/* Выбор проговаривается вслух: подпись под иконкой читают не все, а услышать
-   «Лисёнок» может каждый. Молчим, если звук в классе выключен. */
-function sayPick(name) {
+/* Всё, что ребёнок нажал, проговаривается вслух: подписи читают не все,
+   а услышать «Старт» может каждый. Молчим, если звук в классе выключен. */
+function sayAloud(text) {
   if (DB.settings.sound === false) return;
-  Speech.say(name);
+  Speech.say(text);
 }
+
+const sayPick = sayAloud;
 
 function pickHero(id) {
   S.hero = id; renderStudioPickers(); mountStudioStage(); saveStudioSession();
@@ -209,7 +217,8 @@ function pickTool(ch) {
 function toggleDecor() {
   const open = document.body.classList.toggle('dec-open');
   const btn = document.getElementById('decBtn');
-  if (btn) btn.textContent = open ? '✕ Убрать список' : '+ Поставь на сцену';
+  if (btn) btn.textContent = open ? '✕ Закрыть детали' : '+ Добавь детали на фон';
+  if (open) sayAloud('Выбери деталь и нажми на клетку');
 }
 
 /* Галерея работ — панель поверх мастерской: вместе со сценой в один экран
@@ -231,11 +240,10 @@ function showExample() {
   Tour.example();
 }
 
-function speakStudioHelp() {
-  Speech.say('Нажимай на цветные блоки — они появятся в твоей программе. ' +
-    'Потом нажми зелёную кнопку Запустить, и герой оживёт. ' +
-    'Кнопка Сбросить убирает всё со сцены.');
-  toast('Слушай подсказку. Звук можно выключить в самом низу страницы.');
+/* Галерея и список предметов открываются и голосом тоже */
+function openGalleryBtn() {
+  sayAloud('Галерея работ');
+  toggleGallery();
 }
 
 /* Шторка с блоками на телефоне */
@@ -251,9 +259,14 @@ async function runStudio() {
   if (S.running) {
     S.stage.stop(); S.stage.reset(); S.editor.setLocked(false); S.editor.clearHighlight();
     S.running = false; btn.innerHTML = '▶ Старт'; btn.classList.remove('btn-stop');
+    sayAloud('Стоп');
     return;
   }
-  if (!S.editor.program.length) return toast('Добавь блоки — и герой оживёт!', 'warn');
+  if (!S.editor.program.length) {
+    sayAloud('Сначала добавь блоки');
+    return toast('Добавь блоки — и герой оживёт!', 'warn');
+  }
+  sayAloud('Старт');
   S.running = true; btn.innerHTML = '■ Стоп'; btn.classList.add('btn-stop');
   S.editor.setLocked(true);
   await S.stage.run(S.editor.program, (n, p) => S.editor.highlight(n, p));
@@ -266,32 +279,57 @@ async function runStudio() {
    Перед пустой сценой ребёнок иногда застывает: придумать с нуля труднее,
    чем переделать готовое. Кнопка собирает случайную сценку, которую дальше
    можно менять — это не ответ, а первая строчка истории. */
-const IDEAS = [
-  [{ t: 'say', text: 'Полетели!' }, { t: 'repeat', n: 3, body: [{ t: 'up' }, { t: 'sound' }] }, { t: 'spin' }, { t: 'say', text: 'Я лечу!' }],
-  [{ t: 'repeat', n: 4, body: [{ t: 'right' }, { t: 'jump' }] }, { t: 'color' }, { t: 'say', text: 'Догоняй!' }],
-  [{ t: 'say', text: 'Фокус!' }, { t: 'repeat', n: 2, body: [{ t: 'color' }, { t: 'spin' }] }, { t: 'grow' }, { t: 'vanish' }],
-  [{ t: 'repeat', n: 3, body: [{ t: 'down' }, { t: 'right' }] }, { t: 'shrink' }, { t: 'sound' }, { t: 'say', text: 'Я спрятался' }],
-  [{ t: 'say', text: 'Ой!' }, { t: 'jump' }, { t: 'repeat', n: 2, body: [{ t: 'left' }, { t: 'spin' }] }, { t: 'grow' }]
+/* Истории с целью: герой идёт куда-то и за чем-то. Случайный набор блоков
+   ребёнку ничего не объясняет, а «иду за сундуком — дошёл — радуюсь» он
+   понимает сразу и начинает переделывать под себя. */
+const SURPRISE = [
+  { goal: 'x', go: 'Иду за сундуком!',  done: 'Нашёл сокровище!' },
+  { goal: 'k', go: 'Где моя корона?',   done: 'Я нашёл корону!' },
+  { goal: '*', go: 'Хочу эту звезду!',  done: 'Поймал звезду!' },
+  { goal: 'l', go: 'Поищу ракушку',     done: 'Какая красивая!' },
+  { goal: 'z', go: 'Нужно волшебное зелье', done: 'Теперь колдую!' },
+  { goal: 'h', go: 'Пора домой',        done: 'Я дома!' }
 ];
+
+/* Чем украшаем сцену вокруг дороги героя */
+const PROPS = ['t', 'c', 'g', 'o', 'u', 'b', 'n', 'e', 'm', '#'];
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function surpriseStudio() {
+  const idea = pickRandom(SURPRISE);
   S.hero = pickRandom(Object.keys(HEROES));
   S.bg = pickRandom(Object.keys(BACKGROUNDS));
-  S.start = { r: Math.floor(Math.random() * STUDIO_ROWS), c: Math.floor(Math.random() * 3) };
+
+  const row = 1 + Math.floor(Math.random() * (STUDIO_ROWS - 2));   // не у самого края
+  const steps = 3 + Math.floor(Math.random() * 3);                 // 3–5 шагов вправо
+  const turn = Math.random() < 0.6 ? (Math.random() < 0.5 ? -1 : 1) : 0;
+  const goal = { r: row + turn, c: steps };
+
+  S.start = { r: row, c: 0 };
   S.decor = {};
-  const things = DECOR.filter(d => d.ch !== 'S' && d.ch !== '.').map(d => d.ch);
-  for (let i = 0; i < 3 + Math.floor(Math.random() * 3); i++) {
+  S.decor[goal.r + ':' + goal.c] = idea.goal;
+
+  // дорогу героя не загораживаем: программа должна дойти до цели
+  const path = new Set([goal.r + ':' + goal.c]);
+  for (let c = 0; c <= steps; c++) path.add(row + ':' + c);
+  for (let i = 0; i < 5; i++) {
     const r = Math.floor(Math.random() * STUDIO_ROWS), c = Math.floor(Math.random() * STUDIO_COLS);
-    if (r === S.start.r && c === S.start.c) continue;
-    S.decor[r + ':' + c] = pickRandom(things);
+    const key = r + ':' + c;
+    if (path.has(key) || S.decor[key]) continue;
+    S.decor[key] = pickRandom(PROPS);
   }
-  S.editor.setup({ blocks: ALL_BLOCKS, program: pickRandom(IDEAS) });
+
+  const prog = [{ t: 'say', text: idea.go }, { t: 'repeat', n: steps, body: [{ t: 'right' }] }];
+  if (turn) prog.push({ t: turn < 0 ? 'up' : 'down' });
+  prog.push({ t: 'say', text: idea.done }, { t: 'sound' }, { t: 'spin' });
+
+  S.editor.setup({ blocks: ALL_BLOCKS, program: prog });
   renderStudioPickers();
   mountStudioStage();
   saveStudioSession();
-  toast('Вот идея! Меняй блоки и сцену как хочешь.');
+  sayAloud('Вот история. Нажми Старт');
+  toast('Вот история! Нажми «Старт», а потом меняй её как хочешь.');
 }
 
 function saveProject(title, hero, bg, program, decor, start) {
@@ -307,31 +345,30 @@ function saveProject(title, hero, bg, program, decor, start) {
   syncPushSoon();
 }
 
+/* Сохранение без вопросов: придумывать название семилетке долго и скучно,
+   поэтому работа сама называется по герою и месту — «Котик · Лес». */
 function askSaveStudio() {
-  if (!S.editor.program.length) return toast('Пустую программу сохранять не будем 🙂', 'warn');
-  openModal('<h2>Сохранить работу</h2><p class="sub">Придумай название — его увидят в галерее.</p>' +
-    '<div class="form-group"><input id="projTitle" maxlength="30" placeholder="Например, Котик в космосе"></div>' +
-    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>' +
-    '<button class="btn btn-primary" onclick="doSaveStudio()">Сохранить</button></div>');
-}
-
-function doSaveStudio() {
-  const t = document.getElementById('projTitle').value.trim() || 'Без названия';
-  saveProject(t, S.hero, S.bg, S.editor.program, S.decor, S.start);
-  closeModal();
-  toast('Готово! Работа в галерее.');
-  renderGallery();
+  if (!S.editor.program.length) return toast('Сначала собери программу из блоков 🙂', 'warn');
+  const title = heroOf(S.hero).name + ' · ' + bgOf(S.bg).name;
+  saveProject(title, S.hero, S.bg, S.editor.program, S.decor, S.start);
+  sayAloud('Сохранила в галерею');
+  toast('Сохранено в галерею: «' + title + '»');
+  if (document.body.classList.contains('gal-open')) renderGallery();
 }
 
 function projectCard(p, author, own) {
   return '<article class="proj-card">' +
-    '<div class="proj-preview bg-' + p.bg + '"><span>' + HEROES[p.hero].icon + '</span></div>' +
+    '<div class="proj-preview bg-' + bgId(p.bg) + '">' +
+    '<svg class="pp-art" viewBox="0 0 140 100" preserveAspectRatio="xMidYMid slice">' + bgOf(p.bg).art + '</svg>' +
+    '<span>' + heroOf(p.hero).icon + '</span></div>' +
     '<div class="proj-info"><h4>' + esc(p.title) + '</h4><div class="author">' + esc(author) + ' · ' + countBlocks(p.program) + ' блоков</div>' +
     '<div class="proj-actions"><button class="btn btn-primary btn-sm" onclick="openProject(\'' + p.id + '\')">Открыть</button>' +
     (own ? '<button class="btn btn-ghost btn-sm" onclick="deleteProject(\'' + p.id + '\')" aria-label="Удалить">Удалить</button>' : '') +
     '</div></div></article>';
 }
 
+/* В галерее только то, что сделали сами: чужие примеры ребёнок пролистывал,
+   а свою работу искал глазами среди них. */
 function allVisibleProjects() {
   const mine = me().projects.map(p => ({ p, author: 'Я', own: true }));
   const cls = currentClass();
@@ -339,24 +376,22 @@ function allVisibleProjects() {
   if (cls) Object.values(cls.students).forEach(st => {
     if (st !== me()) st.projects.forEach(p => classmates.push({ p, author: st.name, own: false }));
   });
-  const demos = DEMO_PROJECTS.map(p => ({ p, author: p.author, own: false }));
-  return { mine, classmates, demos };
+  return { mine, classmates };
 }
 
 function renderGallery() {
-  const { mine, classmates, demos } = allVisibleProjects();
+  const { mine, classmates } = allVisibleProjects();
   const block = (title, arr, empty) => '<h3 class="gal-title">' + title + '</h3>' +
     (arr.length ? '<div class="gallery-grid">' + arr.map(x => projectCard(x.p, x.author, x.own)).join('') + '</div>'
                 : '<p class="muted">' + empty + '</p>');
   document.getElementById('galleryArea').innerHTML =
     block('Мои работы', mine, 'Пока пусто. Собери программу и нажми «Сохранить».') +
-    (currentClass() ? block('Работы моего класса', classmates, 'Одноклассники ещё ничего не сохранили.') : '') +
-    block('Примеры для вдохновения', demos, '');
+    (currentClass() ? block('Работы моего класса', classmates, 'Одноклассники ещё ничего не сохранили.') : '');
 }
 
 function findProject(id) {
-  const { mine, classmates, demos } = allVisibleProjects();
-  const x = [...mine, ...classmates, ...demos].find(x => x.p.id === id);
+  const { mine, classmates } = allVisibleProjects();
+  const x = [...mine, ...classmates].find(x => x.p.id === id);
   return x && x.p;
 }
 
@@ -364,7 +399,7 @@ function openProject(id) {
   const p = findProject(id);
   if (!p) return;
   closeGallery();
-  S.hero = p.hero; S.bg = p.bg;
+  S.hero = heroId(p.hero); S.bg = bgId(p.bg);
   // Работы, сохранённые до появления декораций, открываются на пустой сцене
   S.decor = Object.assign({}, p.decor);
   S.start = Object.assign({ r: 3, c: 1 }, p.start);
@@ -376,11 +411,24 @@ function openProject(id) {
   setTimeout(runStudio, 500);
 }
 
+/* Удаление спрашивает: работа — это полчаса труда, и случайное нажатие
+   не должно её стирать. */
 function deleteProject(id) {
+  const w = findProject(id);
+  if (!w) return;
+  openModal('<h2>Удалить работу?</h2>' +
+    '<p class="sub">«' + esc(w.title) + '» исчезнет насовсем. Вернуть не получится.</p>' +
+    '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Оставить</button>' +
+    '<button class="btn btn-danger" onclick="doDeleteProject(\'' + id + '\')">Удалить</button></div>');
+}
+
+function doDeleteProject(id) {
   const p = me();
   p.projects = p.projects.filter(x => x.id !== id);
   saveDB();
+  closeModal();
   renderGallery();
+  toast('Работа удалена.');
 }
 
 /* Ссылки «Открыть Мастерскую» из других разделов ведут на главную */
