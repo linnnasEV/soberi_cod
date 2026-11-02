@@ -9,14 +9,14 @@
    широком мониторе сцена не должна упираться в белые поля по бокам.
    Предмет, поставленный за правым краем узкого окна, не пропадает: он
    хранится в S.decor и снова виден, когда окно становится шире. */
-const STUDIO_ROWS = 7;
-const COLS_MIN = 9, COLS_MAX = 16;
-let STUDIO_COLS = 10;
+const STUDIO_ROWS = 6;
+const COLS_MIN = 7, COLS_MAX = 13;
+let STUDIO_COLS = 9;
 /* Порядок блоков — от самого понятного к самому редкому: сначала шаги,
    потом фокусы, потом управление программой. */
 const ALL_BLOCKS = ['right', 'left', 'up', 'down', 'jump', 'spin', 'grow', 'shrink',
                     'color', 'vanish', 'sound', 'say', 'wait', 'repeat'];
-const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 5, c: 0 }, tool: 'h', program: [], running: false };
+const S = { hero: 'cat', bg: 'forest', decor: {}, start: { r: 4, c: 0 }, tool: 'h', program: [], running: false };
 
 /* Мастерская — это и есть главная страница: ребёнок открыл сайт и сразу
    собирает программу, без промежуточных экранов. */
@@ -96,7 +96,7 @@ function mountStudioStage() {
 /* Сколько колонок поместится по ширине, если клетка квадратная */
 function fitCols() {
   const wrap = document.querySelector('#page-home .stage-wrap');
-  if (!wrap || window.innerWidth < 768) { STUDIO_COLS = 10; return; }
+  if (!wrap || window.innerWidth < 768) { STUDIO_COLS = 9; return; }
   const bw = wrap.clientWidth, bh = wrap.clientHeight;
   if (!bw || !bh) return;
   const cell = bh / STUDIO_ROWS;
@@ -182,7 +182,7 @@ function resetScene() {
   };
   if (S.running) runStudio();            // идущую программу сначала останавливаем
   S.decor = {};
-  S.start = { r: 5, c: 0 };
+  S.start = { r: STUDIO_ROWS - 2, c: 0 };
   S.editor.setup({ blocks: ALL_BLOCKS, program: [] });
   mountStudioStage();
   dropStudioSession();
@@ -215,11 +215,19 @@ function renderStudioPickers() {
     '<button class="pick' + (S.bg === id ? ' sel' : '') + '" onclick="pickBg(\'' + id + '\')" title="' + b.name + '">' +
     '<span class="pick-bg bg-' + id + '"><svg viewBox="0 0 140 100" preserveAspectRatio="xMidYMid slice">' + b.art + '</svg></span>' +
     '<small>' + b.name + '</small></button>').join('');
-  // «Герой» показывает того героя, который выбран сейчас: так понятнее, что
-  // этим инструментом переносят именно его.
-  document.getElementById('decorPick').innerHTML = DECOR.map(d =>
-    '<button class="pick' + (S.tool === d.ch ? ' sel' : '') + '" onclick="pickTool(\'' + d.ch + '\')" title="' + d.name + '">' +
-    '<span class="pick-ico">' + (d.ch === 'S' ? HEROES[S.hero].icon : d.icon) + '</span><small>' + d.name + '</small></button>').join('');
+  // Герой и ластик живут отдельно от ленты: ими пользуются чаще всего.
+  // «Герой» показывает того, кто выбран сейчас, — так понятнее, что этим
+  // инструментом переносят именно его.
+  const fixed = d => d.ch === 'S' || d.ch === '.';
+  document.getElementById('decorFixed').innerHTML = DECOR.filter(fixed).map(decorBtn).join('');
+  document.getElementById('decorPick').innerHTML = DECOR.filter(d => !fixed(d)).map(decorBtn).join('');
+}
+
+function decorBtn(d) {
+  return '<button class="pick' + (S.tool === d.ch ? ' sel' : '') + (d.ch === '.' ? ' pick-erase' : '') +
+    '" onclick="pickTool(\'' + d.ch + '\')" title="' + d.name + '">' +
+    '<span class="pick-ico">' + (d.ch === 'S' ? heroOf(S.hero).icon : d.icon) + '</span>' +
+    '<small>' + d.name + '</small></button>';
 }
 
 /* Всё, что ребёнок нажал, проговаривается вслух: подписи читают не все,
@@ -314,68 +322,6 @@ async function runStudio() {
   S.editor.setLocked(false);
   S.running = false; btn.innerHTML = '▶ Старт'; btn.classList.remove('btn-stop');
   setTimeout(() => S.editor.clearHighlight(), 600);
-}
-
-/* ===== «Удиви меня» =====
-   Перед пустой сценой ребёнок иногда застывает: придумать с нуля труднее,
-   чем переделать готовое. Кнопка собирает случайную сценку, которую дальше
-   можно менять — это не ответ, а первая строчка истории. */
-/* Истории с целью: герой идёт куда-то и за чем-то. Случайный набор блоков
-   ребёнку ничего не объясняет, а «иду за сундуком — дошёл — радуюсь» он
-   понимает сразу и начинает переделывать под себя. */
-const SURPRISE = [
-  { goal: 'x', go: 'Иду за сундуком!',  done: 'Нашёл сокровище!' },
-  { goal: 'k', go: 'Где моя корона?',   done: 'Я нашёл корону!' },
-  { goal: '*', go: 'Хочу эту звезду!',  done: 'Поймал звезду!' },
-  { goal: 'l', go: 'Поищу ракушку',     done: 'Какая красивая!' },
-  { goal: 'z', go: 'Нужно волшебное зелье', done: 'Теперь колдую!' },
-  { goal: 'h', go: 'Пора домой',        done: 'Я дома!' }
-];
-
-/* Чем украшаем сцену вокруг дороги героя. Небо и земля разделены нарочно:
-   трава в небе и облако под ногами ломают ребёнку всю картину. */
-const SKY_PROPS = ['u', 'o', 'w', '*'];
-const GROUND_PROPS = ['t', 'c', 'g', 'b', 'n', 'e', 'm', '#'];
-
-function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function surpriseStudio() {
-  const idea = pickRandom(SURPRISE);
-  S.hero = pickRandom(Object.keys(HEROES));
-  S.bg = pickRandom(Object.keys(BACKGROUNDS));
-
-  // Герой идёт по земле — это нижние ряды поля, а не середина неба
-  const row = STUDIO_ROWS - 2 - Math.floor(Math.random() * 2);
-  const steps = 4 + Math.floor(Math.random() * 4);                 // 4–7 шагов вправо
-  const turn = Math.random() < 0.5 ? -1 : 0;                       // иногда шаг вверх
-  const goal = { r: row + turn, c: steps };
-
-  S.start = { r: row, c: 0 };
-  S.decor = {};
-  S.decor[goal.r + ':' + goal.c] = idea.goal;
-
-  // дорогу героя не загораживаем: программа должна дойти до цели
-  const path = new Set([goal.r + ':' + goal.c]);
-  for (let c = 0; c <= steps; c++) path.add(row + ':' + c);
-  const put = (r, ch) => {
-    const c = Math.floor(Math.random() * STUDIO_COLS);
-    const key = r + ':' + c;
-    if (path.has(key) || S.decor[key]) return;
-    S.decor[key] = ch;
-  };
-  for (let i = 0; i < 2; i++) put(Math.floor(Math.random() * 2), pickRandom(SKY_PROPS));
-  for (let i = 0; i < 4; i++) put(STUDIO_ROWS - 1 - Math.floor(Math.random() * 2), pickRandom(GROUND_PROPS));
-
-  const prog = [{ t: 'say', text: idea.go }, { t: 'repeat', n: steps, body: [{ t: 'right' }] }];
-  if (turn) prog.push({ t: turn < 0 ? 'up' : 'down' });
-  prog.push({ t: 'say', text: idea.done }, { t: 'sound' }, { t: 'spin' });
-
-  S.editor.setup({ blocks: ALL_BLOCKS, program: prog });
-  renderStudioPickers();
-  mountStudioStage();
-  saveStudioSession();
-  sayAloud('Вот история. Нажми Старт');
-  toast('Вот история! Нажми «Старт», а потом меняй её как хочешь.');
 }
 
 function saveProject(title, hero, bg, program, decor, start) {

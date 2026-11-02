@@ -103,58 +103,70 @@ const Tour = {
       return my === this.token;
     };
 
-    const house = { r: STUDIO_ROWS - 2, c: 3 };
+    // Сценарий ровно тот, что ребёнок повторит сам: герой, место, предметы,
+    // блоки, «Старт». Фразы короткие и совпадают с тем, что в этот момент
+    // происходит на экране.
+    const row = STUDIO_ROWS - 2;
+    const flower = { r: row, c: 2 }, house = { r: row, c: 4 };
 
     try {
-      if (!await step('Сначала выбираю героя. Пусть будет собачка', () => {
+      if (!await step('Первый шаг — выбираем героя. Пусть будет котик', () => {
         this.glow('heroPick');
-        pickHero('dog');
-      }, 800)) return this.stop(first);
+        pickHero('cat');
+      }, 700)) return this.stop(first);
 
-      if (!await step('Теперь выбираю место. Пусть будет лес', () => {
+      if (!await step('Теперь выбираем, где он будет гулять. Пусть будет день', () => {
         this.glow('bgPick');
-        pickBg('forest');
-      }, 800)) return this.stop(first);
+        pickBg('day');
+      }, 700)) return this.stop(first);
 
-      if (!await step('Ставлю домик на землю. Туда собачка и пойдёт', () => {
+      if (!await step('Добавим травку, цветочек и домик', async () => {
         this.glow('decorPick');
-        pickTool('h');
-        placeDecor(house.r, house.c);
-      }, 900)) return this.stop(first);
+        pickTool('g'); placeDecor(row + 1, 1); placeDecor(row + 1, 5);
+        await this.wait(400);
+        pickTool('c'); placeDecor(flower.r, flower.c);
+        await this.wait(400);
+        pickTool('h'); placeDecor(house.r, house.c);
+      }, 1200)) return this.stop(first);
 
       this.unglow();
 
-      if (!await step('Беру блок «Вправо». Это один шаг', () => {
-        this.glow('studioPalette');
-        S.editor.pulsePalette('right');
-        S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
-      }, 800)) return this.stop(first);
+      if (!await step('Котик соберёт цветочек и пойдёт домой', null, 600)) return this.stop(first);
 
-      if (!await step('Нажимаю ещё два раза: до домика три шага', async () => {
+      if (!await step('Два шага вправо — и котик у цветочка', async () => {
+        this.glow('studioPalette');
         for (let i = 0; i < 2; i++) {
           S.editor.pulsePalette('right');
           S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
-          await this.wait(500);
+          await this.wait(450);
         }
-      }, 1100)) return this.stop(first);
+      }, 800)) return this.stop(first);
 
-      if (!await step('Нажимаю зелёную кнопку «Старт»', () => {
+      if (!await step('Ещё два шага — и он дома', async () => {
+        for (let i = 0; i < 2; i++) {
+          S.editor.pulsePalette('right');
+          S.editor.setLocked(false); S.editor.add('right'); S.editor.setLocked(true);
+          await this.wait(450);
+        }
+      }, 800)) return this.stop(first);
+
+      if (!await step('Нажимаем зелёную кнопку «Старт»', () => {
         this.glow('studioRun');
         const btn = document.getElementById('studioRun');
         btn && btn.classList.add('pulse');
-      }, 800)) return this.stop(first);
+      }, 700)) return this.stop(first);
 
       this.unglow();
       const btn = document.getElementById('studioRun');
       btn && btn.classList.remove('pulse');
 
-      const walking = this.say('Собачка идёт. Она слушается блоков', first);
+      const walking = this.say('Смотри, котик пошёл', first);
       await S.stage.run(S.editor.program, (n, p) => S.editor.highlight(n, p));
       await walking;
       if (my !== this.token) return this.stop(first);
       S.editor.clearHighlight();
 
-      await Promise.all([this.say('Дошла до домика! Теперь попробуй сам', false), this.wait(1200)]);
+      await Promise.all([this.say('Цветочек собран, котик дома. Теперь попробуй сам', false), this.wait(1200)]);
     } finally {
       if (my === this.token) this.stop(first);
     }

@@ -36,7 +36,7 @@
 <main class="page" id="page-home">
   <div class="topline">
     <div class="container">
-      <b>СобериКод</b> — собери программу из блоков и оживи героя
+      <b>Собирай программу из блоков — и герой оживёт</b>
       <span>·</span> Бесплатно <span>·</span> Для детей 6–10 лет <span>·</span> Без регистрации
     </div>
   </div>
@@ -56,10 +56,9 @@
           <div class="code-label">Фон</div>
           <div class="pick-row" id="bgPick"></div>
         </div>
-        <!-- Переключатели для взрослого: на главной подвала нет, его место заняла сцена -->
+        <!-- Переключатель для взрослого: на главной подвала нет, его место заняла сцена -->
         <div class="pk-sys">
           <button class="link-btn js-sound" onclick="toggleSound()">Звук</button>
-          <button class="link-btn js-lite" onclick="toggleLite()">Облегчённый режим</button>
         </div>
       </div>
 
@@ -68,13 +67,17 @@
       <div class="col-stage">
         <div class="stage-top">
           <button class="btn btn-example" onclick="showExample()">▶ Показать пример</button>
-          <button class="btn btn-hint btn-sm" onclick="surpriseStudio()">🎲 Удиви меня</button>
-          <button class="btn btn-ghost btn-sm" onclick="openGalleryBtn()">🖼 Галерея</button>
+          <button class="btn btn-gallery" onclick="openGalleryBtn()">🖼 Галерея</button>
         </div>
         <div class="pk pk-dec">
           <button class="btn btn-ghost pk-toggle" id="decBtn" onclick="toggleDecor()">+ Добавь детали на фон</button>
-          <div class="code-label">Добавь детали на фон — потом нажми на клетку</div>
-          <div class="pick-row" id="decorPick"></div>
+          <div class="code-label">Добавь детали на фон и нажми на клетку, где она будет расположена</div>
+          <!-- Герой и ластик вынесены из ленты: ими пользуются чаще всего,
+               и искать их среди двадцати предметов ребёнку незачем. -->
+          <div class="dec-row">
+            <div class="pick-row dec-fixed" id="decorFixed"></div>
+            <div class="pick-row" id="decorPick"></div>
+          </div>
         </div>
         <div class="stage-wrap">
           <div class="stage" id="studioStage"></div>
@@ -295,7 +298,6 @@
     <div class="footer-links">
       <a href="#about">О проекте</a>
       <button class="link-btn js-sound" id="soundToggle" onclick="toggleSound()">Звук</button>
-      <button class="link-btn js-lite" id="liteToggle" onclick="toggleLite()">Облегчённый режим</button>
       <span class="net" id="netStatus"></span>
     </div>
   </div>

@@ -79,15 +79,15 @@ const ICONS = {
    Первые трое ходят и по урокам, остальные живут в Мастерской: в заданиях
    герой задан автором, а в своей истории ребёнок выбирает сам. */
 const HEROES = {
-  cat:      { name: 'Котик',    icon: ICONS.cat },
-  dog:      { name: 'Собачка',  icon: ICONS.dog },
-  robot:    { name: 'Робот',    icon: ICONS.robot },
-  dino:     { name: 'Дракоша',  icon: ICONS.dino },
   boy:      { name: 'Мальчик',  icon: ICONS.boy },
   girl:     { name: 'Девочка',  icon: ICONS.girl },
+  cat:      { name: 'Котик',    icon: ICONS.cat },
+  dog:      { name: 'Собачка',  icon: ICONS.dog },
   fishy:    { name: 'Рыбка',    icon: ICONS.fishHero },
   bird:     { name: 'Птичка',   icon: ICONS.bird },
-  bunny:    { name: 'Зайка',    icon: ICONS.bunny }
+  bunny:    { name: 'Зайка',    icon: ICONS.bunny },
+  dino:     { name: 'Дракоша',  icon: ICONS.dino },
+  robot:    { name: 'Робот',    icon: ICONS.robot }
 };
 
 /* ===== Фоны =====
@@ -108,10 +108,17 @@ const BG_ART = {
     '<g fill="#CFDBEE"><rect x="4" y="62" width="20" height="30" rx="2"/><rect x="28" y="54" width="16" height="38" rx="2"/><rect x="100" y="58" width="18" height="34" rx="2"/><rect x="122" y="66" width="16" height="26" rx="2"/></g>' +
     '<g fill="#EAF1FB"><rect x="8" y="68" width="5" height="5"/><rect x="16" y="68" width="5" height="5"/><rect x="32" y="60" width="5" height="5"/><rect x="32" y="72" width="5" height="5"/><rect x="104" y="64" width="5" height="5"/><rect x="126" y="72" width="5" height="5"/></g>' +
     '<rect y="92" width="140" height="8" fill="#DCE3F0"/>',
+  /* Космос — без земли и без луны: планеты, кольцо и туманность. Ночь — та же
+     земля, только тёмная, с месяцем и спящими домами. Раньше их путали. */
   space:
-    '<rect width="140" height="100" fill="#272E5C"/>' +
-    '<g fill="#fff" opacity=".65"><circle cx="14" cy="16" r="1.4"/><circle cx="46" cy="24" r="1.1"/><circle cx="92" cy="14" r="1.3"/><circle cx="124" cy="30" r="1.2"/><circle cx="28" cy="52" r="1.1"/><circle cx="112" cy="58" r="1.2"/><circle cx="60" cy="86" r="1.1"/><circle cx="100" cy="92" r="1.3"/></g>' +
-    '<circle cx="126" cy="18" r="8" fill="#49509A"/><circle cx="12" cy="88" r="10" fill="#3B4280"/>',
+    '<rect width="140" height="100" fill="#1A1140"/>' +
+    '<ellipse cx="44" cy="40" rx="46" ry="26" fill="#3B2273" opacity=".55"/>' +
+    '<ellipse cx="104" cy="74" rx="40" ry="22" fill="#28306E" opacity=".5"/>' +
+    '<g fill="#FFF1C4"><circle cx="16" cy="14" r="1.8"/><circle cx="52" cy="10" r="1.3"/><circle cx="88" cy="20" r="1.6"/><circle cx="122" cy="44" r="1.4"/><circle cx="30" cy="70" r="1.5"/><circle cx="68" cy="56" r="1.2"/><circle cx="108" cy="12" r="1.3"/><circle cx="18" cy="46" r="1.2"/></g>' +
+    '<circle cx="106" cy="30" r="14" fill="#C86FD4"/><circle cx="101" cy="25" r="4" fill="#A64FB4"/>' +
+    '<ellipse cx="106" cy="30" rx="24" ry="6" fill="none" stroke="#F0C6FF" stroke-width="2.5" opacity=".8"/>' +
+    '<circle cx="26" cy="88" r="9" fill="#5E6BC8"/><circle cx="23" cy="85" r="3" fill="#4450A8"/>' +
+    '<path d="M64 88l10-6-10-6 2 6z" fill="#FFE9A8"/>',
   fairy:
     '<rect width="140" height="100" fill="#F7EDFF"/><rect y="76" width="140" height="24" fill="#E6F6E8"/>' +
     '<g fill="none" stroke-width="4" opacity=".55"><path d="M4 42a34 34 0 0 1 56-18" stroke="#FFB3CE"/><path d="M4 50a42 42 0 0 1 62-22" stroke="#FFE0A8"/><path d="M4 58a50 50 0 0 1 68-26" stroke="#BFEACB"/></g>' +
@@ -136,10 +143,13 @@ const BG_ART = {
     '<g fill="#fff"><ellipse cx="26" cy="22" rx="14" ry="7"/><ellipse cx="38" cy="20" rx="9" ry="5"/><ellipse cx="86" cy="32" rx="11" ry="6"/></g>' +
     '<path d="M0 78c26-7 48-7 72 0s42 7 68 0v22H0z" fill="#D8EFC6"/>',
   night:
-    '<rect width="140" height="100" fill="#252C55"/>' +
-    '<path d="M122 10a13 13 0 1 0 0 26 10 10 0 0 1 0-26z" fill="#F2E3B0"/>' +
-    '<g fill="#F7EFD2" opacity=".7"><circle cx="16" cy="18" r="1.5"/><circle cx="48" cy="26" r="1.2"/><circle cx="80" cy="14" r="1.5"/><circle cx="34" cy="46" r="1.2"/><circle cx="96" cy="48" r="1.3"/><circle cx="64" cy="60" r="1.1"/></g>' +
-    '<path d="M0 80c22-10 40-10 60 0s48 8 80-4v24H0z" fill="#333C70"/>'
+    '<rect width="140" height="100" fill="#20336B"/>' +
+    '<path d="M120 8a15 15 0 1 0 0 30 12 12 0 0 1 0-30z" fill="#FFF0B8"/>' +
+    '<g fill="#FFF8DC" opacity=".8"><circle cx="16" cy="18" r="1.6"/><circle cx="44" cy="12" r="1.3"/><circle cx="72" cy="22" r="1.5"/><circle cx="96" cy="14" r="1.2"/><circle cx="30" cy="40" r="1.3"/><circle cx="60" cy="44" r="1.2"/><circle cx="12" cy="60" r="1.4"/></g>' +
+    '<path d="M0 72c26-10 46-10 70 0s44 8 70-2v30H0z" fill="#2C4482"/>' +
+    '<g fill="#1E2F60"><path d="M14 86V74l10-8 10 8v12z"/><path d="M98 88V78l8-7 8 7v10z"/></g>' +
+    '<g fill="#FFE07A"><rect x="19" y="76" width="5" height="5" rx="1"/><rect x="103" y="80" width="5" height="4" rx="1"/></g>' +
+    '<path d="M0 94h140" stroke="#38509A" stroke-width="8"/>'
 };
 
 const BACKGROUNDS = {

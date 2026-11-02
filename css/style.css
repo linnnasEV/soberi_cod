@@ -232,7 +232,9 @@ section { padding: 56px 0; }
 .bubble.b-right::after { left: auto; right: 16px; }
 
 /* Палитра и программа */
-.code-label { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+/* Заголовки — синие, а не серые: ребёнок ищет глазами цветное, и «ГЕРОЙ»,
+   «ФОН», «МОЯ ПРОГРАММА» должны читаться как указатели, а не как мелкий шрифт. */
+.code-label { font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
 .palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .palette.locked, .workspace.locked { pointer-events: none; }
 .palette.locked { opacity: .6; }
@@ -257,7 +259,8 @@ section { padding: 56px 0; }
 @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 .workspace { min-height: 132px; border: 3px dashed #D5DDF2; border-radius: 16px; padding: 10px; margin-bottom: 14px; background: #FAFBFF; transition: .2s; }
 .workspace.over { border-color: var(--blue); background: #EEF3FF; }
-.ws-main { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; min-height: 104px; align-content: flex-start; cursor: text; }
+/* Отступ сверху и между блоками — чтобы кружок «×» не налезал на соседа */
+.ws-main { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 8px; padding: 8px 4px 2px; min-height: 104px; align-content: flex-start; cursor: text; }
 /* Подсказка мелкая и ниже курсора: курсор показывает, куда встанет блок,
    и он должен быть первым, что видно в пустом поле. */
 .empty-hint { color: var(--muted); font-weight: 600; font-size: 13px; padding: 6px 8px; text-align: left; pointer-events: none; }
@@ -268,7 +271,10 @@ section { padding: 56px 0; }
 .wblock.say { width: auto; min-width: 66px; padding: 0 6px; }
 .wblock.running { transform: scale(1.12); box-shadow: 0 0 0 4px var(--yellow), inset 0 -4px 0 rgba(0, 0, 0, .18); z-index: 1; }
 .wblock.wrong { box-shadow: 0 0 0 4px var(--red); animation: shake .4s; }
-.wblock.rep { width: auto; min-width: 150px; height: auto; flex-direction: column; align-items: stretch; padding: 6px 6px 8px; gap: 6px; cursor: default; }
+/* «Повтор» — рамка вокруг других блоков, и выглядеть он должен именно так:
+   во всю ширину программы. В узкой колонке соседние блоки обтекали его
+   сбоку, и было непонятно, что внутри повтора, а что после него. */
+.wblock.rep { flex: 1 1 100%; width: auto; min-width: 150px; height: auto; flex-direction: column; align-items: stretch; padding: 6px 6px 8px; gap: 6px; cursor: default; }
 .rep-head { display: flex; align-items: center; gap: 6px; padding: 0 4px; cursor: pointer; }
 .rep-head .bi svg { width: 24px; height: 24px; }
 .rep-n { background: #fff; color: #B25A00; font-weight: 900; font-size: 17px; min-width: 44px; min-height: 32px; border-radius: 10px; }
@@ -719,15 +725,25 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .stage-top { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; flex: 0 0 auto; }
 .btn-example { background: var(--purple); color: #fff; box-shadow: 0 4px 12px rgba(139, 92, 246, .3); }
 .btn-example:hover { background: #7A46E0; }
+/* Галерея — жёлтая: это «посмотреть работы», а не действие со сценой,
+   и путать её со «Стартом» нельзя. */
+.btn-gallery { background: var(--yellow); color: #6B4E00; box-shadow: 0 4px 12px rgba(255, 211, 78, .45); }
+.btn-gallery:hover { background: #FFC531; }
 
 /* Детали для сцены — лентой прямо над полем: ребёнок выбирает предмет и
    сразу ставит его, не отводя глаз от сцены. Двадцать предметов в строку не
    помещаются, поэтому строка прокручивается. */
 .pk-dec { flex: 0 0 auto; }
 .pk-dec .code-label { margin-bottom: 4px; }
+.dec-row { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
 .pk-dec .pick-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px;
   padding-bottom: 4px; scrollbar-width: thin; scroll-snap-type: x proximity; }
 .pk-dec .pick { flex: 0 0 auto; width: 74px; scroll-snap-align: start; }
+/* Герой и ластик всегда на месте и не уезжают вместе с лентой */
+.dec-fixed { overflow: visible; flex: 0 0 auto; padding-right: 8px; border-right: 2px solid var(--line); }
+.dec-fixed .pick-ico { border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.pick-erase { background: #FFECE9; border-color: #F7C9C2; }
+.pick-erase:hover { background: #FFE0DA; border-color: #F0A99E; }
 .stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
 .stage-wrap .stage { width: auto; height: 100%; max-width: 100%; max-height: 100%; flex: 0 0 auto; }
 .stage-tools { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; margin-top: 0; }
@@ -775,8 +791,11 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .studio-grid .col-code .controls .btn-go { flex: 1 1 130px; min-width: 130px; }
 .studio-grid .col-code .controls .btn-save { flex: 1 1 100%; }
 /* Четырнадцать блоков должны лечь в три ряда, а не в пять: в тесной колонке
-   важнее видеть всю палитру сразу, чем крупную иконку. */
-.studio-grid .pblock, .studio-grid .wblock { width: 58px; height: 58px; }
+   важнее видеть всю палитру сразу, чем крупную иконку.
+   :not(.rep):not(.say) обязателен: «Повтор» — рамка вокруг других блоков,
+   а «Сказать» растёт под текст, и жёсткий размер их ломал — содержимое
+   «Повтора» вываливалось наружу, и было не понять, что внутри цикла. */
+.studio-grid .pblock, .studio-grid .wblock:not(.rep):not(.say) { width: 58px; height: 58px; }
 .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 26px; height: 26px; }
 
 /* Низкое окно (ноутбук 1366×650, проектор): всё сжимается ещё на шаг */
@@ -791,7 +810,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 2px 12px; }
   .pk-dec .pick { width: 64px; }
   .pk-sys { flex-direction: row; flex-wrap: wrap; gap: 4px 14px; padding-top: 6px; }
-  .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
+  .studio-grid .pblock, .studio-grid .wblock:not(.rep):not(.say) { width: 52px; height: 52px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
   /* На низком окне программа ужимается первой: палитра и кнопки должны
      остаться целиком видны, а в программе обычно два-три блока. */
@@ -821,7 +840,7 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
   .studio-grid .col-code .controls .btn-lg { min-height: 46px; padding: 10px 16px; }
   /* Колонка кода здесь узкая: при блоках в 58 px палитра ложится в четыре
      ряда и выталкивает «Запустить» за экран. Пять в ряд — три ряда. */
-  .studio-grid .pblock, .studio-grid .wblock { width: 52px; height: 52px; }
+  .studio-grid .pblock, .studio-grid .wblock:not(.rep):not(.say) { width: 52px; height: 52px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 23px; height: 23px; }
   .studio-grid .col-code .workspace { min-height: 56px; }
   .pk-dec .pick small { font-size: 10px; }
@@ -860,9 +879,14 @@ body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
 .tour-skip { padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, .18); color: #fff; font-weight: 800; font-size: 14px; }
 .tour-skip:hover { background: rgba(255, 255, 255, .3); }
 
-/* Жёлтая рамка на том месте, о котором сейчас говорит показ примера */
-.tour-glow { position: relative; border-radius: 14px;
-  box-shadow: 0 0 0 4px var(--yellow), 0 0 0 9px rgba(255, 211, 78, .3); transition: box-shadow .2s; }
+/* Подсветка того места, о котором сейчас говорит показ примера.
+   Рамка внутренняя: внешнюю срезала прокрутка колонки выбора, и подсветки
+   не было видно вовсе. */
+.tour-glow { position: relative; border-radius: 14px; background: #FFF7DC;
+  box-shadow: inset 0 0 0 3px var(--yellow); }
+/* Без плавного перехода: подсветка должна зажигаться ровно в тот момент,
+   когда о месте говорит голос, а не разгораться следом за ним. */
+.tour-glow.btn, .btn.tour-glow { color: #6B4E00; }
 
 /* ----- Ghost-подсказки -----
    Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */
@@ -945,7 +969,7 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-4
   body.sheet-open .studio-grid .col-code { transform: none; }
   .studio-grid .col-code .controls { display: none; }
   .studio-grid .col-code .workspace { overflow: visible; min-height: 110px; }
-  .studio-grid .pblock, .studio-grid .wblock { width: 62px; height: 62px; }
+  .studio-grid .pblock, .studio-grid .wblock:not(.rep):not(.say) { width: 62px; height: 62px; }
   .studio-grid .pblock .bi svg, .studio-grid .wblock .bi svg { width: 28px; height: 28px; }
 
   .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; gap: 8px;
