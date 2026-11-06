@@ -5,7 +5,7 @@
 сознательно. Школа со слабым интернетом должна заниматься даже когда сервер
 недоступен.
 
-- Python 3.12, FastAPI, PostgreSQL 16
+- Python 3.12 и новее, FastAPI, PostgreSQL
 - миграции — Alembic, схема описана в [`app/models.py`](app/models.py)
 - запуск на сервере — systemd, конфиги в папке [`deploy`](../deploy)
 
@@ -24,9 +24,10 @@
 школьная — десятки запросов в минуту даже при полном компьютерном классе, —
 а синхронный код проще читать и отлаживать.
 
-## Первая установка на Ubuntu 24.04
+## Первая установка на Ubuntu
 
-Дальше считается, что репозиторий лежит в `/srv/soberikod`. Если он у вас в
+Проверено на Ubuntu 26.04 с Python 3.14. Дальше считается, что репозиторий
+лежит в `/srv/soberikod`. Если он у вас в
 другом месте — либо перенесите, либо поправьте путь в двух файлах:
 `deploy/soberikod-api.service` и `deploy/deploy.sh`.
 
@@ -67,7 +68,7 @@ sudo python3 -m venv /srv/soberikod/server/.venv
 sudo /srv/soberikod/server/.venv/bin/pip install -r /srv/soberikod/server/requirements.txt
 ```
 
-В Ubuntu 24.04 установка пакетов Python прямо в систему запрещена
+В Ubuntu установка пакетов Python прямо в систему запрещена
 (`externally-managed-environment`) — поэтому всё живёт в `.venv`, и это
 правильно: версии проекта не пересекаются с системными.
 
