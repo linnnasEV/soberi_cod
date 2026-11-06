@@ -85,6 +85,8 @@ function logout() {
 }
 
 function renderAuthArea() {
+  // Вход открывает галерею и сохранение работ в Мастерской
+  if (typeof updateStudioAccess === 'function') updateStudioAccess();
   const area = document.getElementById('authArea');
   const s = DB.session;
   if (s.role === 'student') {

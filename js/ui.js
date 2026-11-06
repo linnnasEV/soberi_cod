@@ -102,33 +102,6 @@ function applySound() {
   document.querySelectorAll('.js-sound').forEach(t => { t.textContent = txt; });
 }
 
-/* ===== Выбор голоса =====
-   Голоса браузер отдаёт не сразу, поэтому список перерисовывается ещё и по
-   событию voiceschanged. Если русский голос в системе один — выбирать нечего,
-   и список прячется. */
-function renderVoices() {
-  const box = document.getElementById('voiceBox');
-  const sel = document.getElementById('voicePick');
-  if (!box || !sel) return;
-  const list = Speech.voices();
-  if (list.length < 2) { box.hidden = true; return; }
-  box.hidden = false;
-  const cur = (Speech.ruVoice() || {}).name;
-  sel.innerHTML = list.map(v =>
-    '<option value="' + esc(v.name) + '"' + (v.name === cur ? ' selected' : '') + '>' +
-    esc(v.name.replace(/^Microsoft\s+/, '').replace(/\s*-\s*Russian.*$/i, '')) + '</option>').join('');
-}
-
-function pickVoice(name) {
-  DB.settings.voice = name;
-  saveDB();
-  Speech.say('Привет! Теперь я говорю так.');
-}
-
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.addEventListener('voiceschanged', renderVoices);
-}
-
 function toggleSound() {
   DB.settings.sound = DB.settings.sound === false;
   saveDB();
@@ -180,9 +153,9 @@ const Speech = {
   ruVoice() {
     const ru = this.voices();
     if (!ru.length) return null;
-    // Если голос выбрали руками — берём его. Иначе первый русский из системы:
-    // «угадывать красивый» оказалось хуже, чем ничего не выбирать.
-    return ru.find(v => v.name === DB.settings.voice) || ru[0];
+    // Ирина — женский голос, который стоит в Windows по умолчанию. Остальные
+    // звучат хуже, а выбор из списка только путал, поэтому выбора больше нет.
+    return ru.find(v => /irina|ирина/i.test(v.name)) || ru[0];
   },
 
   say(text) {

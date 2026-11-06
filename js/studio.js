@@ -39,6 +39,7 @@ route('home', () => {
   }
   renderStudioPickers();
   mountStudioStage();
+  updateStudioAccess();
   Tour.start();   // галерея рисуется при открытии панели, а не на первом экране
 });
 
@@ -269,6 +270,15 @@ function toggleDecor() {
   const btn = document.getElementById('decBtn');
   if (btn) btn.textContent = open ? '✕ Закрыть детали' : '+ Добавь детали на фон';
   if (open) sayAloud('Выбери деталь');
+}
+
+/* Галерея и сохранение появляются только после входа: работа должна
+   принадлежать кому-то, иначе на общем компьютере класса она достаётся
+   следующему ребёнку, который сядет за него. Вызывается при открытии
+   главной и при каждом входе-выходе. */
+function updateStudioAccess() {
+  const open = DB.session.role !== 'guest';
+  document.querySelectorAll('.btn-gallery, .btn-save, .mob-save').forEach(b => { b.hidden = !open; });
 }
 
 /* Галерея работ — панель поверх мастерской: вместе со сценой в один экран

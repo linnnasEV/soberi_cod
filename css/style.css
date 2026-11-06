@@ -13,6 +13,10 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Браузер прячет [hidden] правилом display: none, но любое своё display
+   (а у кнопок оно flex) это правило перебивает — и скрытая кнопка остаётся
+   на экране. Поэтому прячем явно. */
+[hidden] { display: none !important; }
 /* overscroll-behavior-x: лента предметов прокручивается вбок, и у её края
    браузер начинал «листать назад» — ребёнок уезжал с сайта. */
 html { -webkit-text-size-adjust: 100%; overscroll-behavior-x: none; }
@@ -781,9 +785,6 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 .pk-sys { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line);
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 0 0 auto; }
 .pk-sys .link-btn { font-size: 12px; color: var(--muted); text-align: left; }
-.voice-box { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; max-width: 100%; }
-.voice-box select { font-size: 12px; max-width: 120px; border: 1px solid var(--line); border-radius: 8px;
-  padding: 2px 4px; background: #fff; color: var(--text); }
 .pk-sys .link-btn:hover { color: var(--blue); }
 
 /* Колонка кода: палитра и кнопки держат размер, программа забирает остаток */
