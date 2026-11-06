@@ -1,0 +1,52 @@
+# Служба API. Ставится так:
+#   sudo cp deploy/soberikod-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now soberikod-api
+#
+# Посмотреть, что происходит:
+#   systemctl status soberikod-api
+#   journalctl -u soberikod-api -f
+
+[Unit]
+Description=СобериКод · сервер платформы
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+# Служебный пользователь без оболочки входа. Код ему доступен только на чтение,
+# поэтому дырка в сервере не даёт подменить ни файлы сайта, ни сам сервер.
+User=soberikod
+Group=soberikod
+
+WorkingDirectory=/srv/soberikod/server
+EnvironmentFile=/etc/soberikod/api.env
+# Скомпилированные файлы Python писать некуда (каталог только для чтения)
+# и незачем: пусть не пытается.
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+
+# Слушает только локальный адрес: снаружи до сервера можно добраться
+# исключительно через nginx, который держит TLS и ограничения частоты.
+ExecStart=/srv/soberikod/server/.venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 --port 8000 --workers 2 \
+    --proxy-headers --forwarded-allow-ips=127.0.0.1
+
+Restart=always
+RestartSec=3
+
+# ===== Ограничения прав =====
+# Серверу не нужно ничего, кроме сети и базы: ни домашних каталогов,
+# ни возможности писать на диск, ни новых прав.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
