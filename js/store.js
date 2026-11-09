@@ -1,17 +1,33 @@
 /* ===== Хранилище =====
-   Прогресс детей и данные класса лежат в localStorage этого устройства:
-   в школе с одним компьютерным классом всё работает даже без интернета.
-   Класс можно перенести на другой компьютер файлом (кабинет учителя),
-   а позже к тому же формату данных подключается сервер. */
+   У платформы два режима, и оба настоящие.
 
-const STORE_KEY = 'sobericod_v2';
+   Без входа всё лежит в localStorage этого компьютера: в школе со слабым
+   интернетом ребёнок открывает сайт и занимается, ничего не спрашивая.
+   За одним компьютером может сидеть несколько детей — у каждого свой
+   профиль в списке.
+
+   После входа прогресс живёт на сервере, а в браузере остаётся его копия.
+   Копия не для красоты: пропал интернет посреди урока — звёзды всё равно
+   сохранились и уйдут на сервер, когда связь вернётся. */
+
+const STORE_KEY = 'sobericod_v3';
+const OLD_STORE_KEY = 'sobericod_v2';
 
 function newProfile(name, pic) {
   return { name: name || 'Гость', pic: pic || null, progress: {}, reactions: {}, projects: [], quiz: null, awards: [] };
 }
 
 function defaultDB() {
-  return { classes: {}, guests: {}, session: { role: 'guest' }, settings: { track: null, sound: true } };
+  return {
+    guests: {},
+    // role: guest | child | parent | teacher
+    session: { role: 'guest' },
+    // Профиль вошедшего ребёнка — копия того, что на сервере
+    cloud: null,
+    // Аккаунт вошедшего взрослого: кто он и что ему можно
+    account: null,
+    settings: { track: null, sound: true }
+  };
 }
 
 let DB = loadDB();
@@ -20,6 +36,8 @@ function loadDB() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) return migrate(Object.assign(defaultDB(), JSON.parse(raw)));
+    const old = localStorage.getItem(OLD_STORE_KEY);
+    if (old) return migrate(fromOldVersion(JSON.parse(old)));
   } catch (e) { /* приватный режим или запрет хранилища — работаем в памяти */ }
   return migrate(defaultDB());
 }
@@ -28,24 +46,31 @@ function saveDB() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch (e) {}
 }
 
-/* Приводит сохранения прошлых версий к текущему формату:
-   раньше гость на устройстве был один, а ПИН учителя хранился открытым текстом. */
-function migrate(db) {
-  if (!db.guests) db.guests = {};
-  if (db.guest) {
-    db.guests.g1 = normalizeProfile(db.guest);
-    if (db.session.role === 'guest' && !db.session.gid) db.session.gid = 'g1';
-    delete db.guest;
-  }
-  if (!Object.keys(db.guests).length) db.guests.g1 = newProfile('Гость');
-  if (db.session.role === 'guest' && !db.guests[db.session.gid]) db.session.gid = Object.keys(db.guests)[0];
-  Object.values(db.classes).forEach(cls => {
-    if (cls.pin) { cls.pinHash = pinHash(cls.pin, cls.code); delete cls.pin; }
-  });
+/* Переезд с прежней версии.
+   Раньше класс целиком лежал в браузере: код из четырёх цифр, ПИН учителя,
+   картинка вместо пароля. Теперь всё это на сервере, и переносить оттуда
+   нечего. А вот профили тех, кто играл без входа, забираем: ребёнок не
+   должен потерять свои звёзды из-за того, что мы переделали вход. */
+function fromOldVersion(old) {
+  const db = defaultDB();
+  if (old.settings) db.settings = Object.assign(db.settings, old.settings);
+  if (old.guests) Object.entries(old.guests).forEach(([gid, g]) => { db.guests[gid] = normalizeProfile(g); });
+  if (old.guest) db.guests.g1 = normalizeProfile(old.guest);
   return db;
 }
 
-/* Достраивает профиль до полного вида: файл класса могли сохранить старой версией */
+function migrate(db) {
+  if (!db.guests) db.guests = {};
+  if (!Object.keys(db.guests).length) db.guests.g1 = newProfile('Гость');
+  if (!db.session || !db.session.role) db.session = { role: 'guest' };
+  if (db.session.role === 'guest' && !db.guests[db.session.gid]) {
+    db.session.gid = Object.keys(db.guests)[0];
+  }
+  if (db.cloud) db.cloud = normalizeProfile(db.cloud);
+  return db;
+}
+
+/* Достраивает профиль до полного вида: он мог прийти с сервера без части полей */
 function normalizeProfile(p) {
   p = p || {};
   return Object.assign(newProfile(p.name, p.pic), {
@@ -58,18 +83,17 @@ function normalizeProfile(p) {
 }
 
 /* ===== Кто сейчас играет =====
-   За одним школьным компьютером занимается несколько детей, поэтому
-   даже без входа в класс у каждого свой профиль и свои звёзды. */
+   Без входа у каждого ребёнка за компьютером свой профиль и свои звёзды. */
 function guestList() {
   return Object.entries(DB.guests).sort((a, b) => a[1].name.localeCompare(b[1].name, 'ru'));
 }
 
 function currentGuest() {
   const s = DB.session;
-  let gid = s.role === 'guest' ? s.gid : null;
+  let gid = s.gid;
   if (!gid || !DB.guests[gid]) {
     gid = Object.keys(DB.guests)[0] || addGuest('Гость');
-    if (s.role === 'guest') s.gid = gid;
+    s.gid = gid;
   }
   return DB.guests[gid];
 }
@@ -81,27 +105,24 @@ function addGuest(name, pic) {
   return gid;
 }
 
-/* Текущий ученик (или гость этого компьютера) */
+/* Чей прогресс сейчас на экране: вошедшего ребёнка или гостя этого компьютера.
+   Уроки и Мастерская работают с тем, что вернёт эта функция, и про сервер
+   не знают вовсе. */
 function me() {
-  const s = DB.session;
-  if (s.role === 'student' && DB.classes[s.code] && DB.classes[s.code].students[s.sid]) {
-    return DB.classes[s.code].students[s.sid];
-  }
+  if (DB.session.role === 'child' && DB.cloud) return DB.cloud;
   return currentGuest();
 }
 
+/* Занятие, на котором сейчас ребёнок. Появится вместе с кабинетом учителя;
+   пока его нет, уровень сложности ребёнок выбирает сам. */
 function currentClass() {
-  const s = DB.session;
-  return (s.role === 'student' || s.role === 'teacher') ? DB.classes[s.code] : null;
+  return null;
 }
 
-/* ===== Уровень сложности =====
-   Классу он достаётся сам: учитель уже выбрал класс, когда создавал его,
-   спрашивать отдельно незачем. Разновозрастной группе показываем оба уровня,
-   а ребёнку без класса — тот, что он выбрал сам на главной. */
+/* ===== Уровень сложности ===== */
 const GRADE_TRACK = { '1 класс': 'junior', '2 класс': 'junior', '3 класс': 'senior', '4 класс': 'senior' };
 
-/* Уровень, навязанный классом: сменить его ребёнок не может */
+/* Уровень, навязанный занятием: сменить его ребёнок не может */
 function lockedTrack() {
   const cls = currentClass();
   return (cls && GRADE_TRACK[cls.grade]) || null;
@@ -130,94 +151,74 @@ function totalStars(profile) {
   return Object.values(profile.progress).reduce((s, v) => s + v, 0);
 }
 
-function genCode() {
-  let code;
-  do { code = String(Math.floor(1000 + Math.random() * 9000)); } while (DB.classes[code]);
-  return code;
-}
-
 function uid() { return Math.random().toString(36).slice(2, 9); }
 
-/* ===== ПИН учителя =====
-   Сам ПИН не храним: в localStorage попадает только его отпечаток.
-   Это не защита от взлома — все данные и так в браузере — а защита от ребёнка,
-   который заглянет в хранилище, чтобы зайти в кабинет учителя. */
-function pinHash(pin, salt) {
-  let h = 2166136261;
-  const src = 'sobericod:' + salt + ':' + pin;
-  for (let i = 0; i < src.length; i++) {
-    h ^= src.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-}
+/* ===== Обмен с сервером =====
+   Страница отправляет всё, что знает о ребёнке, и получает обратно слитое:
+   по каждому уроку остаётся лучший результат. Посылкой целиком, а не по
+   кусочку на каждое событие, — так переживается пропажа интернета, обычная
+   для сельской школы: вернулась связь, ушло всё накопленное разом. */
 
-function pinOk(cls, pin) {
-  return !!cls && cls.pinHash === pinHash(pin, cls.code);
-}
-
-/* ===== Перенос класса между компьютерами =====
-   Кабинет учителя сохраняет класс в файл, на другом компьютере файл загружается обратно.
-   Повторная загрузка не затирает прогресс, а объединяет: берётся лучший результат. */
-function classToJSON(cls) {
-  return JSON.stringify({ app: 'sobericod', format: 2, saved: new Date().toISOString(), class: cls }, null, 1);
-}
-
-function mergeProfile(into, from) {
-  Object.entries(from.progress || {}).forEach(([k, v]) => {
-    into.progress[k] = Math.max(into.progress[k] || 0, v);
-  });
-  Object.assign(into.reactions, from.reactions || {});
-  const have = new Set(into.projects.map(p => p.id));
-  (from.projects || []).forEach(p => { if (!have.has(p.id)) into.projects.push(p); });
-  (from.awards || []).forEach(a => { if (!into.awards.includes(a)) into.awards.push(a); });
-  if (!into.pic) into.pic = from.pic || null;
-  if (!into.quiz) into.quiz = from.quiz || null;
-}
-
-function importClassJSON(text) {
-  let data;
-  try { data = JSON.parse(text); }
-  catch (e) { return { ok: false, msg: 'Файл не читается. Выберите файл, который сохранила платформа.' }; }
-
-  const cls = data && data.class;
-  if (!cls || !/^\d{4}$/.test(String(cls.code || '')) || !cls.students) {
-    return { ok: false, msg: 'В этом файле нет данных класса.' };
-  }
-
-  const students = {};
-  Object.entries(cls.students).forEach(([sid, st]) => { students[sid] = normalizeProfile(st); });
-
-  const old = DB.classes[cls.code];
-  if (old) {
-    Object.entries(students).forEach(([sid, st]) => {
-      if (old.students[sid]) mergeProfile(old.students[sid], st);
-      else old.students[sid] = st;
-    });
-    if (cls.pinHash) old.pinHash = cls.pinHash;
-  } else {
-    DB.classes[cls.code] = Object.assign({}, cls, { students });
-  }
-  saveDB();
-  return { ok: true, code: cls.code, merged: !!old, name: DB.classes[cls.code].name || 'Класс' };
-}
-
-/* Демо-класс для показа кабинета учителя на защите проекта */
-function ensureDemoClass() {
-  if (DB.classes['1234']) return;
-  const mk = (name, pic, progress, reactions, quiz) =>
-    Object.assign(newProfile(name, pic), { progress, reactions, quiz });
-  DB.classes['1234'] = {
-    code: '1234', name: 'Демо-класс', grade: '2 класс', pinHash: pinHash('0000', '1234'), demo: true,
-    students: {
-      s1: mk('Аня', '🌸', { 'steps-1': 3, 'steps-2': 3, 'steps-3': 2, 'steps-4': 3, 'steps-5': 2, 'steps-6': 3, 'loops-1': 3 },
-             { 'steps-1': 2, 'steps-2': 2, 'steps-3': 2, 'steps-4': 1, 'steps-5': 2, 'steps-6': 2, 'loops-1': 2 }, 'logic'),
-      s2: mk('Миша', '🚗', { 'steps-1': 3, 'steps-2': 2, 'steps-3': 1 },
-             { 'steps-1': 1, 'steps-2': 0, 'steps-3': 0 }, null),
-      s3: mk('Даша', '🐶', { 'steps-1': 3, 'steps-2': 3, 'steps-3': 3, 'steps-4': 2, 'stories-1': 3, 'stories-2': 3 },
-             { 'steps-1': 2, 'steps-2': 1, 'steps-3': 1, 'steps-4': 1, 'stories-1': 2, 'stories-2': 2 }, 'create'),
-      s4: mk('Тимур', '⭐', {}, {}, null)
-    }
+function stateToSend(p) {
+  return {
+    progress: p.progress || {},
+    reactions: p.reactions || {},
+    quiz: p.quiz || null,
+    awards: p.awards || [],
+    // Работа уходит целиком, как есть: так ничего не теряется, даже если
+    // в Мастерской появится новое поле, о котором обмен не знает.
+    projects: (p.projects || []).map(x => ({
+      id: String(x.id), title: x.title || null, payload: x
+    }))
   };
+}
+
+function stateFromServer(out) {
+  const p = DB.cloud;
+  if (!p) return;
+  p.progress = out.progress || {};
+  p.reactions = out.reactions || {};
+  p.quiz = out.quiz || null;
+  p.awards = out.awards || [];
+  p.projects = (out.projects || []).map(x => x.payload);
   saveDB();
+}
+
+let pushTimer = null;
+let pushing = false;
+let pushPending = false;
+
+/* Прогресс уходит на сервер сам: ребёнок прошёл урок — нажимать ничего не надо.
+   Отправка отложена на полторы секунды, чтобы три события подряд
+   (звёзды, значок, отношение к уроку) ушли одной посылкой. */
+function syncPushSoon() {
+  if (DB.session.role !== 'child' || !DB.cloud) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushState, 1500);
+}
+
+async function pushState() {
+  if (DB.session.role !== 'child' || !DB.cloud) return;
+  if (pushing) { pushPending = true; return; }
+  pushing = true;
+  try {
+    const out = await API.put('/child/state', stateToSend(DB.cloud));
+    stateFromServer(out);
+    if (typeof renderAuthArea === 'function') renderAuthArea();
+  } catch (e) {
+    // Интернета нет или сервер молчит — всё уже сохранено в браузере,
+    // уйдёт при следующем событии или когда связь вернётся.
+  } finally {
+    pushing = false;
+    if (pushPending) { pushPending = false; syncPushSoon(); }
+  }
+}
+
+/* Забрать прогресс с сервера и слить с тем, что накопилось в браузере */
+async function pullState() {
+  if (DB.session.role !== 'child' || !DB.cloud) return;
+  try {
+    const out = await API.put('/child/state', stateToSend(DB.cloud));
+    stateFromServer(out);
+  } catch (e) { /* без связи работаем с местной копией */ }
 }

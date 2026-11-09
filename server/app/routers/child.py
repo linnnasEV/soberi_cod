@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import progress
+from .. import progress, state
 from ..db import get_db
 from ..deps import current_child
 from ..models import Award, Child, Project
@@ -25,6 +25,8 @@ from ..schemas import (
     ProjectIn,
     ProjectOut,
     QuizIn,
+    StateIn,
+    StateOut,
 )
 
 router = APIRouter(prefix='/api/child', tags=['child'])
@@ -57,6 +59,31 @@ def _project_out(row: Project) -> ProjectOut:
 @router.get('/me', response_model=ChildMeOut)
 def me(db: Session = Depends(get_db), child: Child = Depends(current_child)):
     out = _me(db, child)
+    db.commit()
+    return out
+
+
+@router.get('/state', response_model=StateOut)
+def get_state(db: Session = Depends(get_db), child: Child = Depends(current_child)):
+    """Всё о ребёнке одним запросом — этим страница начинает работу после входа."""
+    out = state.read(db, child=child)
+    db.commit()
+    return out
+
+
+@router.put('/state', response_model=StateOut)
+def put_state(
+    data: StateIn,
+    db: Session = Depends(get_db),
+    child: Child = Depends(current_child),
+):
+    """Страница отправляет всё, что знает, и получает обратно слитое.
+
+    Подробности слияния — в app/state.py. Коротко: по каждому заданию
+    остаётся лучший результат, награды складываются, список работ берётся
+    от страницы целиком.
+    """
+    out = state.merge(db, data, child=child)
     db.commit()
     return out
 

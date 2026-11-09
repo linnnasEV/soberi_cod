@@ -990,3 +990,33 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-8px) rotate(-4
   .topline .container { min-height: 0; }
   .ub-stars { display: none; }
 }
+
+/* ===== Вход: три вкладки =====
+   Ребёнок, родитель и учитель входят по-разному, и каждому нужно сразу
+   увидеть свою форму, а не искать её среди чужих полей. */
+.tabs { display: flex; gap: 6px; background: #EEF3FF; padding: 6px; border-radius: 14px; margin: 14px 0 18px; }
+.tab { flex: 1; min-height: 44px; padding: 8px 6px; border: 0; border-radius: 10px;
+       background: transparent; color: var(--blue-dark); font: inherit; font-weight: 600; cursor: pointer; }
+.tab:hover { background: #DCE6FF; }
+.tab.sel { background: #fff; color: var(--text); box-shadow: 0 2px 8px rgba(74, 125, 255, .18); }
+
+.btn-wide { width: 100%; justify-content: center; margin-top: 4px; }
+
+/* Галочка «общий компьютер»: за школьным местом через урок сядет другой,
+   и вход не должен его дожидаться. */
+.check { display: flex; align-items: center; gap: 8px; margin: 2px 0 14px; color: var(--muted); font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--blue); }
+
+.pic-btn.sel { border-color: var(--blue); background: #DFEAFF; }
+
+small.muted.ok { color: var(--green-dark); }
+small.muted.warn { color: var(--red); }
+
+/* ===== Кабинет родителя ===== */
+.kid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 14px 0 18px; }
+.kid-card { border: 2px solid var(--line); border-radius: var(--radius); padding: 16px; background: #FBFCFF; }
+.kid-top { display: flex; align-items: center; gap: 12px; }
+.mini-ava.big { font-size: 34px; line-height: 1; }
+.kid-stars { margin: 10px 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.kid-stars svg { width: 22px; height: 22px; }
+.kid-actions { display: flex; flex-wrap: wrap; gap: 6px; }

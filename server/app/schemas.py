@@ -264,5 +264,39 @@ class QuizIn(BaseModel):
     direction: Literal['logic', 'create', 'tech']
 
 
+class StateProject(BaseModel):
+    """Работа из Мастерской в том виде, в каком её знает браузер."""
+
+    id: str = Field(min_length=1, max_length=40)
+    title: str | None = Field(default=None, max_length=60)
+    payload: dict
+
+
+class StateIn(BaseModel):
+    """Всё, что страница знает о ребёнке, одной посылкой.
+
+    Так сделано не от широты душевной, а чтобы не переписывать уроки и
+    Мастерскую. Игровой код платформы складывает звёзды и работы в один
+    объект профиля, как делал это годом раньше в браузере; отправка целиком
+    позволяет оставить его нетронутым. Заодно это переживает отсутствие
+    интернета: вернулась сеть — ушло всё накопленное, а не по кусочку.
+    """
+
+    progress: dict[str, int] = {}
+    reactions: dict[str, int] = {}
+    quiz: Literal['logic', 'create', 'tech'] | None = None
+    awards: list[str] = []
+    projects: list[StateProject] = []
+
+
+class StateOut(BaseModel):
+    progress: dict[str, int] = {}
+    reactions: dict[str, int] = {}
+    quiz: str | None = None
+    awards: list[str] = []
+    projects: list[StateProject] = []
+    stars: int = 0
+
+
 class AwardIn(BaseModel):
     code: str = Field(min_length=1, max_length=40)

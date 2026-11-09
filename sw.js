@@ -4,12 +4,13 @@
 /* V — единственное место, где меняется версия. Это же число стоит в адресах
    стилей и скриптов в index.html (?v=…): при их несовпадении страница будет
    брать файлы из сети каждый раз, но ничего не сломается. */
-const V = '23';
+const V = '24';
 const CACHE = 'sobericod-v' + V;
 const ASSETS = [
   'css/style.css',
-  'js/icons.js', 'js/data.js', 'js/store.js', 'js/sync.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
-  'js/lesson.js', 'js/studio.js', 'js/auth.js', 'js/teacher.js', 'js/pages.js', 'js/tour.js', 'js/main.js'
+  'js/icons.js', 'js/data.js', 'js/api.js', 'js/store.js', 'js/engine.js', 'js/ui.js', 'js/editor.js',
+  'js/lesson.js', 'js/studio.js', 'js/auth.js', 'js/teacher.js', 'js/parent.js', 'js/pages.js',
+  'js/tour.js', 'js/main.js'
 ].map(f => f + '?v=' + V);
 const FILES = ['./', 'index.html', 'manifest.json', 'icon.svg'].concat(ASSETS);
 

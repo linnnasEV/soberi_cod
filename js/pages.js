@@ -121,8 +121,7 @@ function quizAnswer(dir) {
 /* ---------- Кабинет ученика ---------- */
 route('profile', () => {
   const p = me();
-  const isStudent = DB.session.role === 'student';
-  const cls = currentClass();
+  const isStudent = DB.session.role === 'child';
   const done = Object.keys(p.progress).length;
   const bars = visibleCourses().map(c => {
     const d = courseDone(p, c.id), t = LESSONS[c.id].length;
@@ -137,11 +136,13 @@ route('profile', () => {
     '<div class="profile-grid"><div class="profile-card">' +
       '<div class="avatar">' + (p.pic || ICONS.cat) + '</div>' +
       '<h3>' + esc(p.name) + '</h3>' +
-      '<p class="muted">' + (isStudent && cls ? esc(cls.name) : 'Ты играешь без входа — прогресс сохраняется только на этом компьютере') + '</p>' +
+      '<p class="muted">' + (isStudent
+        ? 'Ты вошёл — звёзды сохраняются и откроются на любом компьютере'
+        : 'Ты играешь без входа — прогресс сохраняется только на этом компьютере') + '</p>' +
       '<div class="stat-row"><div><b>' + done + '</b><span>уроков</span></div><div><b>' + totalStars(p) + '</b><span>звёзд</span></div><div><b>' + p.projects.length + '</b><span>работ</span></div></div>' +
       (isStudent
         ? '<button class="btn btn-ghost" onclick="logout()">Выйти</button>'
-        : '<button class="btn btn-primary" onclick="openLogin()">Войти в класс</button>' +
+        : '<button class="btn btn-primary" onclick="openLogin()">Войти</button>' +
           '<button class="btn btn-ghost" onclick="openGuestSwitch()">Это не мой прогресс</button>' +
           (Object.keys(DB.guests).length > 1
             ? '<button class="btn btn-ghost" onclick="removeGuest(DB.session.gid)">Удалить этот профиль</button>' : '')) +

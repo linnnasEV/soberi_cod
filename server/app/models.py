@@ -243,12 +243,19 @@ class Project(Base):
     title: Mapped[str | None] = mapped_column(Text)
     # Сама программа: тот же вид, в котором её хранит Мастерская в браузере.
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    # Номер, под которым работу знает браузер ребёнка. Нужен, чтобы повторная
+    # отправка того же состояния не плодила копии одной и той же работы.
+    local_id: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     __table_args__ = (
         CheckConstraint('(child_id is null) <> (participant_id is null)', name='projects_subject'),
         Index('projects_child', 'child_id'),
         Index('projects_participant', 'participant_id'),
+        Index('projects_child_local', 'child_id', 'local_id', unique=True,
+              postgresql_where=text('child_id is not null and local_id is not null')),
+        Index('projects_guest_local', 'participant_id', 'local_id', unique=True,
+              postgresql_where=text('participant_id is not null and local_id is not null')),
     )
 
 

@@ -1,6 +1,10 @@
 (function init() {
   applySound();
   renderAuthArea();
+  // Кто за компьютером, знает сервер: вход живёт в cookie, которую страница
+  // прочитать не может. Спрашиваем сразу, но не ждём ответа — без интернета
+  // платформа должна открыться так же быстро, как с ним.
+  bootSession();
   document.getElementById('logoIcon').innerHTML = ICONS.logo;
 
   window.addEventListener('hashchange', handleRoute);
