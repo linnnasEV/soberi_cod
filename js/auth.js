@@ -259,14 +259,43 @@ function fullName(a) {
   return [a.surname, a.name].filter(Boolean).join(' ');
 }
 
-/* Родителю на платформе нужны две вещи: свои дети и их успехи. Уроки, тест и
-   Мастерская — не для него, поэтому в шапке у него остаётся только «О проекте».
-   Ребёнку и учителю видно всё как прежде. */
+/* ===== Что кому показывать в шапке =====
+
+   Родителю нужны две вещи: свои дети и их успехи. Уроки, тест и Мастерская —
+   не для него, поэтому у него остаётся только «О проекте».
+
+   Без входа уроки и тест тоже скрыты. Причина не в жадности: пройденный урок
+   некуда сохранить, и ребёнок, закрывший вкладку, теряет всё, что сделал.
+   Мастерская при этом открыта — в ней можно играть сколько угодно, ничего
+   не теряя, потому что там и нечего терять.
+
+   Ребёнку и учителю видно всё. */
+const NAV_ALLOWED = {
+  parent: ['about'],
+  guest: ['home', 'about']
+};
+
 function applyNavForRole() {
-  const parentOnly = DB.session.role === 'parent';
+  const allowed = NAV_ALLOWED[DB.session.role];
   document.querySelectorAll('.nav-links a').forEach(a => {
-    a.hidden = parentOnly && a.dataset.page !== 'about';
+    a.hidden = !!allowed && !allowed.includes(a.dataset.page);
   });
+}
+
+/* Та же проверка для адреса: вкладку спрятали, но ссылку могли сохранить
+   в закладках или прислать в чате. */
+const PAGE_BLOCKED = {
+  parent: ['home', 'courses', 'course', 'lesson', 'test', 'profs'],
+  guest: ['courses', 'course', 'lesson', 'test']
+};
+
+function pageAllowed(page) {
+  const blocked = PAGE_BLOCKED[DB.session.role];
+  return !blocked || !blocked.includes(page);
+}
+
+function defaultPage() {
+  return DB.session.role === 'parent' ? 'parent' : 'home';
 }
 
 function renderAuthArea() {

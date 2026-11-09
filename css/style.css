@@ -1055,3 +1055,9 @@ small.muted.warn { color: var(--red); }
   .t-head-actions { width: 100%; }
   .kid-actions .btn { flex: 1 1 auto; }
 }
+
+/* Пояснение внутри карточки — продолжение её текста, а не отдельный блок. */
+.card > .small-note { margin-top: 14px; margin-bottom: 0; }
+/* Красная карточка отодвинута от соседей: случайно нажать «Удалить аккаунт»,
+   метясь в кнопку выше, не должно быть легко. */
+.danger-card { margin-top: 24px; }

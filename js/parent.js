@@ -37,11 +37,13 @@ async function loadChildren() {
       ? '<div class="kid-grid">' + kids.map(kidCard).join('') + '</div>'
       : '<p class="muted">Пока никого. Заведите ребёнку профиль — он войдёт по своему логину, ' +
         'и его звёзды будут сохраняться, на каком бы компьютере он ни занимался.</p>') +
-    '<button class="btn btn-primary" onclick="openAddChild()">Добавить ребёнка</button></div>' +
-
+    '<button class="btn btn-primary" onclick="openAddChild()">Добавить ребёнка</button>' +
+    // Пояснение стоит внутри карточки, а не между карточками: висящий в
+    // пустоте абзац глаз принимает за вступление к следующему блоку —
+    // в данном случае к красной кнопке удаления, к которой он не относится.
     '<p class="small-note">У ребёнка нет почты, поэтому забытый пароль задаёте вы: ' +
     'кнопка «Сменить пароль» в его карточке. Удаление профиля убирает звёзды и работы ' +
-    'без возможности вернуть.</p>' +
+    'без возможности вернуть.</p></div>' +
 
     '<div class="card danger-card"><h3>Удалить аккаунт</h3>' +
     '<p class="muted">Вместе с аккаунтом удалятся профили всех ваших детей, их звёзды, ' +
@@ -199,26 +201,20 @@ async function submitDeleteChild(id) {
 }
 
 /* ===== Удаление аккаунта =====
-   Два препятствия подряд — пароль и слово руками — стоят здесь нарочно.
-   До открытого кабинета может добраться кто угодно, включая самого ребёнка,
-   а отменить это нельзя: ни корзины, ни недели на раздумья у нас нет. */
+   Подтверждение — пароль. Его знает только взрослый, и этого довольно:
+   ребёнок, добравшийся до открытого кабинета, пароля не введёт. */
 function askDeleteAccount() {
   openModal('<h2>Удалить аккаунт?</h2>' +
     '<p class="sub">Удалятся профили всех ваших детей, их звёзды, работы и награды. ' +
     'Вернуть это будет нельзя — ни вам, ни нам.</p>' +
     '<div id="authForm">' +
-    '<div class="form-group"><label>Ваш пароль</label>' +
-    '<input id="accPass" type="password" autocomplete="current-password"></div>' +
-    '<div class="form-group"><label>Напишите слово УДАЛИТЬ</label>' +
-    '<input id="accWord" autocapitalize="characters" placeholder="УДАЛИТЬ"></div></div>' +
+    '<div class="form-group"><label>Введите свой пароль, чтобы подтвердить</label>' +
+    '<input id="accPass" type="password" autocomplete="current-password"></div></div>' +
     '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>' +
     '<button class="btn btn-danger" onclick="submitDeleteAccount()">Удалить навсегда</button></div>');
 }
 
 async function submitDeleteAccount() {
-  if (val('accWord').toUpperCase() !== 'УДАЛИТЬ') {
-    return toast('Напишите слово УДАЛИТЬ, чтобы подтвердить', 'warn');
-  }
   try {
     await API.del('/auth/account', { password: val('accPass') });
     DB.session = { role: 'guest', gid: DB.session.gid };

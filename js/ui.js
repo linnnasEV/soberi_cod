@@ -18,6 +18,9 @@ function go(path) {
 function handleRoute() {
   const [page, ...args] = (location.hash.slice(1) || 'home').split('/');
   const name = ROUTES[page] ? page : 'home';
+  // Закрытую страницу не открываем даже по прямой ссылке: прятать вкладку
+  // и оставлять адрес рабочим — это не запрет, а недоразумение.
+  if (typeof pageAllowed === 'function' && !pageAllowed(name)) return go(defaultPage());
   if (window.currentStage) window.currentStage.stop();
   Speech.stop();   // голос не должен договаривать задание на другой странице
   closeMenu();
