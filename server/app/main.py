@@ -18,7 +18,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from .config import settings
 from .db import get_db
-from .routers import auth
+from .routers import auth, child, parent
 
 
 class SecurityHeaders(BaseHTTPMiddleware):
@@ -60,6 +60,8 @@ def create_app() -> FastAPI:
         return {'ok': True}
 
     app.include_router(auth.router)
+    app.include_router(parent.router)
+    app.include_router(child.router)
     return app
 
 

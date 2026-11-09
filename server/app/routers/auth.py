@@ -16,21 +16,25 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request,
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import audit, mail, ratelimit, sessions
+from .. import audit, mail, progress, ratelimit, sessions
 from ..config import settings
 from ..db import get_db
 from ..deps import current_session, current_user
-from ..models import AuthSession, EmailToken, User
+from ..models import AuthSession, Child, EmailToken, User
 from ..schemas import (
     ChangePasswordIn,
+    ChildLoginIn,
+    ChildMeOut,
     ForgotIn,
     LoginIn,
     MeOut,
     OkOut,
     RegisterIn,
     ResetIn,
+    SessionOut,
     TokenIn,
 )
+from ..security import normalize_login
 from ..security import (
     hash_password,
     needs_rehash,
@@ -48,6 +52,9 @@ RESET_LIFETIME = timedelta(hours=1)
 # Один и тот же ответ на неверный пароль и на несуществующий адрес: иначе по
 # разнице ответов можно собрать список тех, кто зарегистрирован.
 WRONG = 'Неверная почта или пароль'
+# Ребёнку шести лет «неверные учётные данные» ничего не говорят, а вот
+# «спроси взрослого» — понятный выход из положения.
+WRONG_CHILD = 'Что-то не так. Проверь логин и пароль или спроси взрослого.'
 
 
 def _me(user: User) -> MeOut:
@@ -198,6 +205,86 @@ def login(
     return _me(user)
 
 
+def _child_me(db: Session, child: Child) -> ChildMeOut:
+    return ChildMeOut(
+        id=str(child.id),
+        display_name=child.display_name,
+        avatar=child.avatar,
+        quiz_direction=child.quiz_direction,
+        stars=progress.total_stars(db, child_id=child.id),
+    )
+
+
+@router.post('/child/login', response_model=ChildMeOut)
+def child_login(
+    data: ChildLoginIn,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    """Вход ребёнка: простой логин и простой пароль, которые придумал родитель.
+
+    Почты у ребёнка нет, значит нет и восстановления по письму: забытый
+    пароль заново ставит родитель в своём кабинете.
+    """
+    ratelimit.guard_ip(db, request)
+    login = normalize_login(data.login)
+    child = db.execute(select(Child).where(Child.login == login)).scalar_one_or_none()
+
+    if child is None:
+        ratelimit.record(db, 'child_login', login, False, request)
+        db.commit()
+        raise HTTPException(401, WRONG_CHILD)
+
+    ratelimit.ensure_not_locked(child)
+
+    if not verify_password(child.password_hash, data.password):
+        ratelimit.note_failure(db, child)
+        ratelimit.record(db, 'child_login', login, False, request)
+        audit.log(db, 'child_login_failed', actor_kind='child', actor_id=child.id,
+                  actor_label=child.login, request=request)
+        db.commit()
+        raise HTTPException(401, WRONG_CHILD)
+
+    if needs_rehash(child.password_hash):
+        child.password_hash = hash_password(data.password)
+
+    ratelimit.note_success(db, child)
+    ratelimit.record(db, 'child_login', login, True, request)
+    token, max_age = sessions.issue_for_child(
+        db, child, request, shared_computer=data.shared_computer)
+    sessions.set_cookie(response, token, max_age)
+    audit.log(db, 'child_login', actor_kind='child', actor_id=child.id,
+              actor_label=child.login, request=request)
+    db.flush()
+    out = _child_me(db, child)
+    db.commit()
+    return out
+
+
+@router.get('/session', response_model=SessionOut)
+def whoami(request: Request, db: Session = Depends(get_db)):
+    """Кто за компьютером. Отвечает всегда, даже если не вошёл никто.
+
+    Этим запросом страница начинает работу: по нему она решает, показывать
+    кнопку «Войти» или имя со звёздами.
+    """
+    found = sessions.load(db, request.cookies.get(settings.cookie_name))
+    out = SessionOut()
+    if found is not None:
+        sessions.touch(db, found)
+        if found.user_id is not None:
+            user = db.get(User, found.user_id)
+            if user is not None and user.status == 'active':
+                out.user = _me(user)
+        elif found.child_id is not None:
+            child = db.get(Child, found.child_id)
+            if child is not None:
+                out.child = _child_me(db, child)
+    db.commit()
+    return out
+
+
 @router.post('/logout', response_model=OkOut)
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     """Выход. Намеренно не требует живой сессии.
@@ -208,7 +295,9 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     found = sessions.load(db, request.cookies.get(settings.cookie_name))
     if found is not None:
         sessions.revoke(db, found)
-        audit.log(db, 'logout', actor_kind='user', actor_id=found.user_id, request=request)
+        kind = 'user' if found.user_id is not None else 'child'
+        audit.log(db, 'logout', actor_kind=kind,
+                  actor_id=found.user_id or found.child_id, request=request)
         db.commit()
     sessions.clear_cookie(response)
     return OkOut(message='Вы вышли')

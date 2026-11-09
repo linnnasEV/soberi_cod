@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from . import sessions
 from .config import settings
 from .db import get_db
-from .models import AuthSession, User
+from .models import AuthSession, Child, User
 
 
 def current_session(request: Request, db: Session = Depends(get_db)) -> AuthSession:
@@ -35,6 +35,18 @@ def current_user(
     if user.status != 'active':
         raise HTTPException(403, 'Аккаунт заблокирован')
     return user
+
+
+def current_child(
+    db: Session = Depends(get_db),
+    session: AuthSession = Depends(current_session),
+) -> Child:
+    if session.child_id is None:
+        raise HTTPException(403, 'Это действие для профиля ребёнка')
+    child = db.get(Child, session.child_id)
+    if child is None:
+        raise HTTPException(401, 'Нужно войти')
+    return child
 
 
 def require_role(*roles: str):

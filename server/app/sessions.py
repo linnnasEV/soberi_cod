@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .models import AuthSession, User
+from .models import AuthSession, Child, User
 from .security import new_session_token, token_fingerprint
 
 # Как часто продлевать сессию в базе. Писать при каждом запросе незачем —
@@ -55,6 +55,30 @@ def issue_for_user(
     token = new_session_token()
     db.add(AuthSession(
         user_id=user.id,
+        token_hash=token_fingerprint(token),
+        expires_at=now() + lifetime,
+        last_seen_at=now(),
+        ip=_ip(request),
+        user_agent=_agent(request),
+    ))
+    max_age = None if shared_computer else int(lifetime.total_seconds())
+    return token, max_age
+
+
+def issue_for_child(
+    db: Session, child: Child, request: Request | None, *, shared_computer: bool = False
+) -> tuple[str, int | None]:
+    """Заводит сессию ребёнка.
+
+    Срок всегда короткий — смена, а не месяц. За школьным компьютером через
+    урок сядет другой ребёнок, и чужой аккаунт не должен остаться открытым.
+    В отличие от взрослой, эта сессия не продлевается при работе: двенадцати
+    часов хватает на любой учебный день, а дальше пусть входит заново.
+    """
+    lifetime = timedelta(hours=settings.session_hours_child)
+    token = new_session_token()
+    db.add(AuthSession(
+        child_id=child.id,
         token_hash=token_fingerprint(token),
         expires_at=now() + lifetime,
         last_seen_at=now(),
@@ -144,3 +168,16 @@ def revoke_all_for_user(db: Session, user_id: uuid.UUID, keep: uuid.UUID | None 
         row.revoked_at = now()
         count += 1
     return count
+
+
+def revoke_all_for_child(db: Session, child_id: uuid.UUID) -> int:
+    """Выкидывает ребёнка со всех устройств: родитель сменил ему пароль."""
+    rows = db.execute(
+        select(AuthSession).where(
+            AuthSession.child_id == child_id,
+            AuthSession.revoked_at.is_(None),
+        )
+    ).scalars().all()
+    for row in rows:
+        row.revoked_at = now()
+    return len(rows)
