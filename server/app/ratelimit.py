@@ -10,6 +10,7 @@
 стоит между чужим аккаунтом и настойчивым третьеклассником.
 """
 
+import ipaddress
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, Request
@@ -34,10 +35,31 @@ def record(db: Session, scope: str, key: str, ok: bool, request: Request | None)
     db.add(LoginAttempt(scope=scope, key=key[:200], ok=ok, ip=client_ip(request)))
 
 
+def countable_ip(ip: str | None) -> bool:
+    """Годится ли адрес, чтобы считать по нему попытки.
+
+    Хостинг может держать сервер за общим шлюзом — тогда все посетители
+    приходят с одного внутреннего адреса вроде 192.168.0.1. Считать попытки по
+    такому адресу нельзя, и это не придирка: полсотни неудач одного робота
+    закрыли бы вход всем сразу, а класс из двадцати пяти детей упёрся бы в
+    предел на первой же перемене.
+
+    В такой сети защитой остаётся запирание конкретного аккаунта — оно от
+    адреса не зависит и работает как задумано.
+    """
+    if not ip:
+        return False
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    return not (addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_reserved)
+
+
 def guard_ip(db: Session, request: Request | None) -> None:
     """Не даёт одному адресу перебирать разные аккаунты подряд."""
     ip = client_ip(request)
-    if not ip:
+    if not countable_ip(ip):
         return
     failures = db.execute(
         select(func.count()).select_from(LoginAttempt).where(
