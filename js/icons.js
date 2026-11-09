@@ -230,14 +230,20 @@ function svgInner(svg) {
 }
 
 const ROLE_ART = {
+  /* Сдвиги посчитаны по настоящим границам рисунков, а не на глаз.
+     У мальчика краска занимает x 20…80, у девочки 20…85 (справа у неё
+     звёздочка в волосах) — в самих картинках по двадцать пустых единиц
+     с каждого края. Если ставить их просто через 58, девочка вылезает
+     за правый край поля и звёздочку срезает. При масштабе 0.78 пара
+     занимает x 8…112 и y 15…85, то есть стоит ровно посередине. */
   child:
     '<svg viewBox="0 0 120 100">' +
-      '<g transform="translate(-2 10) scale(0.82)">' + svgInner(ICONS.boy) + '</g>' +
-      '<g transform="translate(58 10) scale(0.82)">' + svgInner(ICONS.girl) + '</g>' +
+      '<g transform="translate(-7.4 12.6) scale(0.78)">' + svgInner(ICONS.boy) + '</g>' +
+      '<g transform="translate(45.5 12.6) scale(0.78)">' + svgInner(ICONS.girl) + '</g>' +
     '</svg>',
 
   teacher:
-    '<svg viewBox="0 0 120 100">' +
+    '<svg viewBox="0 0 120 100"><g transform="translate(0 -3)">' +
       /* волосы сзади */
       '<path d="M38 34c0-14 10-24 22-24s22 10 22 24v26c0 6-4 10-9 10H47c-5 0-9-4-9-10z" fill="#3B2A22"/>' +
       /* пиджак */
@@ -269,10 +275,10 @@ const ROLE_ART = {
       '<rect x="40" y="78" width="40" height="8" rx="2.5" fill="#FF6FA8"/>' +
       '<rect x="42" y="86" width="36" height="8" rx="2.5" fill="#FFD34E"/>' +
       '<path d="M44 70v8M46 78v8M48 86v8" stroke="#fff" stroke-width="1.6" opacity=".55"/>' +
-    '</svg>',
+    '</g></svg>',
 
   parent:
-    '<svg viewBox="0 0 120 100">' +
+    '<svg viewBox="0 0 120 100"><g transform="translate(0 -1)">' +
       /* мама слева */
       '<path d="M34 46c11 0 17 7 19 17l2 29H13l2-29c2-10 8-17 19-17z" fill="#C7B6A4"/>' +
       '<path d="M18 30c0-11 7-18 16-18s16 7 16 18v22c-2-7-5-11-7-13-3 3-6 4-9 4s-6-1-9-4c-2 2-5 6-7 13z" fill="#2F2A33"/>' +
@@ -308,5 +314,5 @@ const ROLE_ART = {
       '<circle cx="51" cy="57" r="2.8" fill="#FFADAD" opacity=".75"/>' +
       '<circle cx="69" cy="57" r="2.8" fill="#FFADAD" opacity=".75"/>' +
       '<path d="M57 58c2 1.8 4 1.8 6 0" stroke="#C97B5A" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-    '</svg>'
+    '</g></svg>'
 };
