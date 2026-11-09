@@ -7,18 +7,66 @@ const HOME_PROFS = ['robot', 'gamedev', 'animator'];
 /* Главную забрала Мастерская (js/studio.js): ребёнок открывает сайт и сразу
    собирает программу. Блоки, написанные для взрослого, переехали в «О проекте» —
    родителю и учителю нужно понять платформу, ребёнку на первом экране нужна сцена. */
+/* Два уровня сложности. Они не выдуманы для красоты страницы: каждый курс
+   в data.js уже помечен своим уровнем, и платформа показывает ребёнку
+   только подходящие. Здесь просто рассказываем об этом взрослому. */
+const ABOUT_LEVELS = [
+  { track: 'junior', age: '6–7 лет', title: 'Первый уровень',
+    note: 'Шаг, поворот, прыжок. Короткие задания на три-четыре блока — ребёнок ' +
+          'успевает увидеть результат раньше, чем устанет.' },
+  { track: 'senior', age: '8–10 лет', title: 'Второй уровень',
+    note: 'Повторы, последовательности подлиннее, свои истории. Здесь уже ' +
+          'приходится думать наперёд, а не подбирать наугад.' }
+];
+
+function aboutCourse(c) {
+  return '<div class="ab-course"><span class="ab-course-ico">' + (ICONS[c.hero] || ICONS.cat) + '</span>' +
+    '<span><b>' + esc(c.title) + '</b><small>' + LESSONS[c.id].length + ' уроков · ' + esc(c.grade) + '</small></span></div>';
+}
+
+function aboutChips(names, hotIndex) {
+  return names.map((n, i) =>
+    '<span class="ab-vis-chip' + (i === hotIndex ? ' hot' : '') + '">' + ICONS[n] + '</span>').join('');
+}
+
 route('about', () => {
-  document.getElementById('heroStageIcon').innerHTML = ICONS.cat;
-  document.getElementById('hvStar').innerHTML = ICONS.star;
-  document.getElementById('hvBlocks').innerHTML = ['right', 'right', 'up', 'jump', 'say']
-    .map(t => '<span class="hvb ' + BLOCKS[t].cls + '">' + ICONS[t] + '</span>').join('');
-  document.getElementById('homeProfs').innerHTML = HOME_PROFS.map(id => {
+  const put = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+  // Живая демонстрация: герой, цель и программа из трёх блоков.
+  // Движение задаёт CSS, скрипт только расставляет картинки.
+  put('abWalker', ICONS.cat);
+  put('abGoal', ICONS.star);
+  put('abProgram', ['right', 'right', 'right'].map(n => '<span class="ab-chip">' + ICONS[n] + '</span>').join(''));
+
+  put('abIcoLesson', ICONS.chest);
+  put('abIcoSafe', ICONS.home);
+  put('abIcoDevice', ICONS.rocket);
+  put('abIcoClear', ICONS.right);
+
+  put('abLevels', ABOUT_LEVELS.map(l =>
+    '<div class="ab-level ' + l.track + '"><span class="ab-level-age">' + l.age + '</span>' +
+    '<h3>' + l.title + '</h3><p>' + l.note + '</p>' +
+    '<div class="ab-course-list">' +
+    COURSES.filter(c => c.track === l.track).map(aboutCourse).join('') +
+    '</div></div>').join(''));
+
+  put('abStepBlocks', aboutChips(['right', 'jump', 'repeat'], -1));
+  put('abStepRun', aboutChips(['right', 'jump', 'repeat'], 1));
+  put('abStepStars', '<span class="ab-vis-star">' + ICONS.star + ICONS.star + ICONS.star + '</span>');
+
+  const lessons = COURSES.reduce((sum, c) => sum + LESSONS[c.id].length, 0);
+  put('abNumbers',
+    [[COURSES.length, 'курсов'], [lessons, 'уроков'],
+     [Object.keys(PROFESSIONS).length, 'профессий'], [AWARDS.length, 'значков']]
+    .map(([n, word]) => '<div class="ab-num"><b>' + n + '</b><span>' + word + '</span></div>').join(''));
+
+  put('homeProfs', HOME_PROFS.map(id => {
     const pr = PROFESSIONS[id];
     return '<button class="pt-card p-' + pr.color + '" onclick="go(\'profs\')">' +
       '<span class="pt-ico">' + ICONS[pr.ico] + '</span><b>' + pr.title + '</b>' +
       '<span>' + pr.fun + '</span></button>';
-  }).join('');
-  document.getElementById('ctaHero').innerHTML = ICONS.cat;
+  }).join(''));
+  put('ctaHero', ICONS.cat);
 });
 
 /* Раздел готовится: что в нём будет, решим отдельно */

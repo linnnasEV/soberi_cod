@@ -24,8 +24,7 @@ function openLogin(tab) {
       'onclick="openLogin(\'' + t.id + '\')">' + t.title + '</button>').join('') +
     '</div>' +
     (active === 'child' ? childPane() : adultPane(active)) +
-    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button></div>' +
-    '<p class="small-note"><button class="link-btn" onclick="openGuestSwitch()">За этим компьютером несколько детей →</button></p>'
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button></div>'
   );
   const form = document.getElementById('authForm');
   if (form) form.addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(active); });
@@ -38,7 +37,6 @@ function childPane() {
     '<input id="inpLogin" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="например, аня2017"></div>' +
     '<div class="form-group"><label>Пароль</label>' +
     '<input id="inpPass" type="password" autocomplete="current-password" placeholder="••••"></div>' +
-    '<label class="check"><input type="checkbox" id="inpShared"> Это общий компьютер</label>' +
     '<button class="btn btn-primary btn-wide" onclick="submitLogin(\'child\')">Войти</button>' +
     '<p class="small-note">Нет логина? Его заводит родитель в своём кабинете.</p>' +
     '</div>';
@@ -51,7 +49,6 @@ function adultPane(role) {
     '<input id="inpEmail" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="вы@почта.ру"></div>' +
     '<div class="form-group"><label>Пароль</label>' +
     '<input id="inpPass" type="password" autocomplete="current-password" placeholder="••••••••••"></div>' +
-    '<label class="check"><input type="checkbox" id="inpShared"> Это общий компьютер</label>' +
     '<button class="btn btn-primary btn-wide" onclick="submitLogin(\'' + role + '\')">Войти</button>' +
     '<p class="small-note">Нет аккаунта ' + who + '? ' +
     '<button class="link-btn" onclick="openRegister(\'' + role + '\')">Зарегистрироваться</button><br>' +
@@ -64,11 +61,6 @@ function val(id) {
   return el ? el.value.trim() : '';
 }
 
-function checked(id) {
-  const el = document.getElementById(id);
-  return !!(el && el.checked);
-}
-
 function busy(on, label) {
   document.querySelectorAll('#authForm .btn-primary, .modal .btn-primary').forEach(b => {
     b.disabled = on;
@@ -78,17 +70,16 @@ function busy(on, label) {
 }
 
 async function submitLogin(role) {
-  const shared = checked('inpShared');
   busy(true);
   try {
     if (role === 'child') {
       const data = await API.post('/auth/child/login', {
-        login: val('inpLogin'), password: val('inpPass'), shared_computer: shared
+        login: val('inpLogin'), password: val('inpPass')
       });
       await enterAsChild(data);
     } else {
       const data = await API.post('/auth/login', {
-        email: val('inpEmail'), password: val('inpPass'), shared_computer: shared
+        email: val('inpEmail'), password: val('inpPass')
       });
       enterAsAdult(data);
     }

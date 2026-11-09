@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#4A7DFF">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/style.css?v=30">
+<link rel="stylesheet" href="css/style.css?v=31">
 </head>
 <body>
 
@@ -246,47 +246,142 @@
   </section>
 </main>
 
-<!-- ========== О ПРОЕКТЕ ========== -->
+<!-- ========== О ПРОЕКТЕ ==========
+     Страница написана для взрослого: родителя, учителя, комиссии. Ребёнку
+     она не нужна — он уже на главной собирает программу. Поэтому здесь
+     можно позволить себе длинный текст, но каждый блок отвечает на один
+     вопрос взрослого, а не рассказывает всё подряд. -->
 <main class="page" id="page-about">
-  <section>
-    <div class="container narrow about">
-      <h2>О проекте</h2>
-      <p class="lead">«СобериКод» — социальный проект: бесплатная веб-платформа, на которой дети из малокомплектных начальных школ, посёлков и сёл знакомятся с основами блочного программирования.</p>
-      <p>Наша цель — через игру разбудить в ребёнке любопытство к IT, не перегружая его сложными словами, и помочь понять, интересна ли ему эта сфера.</p>
-      <div class="about-grid">
-        <div class="card"><h4>Равный доступ</h4><p>Сокращаем цифровое неравенство между городскими и сельскими школами.</p></div>
-        <div class="card"><h4>Профориентация</h4><p>После уроков ребёнок узнаёт, какие профессии похожи на то, что ему понравилось, а учитель видит его интерес.</p></div>
-        <div class="card"><h4>Отечественный продукт</h4><p>Российская разработка без зарубежных сервисов, внешних шрифтов и библиотек.</p></div>
-        <div class="card"><h4>Минимальные требования</h4><p>Чистый HTML, CSS и JavaScript. Работает на старых ПК, недорогих смартфонах и при слабом интернете.</p></div>
-        <div class="card"><h4>Простой интерфейс</h4><p>Блоки с картинками, крупные кнопки, вход по коду и картинке. Ни детям, ни учителю не нужны технические знания.</p></div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Эти блоки раньше жили на главной. Они написаны для взрослого — родителя,
-       учителя, комиссии, — поэтому переехали сюда: ребёнку на первом экране
-       нужна сцена, а не рассказ о платформе. -->
-  <section class="section-white">
-    <div class="container">
-      <div class="section-head"><h2>Как это работает</h2></div>
-      <div class="how">
-        <ol class="steps">
-          <li class="step"><div class="step-num">1</div><div><h4>Нажимаешь на блоки</h4><p>Стрелки, прыжок, звук, повтор. Читать почти не нужно, всё понятно по картинкам.</p></div></li>
-          <li class="step"><div class="step-num">2</div><div><h4>Запускаешь программу</h4><p>Герой выполняет команды по очереди. Если ошибся, видно, где именно.</p></div></li>
-          <li class="step"><div class="step-num">3</div><div><h4>Узнаёшь про профессии</h4><p>После уроков рассказываем, кто в жизни делает то же самое: тестировщик, робототехник, аниматор.</p></div></li>
-        </ol>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hv-stage">
-            <div class="hv-cells"></div>
-            <div class="hv-hero" id="heroStageIcon"></div>
-            <div class="hv-star" id="hvStar"></div>
-          </div>
-          <div class="hv-blocks" id="hvBlocks"></div>
+  <!-- 1. Что это и зачем -->
+  <section class="ab-top">
+    <div class="container ab-top-grid">
+      <div class="ab-intro">
+        <span class="ab-tag">Бесплатно · Для детей 6–10 лет</span>
+        <h2>Первые шаги в программировании — через игру</h2>
+        <p class="lead">«СобериКод» — бесплатная образовательная веб-платформа, где дети
+          в игровой форме знакомятся с основами блочного программирования и делают
+          свои первые шаги в IT.</p>
+        <p>Наша цель — разжечь в ребёнке естественное любопытство к этому направлению,
+          не перегружая его сложной терминологией, и помочь понять, интересна ли ему
+          эта сфера в будущем.</p>
+        <div class="ab-cta-row">
+          <button class="btn btn-primary btn-lg" onclick="go('home')">Попробовать прямо сейчас</button>
+          <button class="btn btn-ghost btn-lg" onclick="openLogin('parent')">Создать профиль ребёнку</button>
         </div>
       </div>
+
+      <!-- Живая демонстрация: блок загорается — герой делает шаг.
+           Собрана на CSS, без единой картинки и без скриптов: страница
+           должна открываться на школьном компьютере так же быстро, как
+           сама платформа. -->
+      <figure class="ab-demo">
+        <div class="ab-screen" aria-hidden="true">
+          <div class="ab-stage">
+            <span class="ab-goal" id="abGoal"></span>
+            <span class="ab-walker" id="abWalker"></span>
+          </div>
+          <div class="ab-program" id="abProgram"></div>
+        </div>
+        <figcaption>Ребёнок ставит блоки — герой идёт за звездой</figcaption>
+      </figure>
     </div>
   </section>
 
+  <!-- 2. Ответы на вопросы родителя -->
+  <section class="section-white">
+    <div class="container">
+      <div class="section-head"><h2>Почему родителям нравится «СобериКод»</h2></div>
+      <div class="ab-why">
+        <article class="ab-why-card">
+          <span class="ab-why-ico w-blue" id="abIcoLesson" aria-hidden="true"></span>
+          <h4>Полноценное обучение после входа</h4>
+          <p>На главной странице ребёнок может свободно творить без регистрации. Но чтобы
+            открыть настоящие уроки, пройти детский тест на профориентацию и сохранить
+            работы в личной галерее, достаточно создать бесплатный профиль.</p>
+        </article>
+        <article class="ab-why-card">
+          <span class="ab-why-ico w-green" id="abIcoSafe" aria-hidden="true"></span>
+          <h4>Безопасная и бесплатная среда</h4>
+          <p>Ноль рекламы, никаких скрытых покупок и сбора лишних данных. Полностью
+            российская разработка, которая соответствует нормам безопасности для детей.
+            Пароли хранятся только в зашифрованном виде, а данные ребёнка родитель
+            удаляет в один клик.</p>
+        </article>
+        <article class="ab-why-card">
+          <span class="ab-why-ico w-orange" id="abIcoDevice" aria-hidden="true"></span>
+          <h4>Работает на любом устройстве</h4>
+          <p>Не нужно ничего скачивать. Платформа запускается на современных ноутбуках,
+            старых школьных компьютерах и бюджетных смартфонах. Не тормозит даже
+            при слабом интернете.</p>
+        </article>
+        <article class="ab-why-card">
+          <span class="ab-why-ico w-purple" id="abIcoClear" aria-hidden="true"></span>
+          <h4>Понятно с первого клика</h4>
+          <p>Управление построено на ярких блоках и картинках, есть анимированные примеры.
+            Ребёнок разберётся сам за две минуты, а вам не придётся сидеть рядом.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Уроки по возрасту -->
+  <section>
+    <div class="container">
+      <div class="section-head"><h2>Уроки подбираются по возрасту</h2>
+        <p>Родитель указывает возраст ребёнка — платформа показывает подходящие уроки и тест</p></div>
+      <div class="ab-levels" id="abLevels"></div>
+      <p class="small-note center-row">Старшие уроки не прячутся насовсем: ребёнок видит,
+        что впереди ещё много, и возвращается к ним, когда подрастёт.</p>
+    </div>
+  </section>
+
+  <!-- 4. Как это работает для ребёнка -->
+  <section class="section-tint">
+    <div class="container">
+      <div class="section-head"><h2>Как это работает</h2><p>Три шага, и ни одного непонятного слова</p></div>
+      <ol class="ab-steps">
+        <li class="ab-step"><span class="ab-step-n">1</span>
+          <h4>Ставит блоки</h4>
+          <p>Стрелки, прыжок, звук, повтор. Читать почти не нужно — всё понятно по картинкам.
+            Блок можно перетащить, а можно просто нажать: пальцем на дешёвом планшете
+            нажать проще, чем тащить.</p>
+          <div class="ab-step-vis" id="abStepBlocks" aria-hidden="true"></div></li>
+        <li class="ab-step"><span class="ab-step-n">2</span>
+          <h4>Запускает программу</h4>
+          <p>Герой выполняет команды по очереди, и видно, на каком шаге он сейчас.
+            Ошибся — видно, где именно, и поправить можно один блок, а не собирать всё заново.</p>
+          <div class="ab-step-vis" id="abStepRun" aria-hidden="true"></div></li>
+        <li class="ab-step"><span class="ab-step-n">3</span>
+          <h4>Получает звёзды и узнаёт про профессии</h4>
+          <p>За решённый урок — до трёх звёзд и значок в профиль. А после — рассказ о том,
+            кто во взрослой жизни делает то же самое: тестировщик, робототехник, аниматор.</p>
+          <div class="ab-step-vis" id="abStepStars" aria-hidden="true"></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 5. Что внутри -->
+  <section class="section-white">
+    <div class="container">
+      <div class="section-head"><h2>Что уже внутри</h2></div>
+      <div class="ab-numbers" id="abNumbers"></div>
+      <div class="ab-extra">
+        <div class="ab-extra-card"><h4>Мастерская</h4>
+          <p>Свободная сцена без заданий: ребёнок выбирает героя и место, собирает свою
+            историю и сохраняет её в галерею. Работы остаются в профиле и открываются
+            на любом компьютере.</p></div>
+        <div class="ab-extra-card"><h4>Кабинет родителя</h4>
+          <p>Профили детей, их звёзды, пройденные уроки и отношение к ним. Видно, что
+            ребёнку заходит, а что пока не очень — и это не оценка, а подсказка.</p></div>
+        <div class="ab-extra-card"><h4>Занятия у учителя</h4>
+          <p>Учитель открывает занятие, получает короткий код и пишет его на доске.
+            Дети подключаются и попадают в его журнал — даже те, у кого нет своего профиля.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Профессии -->
   <section class="section-tint">
     <div class="container">
       <div class="section-head"><h2>Кем ребёнок может стать</h2><p>То, что он делает в уроках, — настоящая работа взрослых</p></div>
@@ -295,14 +390,17 @@
     </div>
   </section>
 
+  <!-- 7. Призыв -->
   <section>
     <div class="container">
       <div class="cta-strip">
         <span class="cta-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
         <span class="cta-hero" id="ctaHero" aria-hidden="true"></span>
         <h2>Попробовать прямо сейчас</h2>
-        <p>Первый урок — без регистрации. Просто нажмите кнопку!</p>
-        <button class="btn btn-lg btn-white" onclick="startFirst()">Открыть уроки</button>
+        <p>Мастерская открыта без регистрации. Профиль нужен, только чтобы сохранять звёзды.</p>
+        <div class="ab-cta-row center-row">
+          <button class="btn btn-lg btn-white" onclick="go('home')">Открыть Мастерскую</button>
+        </div>
       </div>
     </div>
   </section>
@@ -327,20 +425,20 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="printArea"></div>
 
-<script src="js/icons.js?v=30"></script>
-<script src="js/data.js?v=30"></script>
-<script src="js/api.js?v=30"></script>
-<script src="js/store.js?v=30"></script>
-<script src="js/engine.js?v=30"></script>
-<script src="js/ui.js?v=30"></script>
-<script src="js/editor.js?v=30"></script>
-<script src="js/lesson.js?v=30"></script>
-<script src="js/studio.js?v=30"></script>
-<script src="js/auth.js?v=30"></script>
-<script src="js/teacher.js?v=30"></script>
-<script src="js/parent.js?v=30"></script>
-<script src="js/pages.js?v=30"></script>
-<script src="js/tour.js?v=30"></script>
-<script src="js/main.js?v=30"></script>
+<script src="js/icons.js?v=31"></script>
+<script src="js/data.js?v=31"></script>
+<script src="js/api.js?v=31"></script>
+<script src="js/store.js?v=31"></script>
+<script src="js/engine.js?v=31"></script>
+<script src="js/ui.js?v=31"></script>
+<script src="js/editor.js?v=31"></script>
+<script src="js/lesson.js?v=31"></script>
+<script src="js/studio.js?v=31"></script>
+<script src="js/auth.js?v=31"></script>
+<script src="js/teacher.js?v=31"></script>
+<script src="js/parent.js?v=31"></script>
+<script src="js/pages.js?v=31"></script>
+<script src="js/tour.js?v=31"></script>
+<script src="js/main.js?v=31"></script>
 </body>
 </html>

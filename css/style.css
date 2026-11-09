@@ -916,13 +916,34 @@ body.gal-open .gal-sheet { display: block; animation: fade .2s ease; }
 .tour-skip { padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, .18); color: #fff; font-weight: 800; font-size: 14px; }
 .tour-skip:hover { background: rgba(255, 255, 255, .3); }
 
-/* Подсветка того места, о котором сейчас говорит показ примера: обведена
-   вся карточка — «ГЕРОЙ» вместе с рядом иконок. Рамка внутренняя, потому
-   что внешнюю срезает прокрутка колонки выбора; снаружи добавлен мягкий
-   ореол — там, где его есть куда рисовать. Без перехода: подсветка должна
-   зажигаться ровно тогда, когда о месте говорит голос. */
-.tour-glow { position: relative; border-radius: 16px;
-  box-shadow: inset 0 0 0 5px var(--yellow), 0 0 0 5px rgba(255, 211, 78, .5); }
+/* Подсветка того места, о котором сейчас говорит показ примера.
+
+   Рамка рисуется отдельным слоем поверх карточки, а не толстой тенью внутрь.
+   Толстая внутренняя рамка наезжала на подписи «ГЕРОЙ» и «ФОН» — они стоят
+   у самого края карточки, и пять пикселей жёлтого съедали у них верхушки
+   букв. Тонкая линия по краю плюс мягкий ореол читаются не хуже, а текст
+   остаётся целым.
+
+   Слой не ловит нажатия: ребёнок должен попадать по карточке, а не по
+   подсветке. Медленное дыхание вместо резкого мигания — подсказка, а не
+   тревога. */
+.tour-glow { position: relative; border-radius: 16px; }
+.tour-glow::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: 2px solid var(--yellow);
+  box-shadow: 0 0 0 5px rgba(255, 211, 78, .3), 0 6px 18px rgba(255, 163, 58, .28);
+  animation: tourBreath 1.8s ease-in-out infinite;
+}
+
+@keyframes tourBreath {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(255, 211, 78, .26), 0 6px 18px rgba(255, 163, 58, .22); }
+  50%      { box-shadow: 0 0 0 8px rgba(255, 211, 78, .14), 0 6px 22px rgba(255, 163, 58, .3); }
+}
+
+/* Облегчённый режим и системная настройка «поменьше движения»: дыхание
+   выключается, рамка остаётся. */
+.lite .tour-glow::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .tour-glow::after { animation: none; } }
 
 /* ----- Ghost-подсказки -----
    Привязаны к элементу, а не к координатам: едут вместе с кнопкой. */
@@ -1093,3 +1114,149 @@ small.muted.warn { color: var(--red); }
 /* Красная карточка отодвинута от соседей: случайно нажать «Удалить аккаунт»,
    метясь в кнопку выше, не должно быть легко. */
 .danger-card { margin-top: 24px; }
+
+/* ===================================================================
+   СТРАНИЦА «О ПРОЕКТЕ»
+   Единственная страница платформы, написанная для взрослого. Ребёнок
+   сюда не заходит — он на главной собирает программу. Поэтому здесь
+   уместны длинные абзацы, но каждый блок отвечает на один вопрос
+   родителя, а не рассказывает всё сразу.
+   =================================================================== */
+
+.ab-top { padding-top: 34px; }
+.ab-top-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 36px; align-items: center; }
+.ab-intro h2 { font-size: 34px; line-height: 1.15; margin: 10px 0 14px; }
+.ab-intro .lead { font-size: 18px; }
+.ab-intro p { margin-bottom: 12px; }
+.ab-tag { display: inline-block; background: #EEF3FF; color: var(--blue-dark);
+  border-radius: 999px; padding: 5px 14px; font-size: 13px; font-weight: 700; }
+.ab-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+/* ----- Живая демонстрация -----
+   Блок загорается — герой делает шаг. Всё на CSS: ни картинок, ни
+   таймеров в скриптах. Страница должна открываться на школьном
+   компьютере так же быстро, как сама платформа. */
+.ab-demo { margin: 0; }
+.ab-screen { background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
+  padding: 16px; max-width: 360px; margin: 0 auto; }
+.ab-stage { position: relative; height: 96px; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(180deg, #E8F2FF, #D7E8FF);
+  background-image: linear-gradient(180deg, #E8F2FF, #D7E8FF),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 1px, transparent 1px 62px);
+  background-blend-mode: normal; }
+.ab-walker { position: absolute; top: 50%; left: 14px; width: 52px; height: 52px;
+  margin-top: -26px; animation: abWalk 6s ease-in-out infinite; }
+.ab-goal { position: absolute; top: 50%; left: 206px; width: 34px; height: 34px;
+  margin-top: -17px; animation: abGoal 6s ease-in-out infinite; }
+.ab-walker svg, .ab-goal svg { width: 100%; height: 100%; display: block; }
+
+.ab-program { display: flex; gap: 8px; margin-top: 14px; }
+.ab-chip { width: 46px; height: 46px; border-radius: 12px; background: #EEF3FF;
+  display: grid; place-items: center; animation: abLit 6s ease-in-out infinite; }
+.ab-chip svg { width: 24px; height: 24px; }
+.ab-chip:nth-child(1) { animation-delay: 0s; }
+.ab-chip:nth-child(2) { animation-delay: 1.32s; }
+.ab-chip:nth-child(3) { animation-delay: 2.64s; }
+.ab-demo figcaption { text-align: center; color: var(--muted); font-size: 13px; margin-top: 12px; }
+
+@keyframes abWalk {
+  0%, 8%     { transform: translateX(0); }
+  16%, 30%   { transform: translateX(62px); }
+  38%, 52%   { transform: translateX(124px); }
+  60%, 88%   { transform: translateX(186px); }
+  96%, 100%  { transform: translateX(0); }
+}
+@keyframes abGoal {
+  0%, 58%   { transform: scale(1); opacity: .55; }
+  64%, 86%  { transform: scale(1.35); opacity: 1; }
+  92%, 100% { transform: scale(1); opacity: .55; }
+}
+@keyframes abLit {
+  0%, 100% { background: #EEF3FF; transform: none; }
+  3%, 11%  { background: var(--yellow); transform: translateY(-4px); }
+  16%      { background: #EEF3FF; transform: none; }
+}
+
+/* Облегчённый режим и системная настройка «поменьше движения»:
+   показываем ту же сцену, только неподвижную. */
+.lite .ab-walker, .lite .ab-goal, .lite .ab-chip { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ab-walker, .ab-goal, .ab-chip { animation: none; }
+}
+
+/* ----- Почему родителям нравится ----- */
+.ab-why { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.ab-why-card { background: var(--card); border-radius: var(--radius); padding: 22px;
+  box-shadow: var(--shadow); }
+.ab-why-card h4 { margin: 14px 0 8px; font-size: 18px; }
+.ab-why-card p { color: var(--muted); }
+.ab-why-ico { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; }
+.ab-why-ico svg { width: 28px; height: 28px; }
+.w-blue { background: #E4EDFF; color: var(--blue-dark); }
+.w-green { background: #DFF6EC; color: var(--green-dark); }
+.w-orange { background: #FFEFD9; color: #9A5B00; }
+.w-purple { background: #EFE7FF; color: #5B35C4; }
+
+/* ----- Уроки по возрасту ----- */
+.ab-levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.ab-level { border-radius: var(--radius); padding: 24px; background: var(--card);
+  box-shadow: var(--shadow); border-top: 6px solid var(--accent, var(--blue)); }
+.ab-level.junior { --accent: var(--green); }
+.ab-level.senior { --accent: var(--purple); }
+.ab-level-age { display: inline-block; border-radius: 999px; padding: 4px 12px;
+  font-size: 13px; font-weight: 700; background: #F1F4FB; color: var(--muted); }
+.ab-level h3 { margin: 10px 0 6px; }
+.ab-level > p { color: var(--muted); margin-bottom: 14px; }
+.ab-course-list { display: grid; gap: 10px; }
+.ab-course { display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 14px; background: #F7F9FF; }
+.ab-course .ab-course-ico { width: 38px; height: 38px; border-radius: 12px;
+  display: grid; place-items: center; background: #fff; flex: 0 0 auto; }
+.ab-course .ab-course-ico svg { width: 24px; height: 24px; }
+.ab-course b { display: block; }
+.ab-course small { color: var(--muted); }
+
+/* ----- Три шага ----- */
+.ab-steps { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px; counter-reset: none; }
+.ab-step { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; }
+.ab-step-n { width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff;
+  display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.ab-step h4 { margin: 14px 0 8px; font-size: 18px; }
+.ab-step p { color: var(--muted); }
+.ab-step-vis { margin-top: auto; padding-top: 16px; display: flex; align-items: center;
+  gap: 8px; flex-wrap: wrap; }
+.ab-vis-chip { width: 42px; height: 42px; border-radius: 12px; background: #EEF3FF;
+  display: grid; place-items: center; }
+.ab-vis-chip.hot { background: var(--yellow); }
+.ab-vis-chip svg { width: 22px; height: 22px; }
+.ab-vis-star svg { width: 30px; height: 30px; }
+
+/* ----- Цифры ----- */
+.ab-numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px; margin-bottom: 24px; }
+.ab-num { background: var(--card); border-radius: var(--radius); padding: 20px; text-align: center;
+  box-shadow: var(--shadow); }
+.ab-num b { display: block; font-size: 32px; line-height: 1; color: var(--blue-dark); }
+.ab-num span { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+.ab-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.ab-extra-card { border: 2px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.ab-extra-card h4 { margin-bottom: 8px; }
+.ab-extra-card p { color: var(--muted); }
+
+@media (max-width: 900px) {
+  .ab-top-grid { grid-template-columns: 1fr; gap: 26px; }
+  .ab-intro h2 { font-size: 27px; }
+}
+@media (max-width: 480px) {
+  .ab-top { padding-top: 22px; }
+  .ab-intro h2 { font-size: 23px; }
+  .ab-screen { padding: 12px; }
+  .ab-cta-row .btn { width: 100%; }
+}
+
+/* Пояснение под карточками уровней: класс center-row центрует содержимое
+   строки, но не сам текст внутри абзаца. */
+p.small-note.center-row { text-align: center; max-width: 720px; margin-left: auto; margin-right: auto; }
