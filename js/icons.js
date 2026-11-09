@@ -216,3 +216,97 @@ const DECOR = [
   { ch: 'z', name: 'Зелье',   icon: ICONS.potion },
   { ch: '.', name: 'Убрать',  icon: ICONS.eraser }
 ];
+
+/* ===== Картинки ролей для окна входа =====
+   Три героя на белом фоне: ребёнок, учитель, родитель. Нарисованы в том же
+   стиле, что и остальная графика платформы, — плоские формы, точки-глаза
+   с бликом, румянец, — чтобы окно входа не выглядело пришитым сбоку.
+
+   Ребёнок не нарисован заново: это те же мальчик и девочка, которых он
+   выбирает героями в Мастерской. Узнать себя на входе важнее новизны. */
+
+function svgInner(svg) {
+  return svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+}
+
+const ROLE_ART = {
+  child:
+    '<svg viewBox="0 0 120 100">' +
+      '<g transform="translate(-2 10) scale(0.82)">' + svgInner(ICONS.boy) + '</g>' +
+      '<g transform="translate(58 10) scale(0.82)">' + svgInner(ICONS.girl) + '</g>' +
+    '</svg>',
+
+  teacher:
+    '<svg viewBox="0 0 120 100">' +
+      /* волосы сзади */
+      '<path d="M38 34c0-14 10-24 22-24s22 10 22 24v26c0 6-4 10-9 10H47c-5 0-9-4-9-10z" fill="#3B2A22"/>' +
+      /* пиджак */
+      '<path d="M60 47c13 0 21 8 23 19l2 26H35l2-26c2-11 10-19 23-19z" fill="#3A4680"/>' +
+      /* рубашка и галстук */
+      '<path d="M52 48h16l-8 13z" fill="#fff"/>' +
+      '<path d="M58 50h4l-1 12h-2z" fill="#4A7DFF"/>' +
+      /* руки */
+      '<rect x="28" y="58" width="9" height="26" rx="4.5" fill="#3A4680"/>' +
+      '<rect x="83" y="58" width="9" height="26" rx="4.5" fill="#3A4680"/>' +
+      '<circle cx="32.5" cy="85" r="5.5" fill="#FFDFC4"/>' +
+      '<circle cx="87.5" cy="85" r="5.5" fill="#FFDFC4"/>' +
+      /* лицо */
+      '<circle cx="60" cy="31" r="17" fill="#FFDFC4"/>' +
+      '<path d="M43 30a17 17 0 0 1 34 0c-3-9-9-13-17-13s-14 4-17 13z" fill="#3B2A22"/>' +
+      '<circle cx="48" cy="38" r="3.6" fill="#FFADAD" opacity=".7"/>' +
+      '<circle cx="72" cy="38" r="3.6" fill="#FFADAD" opacity=".7"/>' +
+      '<circle cx="53" cy="32" r="2.6" fill="#1F2544"/>' +
+      '<circle cx="67" cy="32" r="2.6" fill="#1F2544"/>' +
+      '<circle cx="54" cy="31" r="1" fill="#fff"/>' +
+      '<circle cx="68" cy="31" r="1" fill="#fff"/>' +
+      /* очки поверх глаз */
+      '<circle cx="53" cy="32" r="6.4" fill="none" stroke="#1F2544" stroke-width="2.2"/>' +
+      '<circle cx="67" cy="32" r="6.4" fill="none" stroke="#1F2544" stroke-width="2.2"/>' +
+      '<path d="M59.4 32h1.2M46.6 31l-4-2M73.4 31l4-2" stroke="#1F2544" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M55 40c3 2.6 7 2.6 10 0" stroke="#C97B5A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+      /* стопка книг в руках */
+      '<rect x="38" y="70" width="44" height="8" rx="2.5" fill="#4A7DFF"/>' +
+      '<rect x="40" y="78" width="40" height="8" rx="2.5" fill="#FF6FA8"/>' +
+      '<rect x="42" y="86" width="36" height="8" rx="2.5" fill="#FFD34E"/>' +
+      '<path d="M44 70v8M46 78v8M48 86v8" stroke="#fff" stroke-width="1.6" opacity=".55"/>' +
+    '</svg>',
+
+  parent:
+    '<svg viewBox="0 0 120 100">' +
+      /* мама слева */
+      '<path d="M34 46c11 0 17 7 19 17l2 29H13l2-29c2-10 8-17 19-17z" fill="#C7B6A4"/>' +
+      '<path d="M18 30c0-11 7-18 16-18s16 7 16 18v22c-2-7-5-11-7-13-3 3-6 4-9 4s-6-1-9-4c-2 2-5 6-7 13z" fill="#2F2A33"/>' +
+      '<circle cx="34" cy="30" r="14" fill="#FFDFC4"/>' +
+      '<path d="M20 29a14 14 0 0 1 28 0c-3-7-8-10-14-10s-11 3-14 10z" fill="#2F2A33"/>' +
+      '<circle cx="29" cy="31" r="2.3" fill="#1F2544"/>' +
+      '<circle cx="39" cy="31" r="2.3" fill="#1F2544"/>' +
+      '<circle cx="29.8" cy="30.2" r=".9" fill="#fff"/>' +
+      '<circle cx="39.8" cy="30.2" r=".9" fill="#fff"/>' +
+      '<circle cx="24" cy="36" r="3.2" fill="#FFADAD" opacity=".7"/>' +
+      '<circle cx="44" cy="36" r="3.2" fill="#FFADAD" opacity=".7"/>' +
+      '<path d="M30 37c2.6 2.4 5.4 2.4 8 0" stroke="#C97B5A" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+      /* папа справа */
+      '<path d="M86 46c11 0 17 7 19 17l2 29H65l2-29c2-10 8-17 19-17z" fill="#2F4A7A"/>' +
+      '<path d="M78 47h16l-8 12z" fill="#5BC0EB"/>' +
+      '<circle cx="86" cy="30" r="14.5" fill="#FFDFC4"/>' +
+      '<path d="M71 29a15 15 0 0 1 30 0c-2-8-8-12-15-12s-13 4-15 12z" fill="#6B4A2F"/>' +
+      '<circle cx="81" cy="31" r="2.3" fill="#1F2544"/>' +
+      '<circle cx="91" cy="31" r="2.3" fill="#1F2544"/>' +
+      '<circle cx="81.8" cy="30.2" r=".9" fill="#fff"/>' +
+      '<circle cx="91.8" cy="30.2" r=".9" fill="#fff"/>' +
+      '<circle cx="76" cy="36" r="3.2" fill="#FFADAD" opacity=".65"/>' +
+      '<circle cx="96" cy="36" r="3.2" fill="#FFADAD" opacity=".65"/>' +
+      '<path d="M82 37c2.6 2.4 5.4 2.4 8 0" stroke="#C97B5A" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+      /* ребёнок впереди между ними */
+      '<path d="M60 64c9 0 14 5 15 13l1 15H44l1-15c1-8 6-13 15-13z" fill="#4FBF86"/>' +
+      '<circle cx="60" cy="52" r="12" fill="#FFDFC4"/>' +
+      '<path d="M48 51a12 12 0 0 1 24 0c-2-6-7-9-12-9s-10 3-12 9z" fill="#6B4A2F"/>' +
+      '<circle cx="56" cy="53" r="2.1" fill="#1F2544"/>' +
+      '<circle cx="64" cy="53" r="2.1" fill="#1F2544"/>' +
+      '<circle cx="56.7" cy="52.3" r=".8" fill="#fff"/>' +
+      '<circle cx="64.7" cy="52.3" r=".8" fill="#fff"/>' +
+      '<circle cx="51" cy="57" r="2.8" fill="#FFADAD" opacity=".75"/>' +
+      '<circle cx="69" cy="57" r="2.8" fill="#FFADAD" opacity=".75"/>' +
+      '<path d="M57 58c2 1.8 4 1.8 6 0" stroke="#C97B5A" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '</svg>'
+};

@@ -8,26 +8,52 @@
    Поэтому окно одно, но с тремя вкладками: каждый сразу видит свою. Открыто
    по умолчанию «Я ребёнок» — на кнопку «Войти» чаще всего нажимает он. */
 
-const AUTH_TABS = [
-  { id: 'parent', title: 'Я родитель' },
-  { id: 'child', title: 'Я ребёнок' },
-  { id: 'teacher', title: 'Я учитель' }
+/* Три роли. Ребёнок первым: на кнопку «Войти» чаще всего нажимает он,
+   а не взрослый. */
+const ROLES = [
+  { id: 'child', title: 'Я ребёнок', note: 'Вход по логину, который дал взрослый' },
+  { id: 'parent', title: 'Я родитель', note: 'Профили детей и их успехи' },
+  { id: 'teacher', title: 'Я учитель', note: 'Занятия и журнал класса' }
 ];
 
-function openLogin(tab) {
-  const active = tab || 'child';
+function roleOf(id) {
+  return ROLES.find(r => r.id === id) || ROLES[0];
+}
+
+/* Вход в два шага: сначала «кто вы», потом форма.
+
+   Вкладки в одну строку шестилетка не читает — он смотрит на картинки.
+   Три крупные карточки с героями попадают в него точнее, а взрослому
+   они ничего не усложняют: тот всё равно видит слово «родитель».
+
+   С аргументом функция открывает форму сразу: так её зовут кнопки
+   «Войти» из кабинетов, где роль уже известна. */
+function openLogin(role) {
+  if (role) return openLoginForm(role);
   openModal(
-    '<h2>Вход</h2>' +
-    '<div class="tabs" role="tablist">' +
-    AUTH_TABS.map(t =>
-      '<button class="tab' + (t.id === active ? ' sel' : '') + '" role="tab" ' +
-      'onclick="openLogin(\'' + t.id + '\')">' + t.title + '</button>').join('') +
+    '<h2>Кто вы?</h2><p class="sub">Выберите — откроется нужная форма</p>' +
+    '<div class="role-grid">' +
+    ROLES.map(r =>
+      '<button class="role-card" onclick="openLoginForm(\'' + r.id + '\')">' +
+      '<span class="role-art" aria-hidden="true">' + ROLE_ART[r.id] + '</span>' +
+      '<span class="role-text"><b>' + r.title + '</b><small>' + r.note + '</small></span>' +
+      '</button>').join('') +
     '</div>' +
-    (active === 'child' ? childPane() : adultPane(active)) +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button></div>'
+  );
+}
+
+function openLoginForm(role) {
+  const r = roleOf(role);
+  openModal(
+    '<button class="modal-back" onclick="openLogin()">← Это не я</button>' +
+    '<div class="role-head"><span class="role-art small" aria-hidden="true">' + ROLE_ART[r.id] + '</span>' +
+    '<h2>' + r.title + '</h2></div>' +
+    (r.id === 'child' ? childPane() : adultPane(r.id)) +
     '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button></div>'
   );
   const form = document.getElementById('authForm');
-  if (form) form.addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(active); });
+  if (form) form.addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(r.id); });
 }
 
 function childPane() {
