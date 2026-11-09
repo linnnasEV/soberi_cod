@@ -17,7 +17,7 @@ route('teacher', () => {
   const a = DB.account || {};
   box.innerHTML =
     '<div class="t-head card"><div><span class="lvl">Учитель</span>' +
-      '<h2>' + esc(a.name || '') + '</h2><p class="muted">' + esc(a.email || '') + '</p></div>' +
+      '<h2>' + esc(fullName(a)) + '</h2><p class="muted">' + esc(a.email || '') + '</p></div>' +
       '<div class="t-head-actions">' +
       '<button class="btn btn-ghost" onclick="logout()">Выйти</button></div></div>' +
 
@@ -28,7 +28,12 @@ route('teacher', () => {
       '<p class="muted">Этот раздел делается сейчас. Пока уроки можно проводить и без него: ' +
       'дети занимаются сами, а прогресс тех, у кого есть профиль, видят родители.</p></div>' +
 
-    teacherGuide();
+    teacherGuide() +
+
+    '<div class="card danger-card"><h3>Удалить аккаунт</h3>' +
+    '<p class="muted">Удалится аккаунт и ваши занятия. Звёзды детей останутся при них: ' +
+    'прогресс принадлежит ребёнку и его родителю, а не учителю.</p>' +
+    '<button class="btn btn-danger" onclick="askDeleteAccount()">Удалить аккаунт</button></div>';
 });
 
 function teacherGuide() {

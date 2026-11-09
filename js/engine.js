@@ -172,10 +172,26 @@ const Sound = {
   /* Звук можно выключить в подвале: в классе за двадцатью компьютерами
      двадцать «та-да» одновременно — это не радость, а шум. */
   off() { return DB.settings.sound === false; },
+
+  /* Разблокировка звука первым касанием экрана.
+     На телефонах браузер не даёт сайту зазвучать сам по себе: пока человек
+     ничего не нажал, звуковой движок спит. На iPhone он так и остаётся
+     спящим навсегда, если его не разбудить вручную, — отсюда и жалоба, что
+     «звук автоматически выключен». Будим при первом касании, одно на всю
+     страницу. */
+  unlock() {
+    try {
+      this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+    } catch (e) {}
+  },
+
   tone(freqs, dur = 0.14) {
     if (this.off()) return;
     try {
       this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      // Телефон мог усыпить движок, пока ребёнок читал задание.
+      if (this.ctx.state === 'suspended') this.ctx.resume();
       const t0 = this.ctx.currentTime;
       freqs.forEach((f, i) => {
         const o = this.ctx.createOscillator(), g = this.ctx.createGain();

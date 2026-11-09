@@ -19,9 +19,19 @@
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
-  const net = document.getElementById('netStatus');
-  const upd = () => { net.textContent = navigator.onLine ? 'Работает и без интернета' : 'Сейчас без интернета — всё работает'; };
-  window.addEventListener('online', upd);
-  window.addEventListener('offline', upd);
-  upd();
+  // Вернулась связь — отправляем то, что ребёнок прошёл без интернета.
+  window.addEventListener('online', () => { if (typeof syncPushSoon === 'function') syncPushSoon(); });
+
+  // Звук и голос на телефоне включаются только после того, как человек
+  // что-то нажал: сами по себе браузер их не пускает. Будим оба при первом
+  // касании — одного раза хватает на всё время работы.
+  const wake = () => { Sound.unlock(); Speech.unlock(); };
+  ['pointerdown', 'touchstart', 'keydown'].forEach(ev =>
+    window.addEventListener(ev, wake, { once: true, passive: true }));
+
+  // Список голосов приходит с задержкой, особенно на Android. Дождавшись
+  // его, перерисовываем ничего — просто даём Speech подхватить русский голос.
+  if (Speech.available() && typeof speechSynthesis.addEventListener === 'function') {
+    speechSynthesis.addEventListener('voiceschanged', () => {});
+  }
 })();

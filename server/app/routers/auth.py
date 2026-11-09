@@ -25,6 +25,7 @@ from ..schemas import (
     ChangePasswordIn,
     ChildLoginIn,
     ChildMeOut,
+    ConfirmIn,
     ForgotIn,
     LoginIn,
     MeOut,
@@ -62,6 +63,8 @@ def _me(user: User) -> MeOut:
         id=str(user.id),
         email=user.email,
         name=user.name,
+        surname=user.surname,
+        family_role=user.family_role,
         roles=list(user.roles or []),
         email_verified=user.email_verified_at is not None,
     )
@@ -134,6 +137,10 @@ def register(
         email=email,
         password_hash=hash_password(data.password),
         name=data.name,
+        surname=data.surname,
+        # «Мама» или «папа» — только у родителя: учитель приходит к детям
+        # в другой роли, и спрашивать его об этом незачем.
+        family_role=data.family_role if data.role == 'parent' else None,
         roles=[data.role],
     )
     # Без настроенной почты подтверждать адрес нечем, и аккаунт остался бы
@@ -403,6 +410,43 @@ def reset_password(
               actor_label=user.email, meta={'revoked': count}, request=request)
     db.commit()
     return OkOut(message='Пароль изменён. Теперь войдите с новым паролем.')
+
+
+@router.delete('/account', response_model=OkOut)
+def delete_account(
+    data: ConfirmIn,
+    request: Request,
+    response: Response,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    """Удаление своего аккаунта. Сразу и безвозвратно.
+
+    У родителя вместе с аккаунтом уходят профили детей со всеми звёздами,
+    работами и наградами — так устроены связи в базе. У учителя уходят его
+    занятия; прогресс детей с аккаунтом при этом остаётся, он принадлежит
+    им, а не ему.
+
+    Пароль спрашиваем потому, что до открытого кабинета может добраться кто
+    угодно, включая самого ребёнка, а отменить это уже нельзя. Письмо
+    отправляем следом: если аккаунт удалил не хозяин, он хотя бы узнает.
+    """
+    if not verify_password(user.password_hash, data.password):
+        raise HTTPException(403, 'Пароль указан неверно')
+
+    email, name, roles = user.email, user.name, list(user.roles or [])
+    children = len(user.children)
+
+    db.delete(user)
+    # В журнале запись переживёт удаление: внешних ключей на аккаунт у него нет.
+    audit.log(db, 'account_delete', actor_kind='user', actor_id=user.id, actor_label=email,
+              meta={'roles': roles, 'children': children}, request=request)
+    db.commit()
+
+    sessions.clear_cookie(response)
+    background.add_task(mail.send_account_deleted, email, name)
+    return OkOut(message='Аккаунт и все связанные данные удалены')
 
 
 @router.post('/verify-email', response_model=OkOut)

@@ -103,8 +103,17 @@ function openRegister(role) {
   const who = role === 'parent' ? 'родителя' : 'учителя';
   openModal('<h2>Регистрация ' + who + '</h2>' +
     '<div id="authForm">' +
-    '<div class="form-group"><label>Как вас зовут</label>' +
-    '<input id="regName" maxlength="60" placeholder="Имя и отчество"></div>' +
+    '<div class="form-group"><label>Фамилия</label>' +
+    '<input id="regSurname" maxlength="80" placeholder="Васильева"></div>' +
+    '<div class="form-group"><label>Имя</label>' +
+    '<input id="regName" maxlength="80" placeholder="Эрика"></div>' +
+    (role === 'parent'
+      ? '<div class="form-group"><label>Вы</label>' +
+        '<div class="choice" id="regFamily">' +
+        '<button type="button" class="choice-btn sel" data-v="mother" onclick="pickFamily(this)">Мама</button>' +
+        '<button type="button" class="choice-btn" data-v="father" onclick="pickFamily(this)">Папа</button>' +
+        '</div></div>'
+      : '') +
     '<div class="form-group"><label>Почта</label>' +
     '<input id="regEmail" type="email" autocapitalize="none" spellcheck="false" placeholder="вы@почта.ру"></div>' +
     '<div class="form-group"><label>Пароль (не короче 10 знаков)</label>' +
@@ -116,11 +125,22 @@ function openRegister(role) {
     'учебный прогресс ваших детей. Удалить аккаунт вместе со всеми данными можно в любой момент.</p>');
 }
 
+function pickFamily(btn) {
+  document.querySelectorAll('#regFamily .choice-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
 async function submitRegister(role) {
+  const family = document.querySelector('#regFamily .choice-btn.sel');
   busy(true);
   try {
     const data = await API.post('/auth/register', {
-      role, name: val('regName'), email: val('regEmail'), password: val('regPass')
+      role,
+      surname: val('regSurname'),
+      name: val('regName'),
+      family_role: family ? family.dataset.v : null,
+      email: val('regEmail'),
+      password: val('regPass')
     });
     enterAsAdult(data);
     toast('Аккаунт создан. Добро пожаловать!');
@@ -165,10 +185,22 @@ async function enterAsChild(data) {
   toast('Привет, ' + me().name + '! Твои звёзды теперь сохраняются.');
 }
 
+function accountFrom(data) {
+  return {
+    id: data.id,
+    email: data.email,
+    name: data.name,
+    surname: data.surname || null,
+    family: data.family_role || null,
+    roles: data.roles || [],
+    verified: data.email_verified
+  };
+}
+
 function enterAsAdult(data) {
   const roles = data.roles || [];
   DB.session = { role: roles.includes('teacher') ? 'teacher' : 'parent', gid: DB.session.gid };
-  DB.account = { id: data.id, email: data.email, name: data.name, roles, verified: data.email_verified };
+  DB.account = accountFrom(data);
   DB.cloud = null;
   saveDB();
   closeModal();
@@ -187,7 +219,7 @@ async function bootSession() {
   if (data.user) {
     const roles = data.user.roles || [];
     DB.session = { role: roles.includes('teacher') ? 'teacher' : 'parent', gid: DB.session.gid };
-    DB.account = { id: data.user.id, email: data.user.email, name: data.user.name, roles, verified: data.user.email_verified };
+    DB.account = accountFrom(data.user);
     DB.cloud = null;
   } else if (data.child) {
     DB.session = { role: 'child', gid: DB.session.gid };
@@ -204,7 +236,10 @@ async function bootSession() {
   }
   saveDB();
   renderAuthArea();
-  handleRoute();
+  // Родителю на главной делать нечего: Мастерская и уроки не для него.
+  const page = (location.hash.slice(1) || 'home').split('/')[0];
+  if (DB.session.role === 'parent' && page !== 'parent' && page !== 'about') go('parent');
+  else handleRoute();
 }
 
 async function logout() {
@@ -219,8 +254,24 @@ async function logout() {
 }
 
 /* ===== Значок в шапке ===== */
+function fullName(a) {
+  if (!a) return '';
+  return [a.surname, a.name].filter(Boolean).join(' ');
+}
+
+/* Родителю на платформе нужны две вещи: свои дети и их успехи. Уроки, тест и
+   Мастерская — не для него, поэтому в шапке у него остаётся только «О проекте».
+   Ребёнку и учителю видно всё как прежде. */
+function applyNavForRole() {
+  const parentOnly = DB.session.role === 'parent';
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.hidden = parentOnly && a.dataset.page !== 'about';
+  });
+}
+
 function renderAuthArea() {
   if (typeof updateStudioAccess === 'function') updateStudioAccess();
+  applyNavForRole();
   const area = document.getElementById('authArea');
   if (!area) return;
   const s = DB.session;
@@ -234,10 +285,10 @@ function renderAuthArea() {
   }
 
   if (s.role === 'parent' || s.role === 'teacher') {
-    const a = DB.account || { name: '' };
-    area.innerHTML = '<button class="user-badge" onclick="go(\'' + s.role + '\')">' +
-      '<span class="mini-ava">' + (s.role === 'teacher' ? '👩‍🏫' : '👪') + '</span>' +
-      '<span class="ub-name">' + esc(a.name || 'Кабинет') + '</span></button>';
+    // У взрослого картинки профиля нет: она ничего не добавляет, а в шапке
+    // рядом с детскими значками выглядит игрушечно.
+    area.innerHTML = '<button class="user-badge plain" onclick="go(\'' + s.role + '\')">' +
+      '<span class="ub-name">' + esc(fullName(DB.account) || 'Кабинет') + '</span></button>';
     return;
   }
 

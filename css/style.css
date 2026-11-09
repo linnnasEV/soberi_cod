@@ -1020,3 +1020,38 @@ small.muted.warn { color: var(--red); }
 .kid-stars { margin: 10px 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .kid-stars svg { width: 22px; height: 22px; }
 .kid-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Выбор из двух: «мама или папа», «мальчик или девочка». Кнопками, а не
+   выпадающим списком — попасть пальцем проще, и видно оба варианта сразу. */
+.choice { display: flex; gap: 8px; }
+.choice-btn { flex: 1; min-height: 46px; border: 2px solid var(--line); border-radius: 12px;
+              background: #fff; color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+.choice-btn:hover { border-color: var(--blue); background: #F4F8FF; }
+.choice-btn.sel { border-color: var(--blue); background: #DFEAFF; }
+
+.pic-grid.two { grid-template-columns: repeat(2, 1fr); max-width: 220px; }
+
+/* У взрослого в шапке только имя: картинка профиля ему ничего не добавляет. */
+.user-badge.plain .ub-name { margin: 0; }
+
+/* Удаление аккаунта стоит внизу и выглядит иначе остальных карточек:
+   на такую кнопку не должна попасть рука, искавшая «Сохранить». */
+.danger-card { border: 2px solid #F6C9C6; }
+.danger-card h3 { color: var(--red); }
+
+/* ===== Карточки кабинета на узком экране =====
+   Кнопка под абзацем прилипала к тексту: глаз читает их как одно целое и
+   не замечает, что одно — объяснение, а другое — действие. */
+.card > .btn { margin-top: 16px; }
+.card > h3 + p { margin-top: 6px; }
+/* Длинное слово вроде адреса почты не должно вылезать за край карточки
+   на узком телефоне. */
+.card p, .card h2, .card h3, .kid-card { overflow-wrap: break-word; }
+
+@media (max-width: 480px) {
+  .card { padding: 18px 16px; }
+  .kid-grid { grid-template-columns: 1fr; }
+  .t-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .t-head-actions { width: 100%; }
+  .kid-actions .btn { flex: 1 1 auto; }
+}

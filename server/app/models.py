@@ -59,6 +59,10 @@ class User(Base):
     email: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    surname: Mapped[str | None] = mapped_column(Text)
+    # Кем взрослый приходится ребёнку: mother или father. У учителя пусто —
+    # он приходит к детям в другой роли.
+    family_role: Mapped[str | None] = mapped_column(Text)
     roles: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default=text("'{}'::text[]"))
     email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'active'"))
@@ -81,6 +85,8 @@ class User(Base):
         # Адрес всегда хранится в нижнем регистре: иначе Ivan@mail.ru и ivan@mail.ru
         # станут двумя разными аккаунтами.
         CheckConstraint('email = lower(email)', name='users_email_lower'),
+        CheckConstraint("family_role is null or family_role in ('mother', 'father')",
+                        name='users_family_role_known'),
     )
 
 

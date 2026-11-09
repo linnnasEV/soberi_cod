@@ -25,9 +25,10 @@ async function loadChildren() {
   }
 
   const a = DB.account || {};
+  const status = a.family === 'father' ? 'Папа' : a.family === 'mother' ? 'Мама' : 'Родитель';
   box.innerHTML =
-    '<div class="t-head card"><div><span class="lvl">Родитель</span>' +
-      '<h2>' + esc(a.name || '') + '</h2><p class="muted">' + esc(a.email || '') + '</p></div>' +
+    '<div class="t-head card"><div><span class="lvl">' + status + '</span>' +
+      '<h2>' + esc(fullName(a)) + '</h2><p class="muted">' + esc(a.email || '') + '</p></div>' +
       '<div class="t-head-actions">' +
       '<button class="btn btn-ghost" onclick="logout()">Выйти</button></div></div>' +
 
@@ -40,7 +41,12 @@ async function loadChildren() {
 
     '<p class="small-note">У ребёнка нет почты, поэтому забытый пароль задаёте вы: ' +
     'кнопка «Сменить пароль» в его карточке. Удаление профиля убирает звёзды и работы ' +
-    'без возможности вернуть.</p>';
+    'без возможности вернуть.</p>' +
+
+    '<div class="card danger-card"><h3>Удалить аккаунт</h3>' +
+    '<p class="muted">Вместе с аккаунтом удалятся профили всех ваших детей, их звёзды, ' +
+    'работы и награды. Сразу и без возможности восстановить.</p>' +
+    '<button class="btn btn-danger" onclick="askDeleteAccount()">Удалить аккаунт</button></div>';
 }
 
 function kidCard(k) {
@@ -69,7 +75,7 @@ function openAddChild() {
     '<div class="form-group"><label>Пароль (от 4 знаков)</label>' +
     '<input id="kidPass" maxlength="100" placeholder="кошка"></div>' +
     '<div class="form-group"><label>Картинка</label>' +
-    '<div class="pic-grid" id="kidPics">' + PICS.map((p, i) =>
+    '<div class="pic-grid two" id="kidPics">' + KID_AVATARS.map((p, i) =>
       '<button type="button" class="pic-btn' + (i === 0 ? ' sel' : '') + '" onclick="pickKidPic(this)">' + p + '</button>').join('') +
     '</div></div>' +
     '<button class="btn btn-primary btn-wide" onclick="submitAddChild()">Создать профиль</button>' +
@@ -187,6 +193,42 @@ async function submitDeleteChild(id) {
     closeModal();
     toast(out.message || 'Профиль удалён');
     loadChildren();
+  } catch (e) {
+    toast(e.message, 'warn');
+  }
+}
+
+/* ===== Удаление аккаунта =====
+   Два препятствия подряд — пароль и слово руками — стоят здесь нарочно.
+   До открытого кабинета может добраться кто угодно, включая самого ребёнка,
+   а отменить это нельзя: ни корзины, ни недели на раздумья у нас нет. */
+function askDeleteAccount() {
+  openModal('<h2>Удалить аккаунт?</h2>' +
+    '<p class="sub">Удалятся профили всех ваших детей, их звёзды, работы и награды. ' +
+    'Вернуть это будет нельзя — ни вам, ни нам.</p>' +
+    '<div id="authForm">' +
+    '<div class="form-group"><label>Ваш пароль</label>' +
+    '<input id="accPass" type="password" autocomplete="current-password"></div>' +
+    '<div class="form-group"><label>Напишите слово УДАЛИТЬ</label>' +
+    '<input id="accWord" autocapitalize="characters" placeholder="УДАЛИТЬ"></div></div>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>' +
+    '<button class="btn btn-danger" onclick="submitDeleteAccount()">Удалить навсегда</button></div>');
+}
+
+async function submitDeleteAccount() {
+  if (val('accWord').toUpperCase() !== 'УДАЛИТЬ') {
+    return toast('Напишите слово УДАЛИТЬ, чтобы подтвердить', 'warn');
+  }
+  try {
+    await API.del('/auth/account', { password: val('accPass') });
+    DB.session = { role: 'guest', gid: DB.session.gid };
+    DB.account = null;
+    DB.cloud = null;
+    saveDB();
+    closeModal();
+    renderAuthArea();
+    go('home');
+    toast('Аккаунт и все данные удалены');
   } catch (e) {
     toast(e.message, 'warn');
   }

@@ -22,7 +22,18 @@ class RegisterIn(BaseModel):
     role: Literal['parent', 'teacher']
     email: EmailStr
     password: str
+    surname: str = Field(min_length=1, max_length=80)
     name: str = Field(min_length=1, max_length=80)
+    # Кем приходится ребёнку. Спрашиваем у родителя, у учителя не спрашиваем.
+    family_role: Literal['mother', 'father'] | None = None
+
+    @field_validator('surname')
+    @classmethod
+    def check_surname(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 2:
+            raise ValueError('Напишите фамилию — хотя бы 2 буквы')
+        return v
 
     @field_validator('password')
     @classmethod
@@ -95,6 +106,8 @@ class MeOut(BaseModel):
     id: str
     email: str
     name: str
+    surname: str | None = None
+    family_role: str | None = None
     roles: list[str]
     email_verified: bool
 
