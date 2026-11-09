@@ -11,9 +11,9 @@
 /* Три роли. Ребёнок первым: на кнопку «Войти» чаще всего нажимает он,
    а не взрослый. */
 const ROLES = [
-  { id: 'child', title: 'Я ребёнок', note: 'Вход по логину, который дал взрослый' },
-  { id: 'parent', title: 'Я родитель', note: 'Профили детей и их успехи' },
-  { id: 'teacher', title: 'Я учитель', note: 'Занятия и журнал класса' }
+  { id: 'child', title: 'Я ребёнок' },
+  { id: 'parent', title: 'Я родитель' },
+  { id: 'teacher', title: 'Я учитель' }
 ];
 
 function roleOf(id) {
@@ -31,12 +31,12 @@ function roleOf(id) {
 function openLogin(role) {
   if (role) return openLoginForm(role);
   openModal(
-    '<h2>Кто вы?</h2><p class="sub">Выберите — откроется нужная форма</p>' +
+    '<h2>Кто вы?</h2>' +
     '<div class="role-grid">' +
     ROLES.map(r =>
       '<button class="role-card" onclick="openLoginForm(\'' + r.id + '\')">' +
       '<span class="role-art" aria-hidden="true">' + ROLE_ART[r.id] + '</span>' +
-      '<span class="role-text"><b>' + r.title + '</b><small>' + r.note + '</small></span>' +
+      '<span class="role-text"><b>' + r.title + '</b></span>' +
       '</button>').join('') +
     '</div>' +
     '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Играть без входа</button></div>'

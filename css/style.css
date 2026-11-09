@@ -70,7 +70,11 @@ header { position: sticky; top: 0; z-index: 50; background: #fff; box-shadow: 0 
 .btn-lg { min-height: 52px; padding: 13px 26px; font-size: 17px; border-radius: 14px; }
 .btn-sm { min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 10px; }
 .link-btn { color: inherit; text-decoration: underline; padding: 0; }
-:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+/* Обводка фокуса. Нужна тем, кто ходит по сайту с клавиатуры: без неё
+   не видно, на какой кнопке ты сейчас стоишь. Была толстая жёлтая — она
+   лезла в каждый снимок экрана и выглядела поломкой. Тонкая синяя делает
+   ту же работу и не спорит с оформлением. */
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
 /* ---------- Страницы ---------- */
 .page { display: none; flex: 1; }
@@ -1272,9 +1276,7 @@ p.small-note.center-row { text-align: center; max-width: 720px; margin-left: aut
   transition: border-color .15s, transform .15s, box-shadow .15s; }
 .role-card:hover { border-color: var(--blue); transform: translateY(-3px);
   box-shadow: 0 10px 22px rgba(74, 125, 255, .18); }
-.role-text { display: flex; flex-direction: column; gap: 2px; }
 .role-card b { font-size: 16px; color: var(--text); }
-.role-card small { color: var(--muted); font-size: 12px; line-height: 1.3; }
 .role-art { display: block; width: 100%; max-width: 120px; }
 .role-art svg { width: 100%; height: auto; display: block; }
 .role-art.small { width: 54px; flex: 0 0 auto; }
