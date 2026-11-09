@@ -63,6 +63,20 @@ nginx -t
 systemctl reload nginx
 
 echo '→ проверка'
-sleep 2
-curl -fsS http://127.0.0.1:8000/api/health && echo
-echo 'Готово.'
+# Серверу нужна пара секунд на запуск, поэтому не одна попытка, а несколько.
+# Проверка написана через if не для красоты: в конструкции «curl && echo»
+# оболочка считает неудачу curl проверкой условия, а не ошибкой, и скрипт
+# бодро допечатывает «Готово.» над лежащим сервером.
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    if curl -fsS http://127.0.0.1:8000/api/health; then
+        echo
+        echo 'Готово.'
+        exit 0
+    fi
+    sleep 1
+done
+
+echo >&2
+echo 'СЕРВЕР НЕ ОТВЕЧАЕТ. Сайт разложен, но API не поднялся.' >&2
+echo 'Причина здесь: journalctl -u soberikod-api -n 40 --no-pager' >&2
+exit 1
