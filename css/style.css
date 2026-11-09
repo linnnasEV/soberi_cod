@@ -704,11 +704,25 @@ body.home-fit #page-home.active { display: flex; flex-direction: column; min-hei
 }
 
 /* ----- Строка-описание под шапкой: тонкая, она для взрослого ----- */
+/* ===== Строка под шапкой =====
+   Слева призыв ребёнку, справа факты для взрослого. Раньше они шли подряд
+   одной строкой через точки, и ребёнок упирался в «Без регистрации» —
+   слова, которые ему ничего не говорят. */
 .topline { background: #fff; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); flex: 0 0 auto; }
-.topline .container { min-height: 42px; display: flex; align-items: center; justify-content: center;
-  flex-wrap: wrap; gap: 6px; padding-top: 5px; padding-bottom: 5px; text-align: center; }
-.topline b { color: var(--text); font-weight: 800; }
-.topline span { color: #B9C0D6; }
+.topline .container { min-height: 46px; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding-top: 6px; padding-bottom: 6px; }
+.topline .tl-call { color: var(--blue-dark); font-weight: 800; font-size: 16px; line-height: 1.25; }
+.tl-facts { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.topline .tl-badge { background: #F1F4FB; color: var(--muted); border-radius: 999px;
+  padding: 4px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+
+/* На телефоне факты для взрослых прячем: место на узком экране дорогое, а
+   открывает сайт там чаще всего ребёнок. Призыв остаётся одной строкой. */
+@media (max-width: 768px) {
+  .topline .container { justify-content: center; }
+  .tl-facts { display: none; }
+  .topline .tl-call { font-size: 14px; white-space: nowrap; }
+}
 
 /* ----- Три колонки: что выбрать · куда поставить · чем программировать ----- */
 .studio { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 18px; }
